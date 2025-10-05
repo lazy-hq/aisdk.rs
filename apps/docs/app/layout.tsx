@@ -5,10 +5,16 @@ import SearchDialog from "@/components/search";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
 import { baseOptions } from "@/lib/layout.shared";
 import { Navbar } from "@/components/navbar";
+import { Metadata } from "next";
 
 const inter = Inter({
 	subsets: ["latin"],
 });
+
+export const metadata: Metadata = {
+	title: "AI SDK | Open Source AI SDK for Rust",
+	description: "Rust library for AI apps, inspired by the Vercel AI SDK.",
+};
 
 export default function Layout({ children }: LayoutProps<"/">) {
 	return (

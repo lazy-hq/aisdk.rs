@@ -1,4 +1,4 @@
-import type { BaseLayoutProps, NavOptions } from "fumadocs-ui/layouts/shared";
+import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 
 /**
  * Shared layout configurations
@@ -8,6 +8,7 @@ import type { BaseLayoutProps, NavOptions } from "fumadocs-ui/layouts/shared";
  * Docs Layout: app/docs/layout.tsx
  */
 
+export const TITLE = "AI-SDK.rs";
 export function baseOptions(): BaseLayoutProps {
 	return {
 		githubUrl: "https://github.com/lazy-hq/aisdk",

@@ -1,11 +1,12 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import { Menu, Star, X } from "lucide-react";
+import { Menu, Sparkles, Star, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "fumadocs-ui/utils/cn";
+import { TITLE } from "@/lib/layout.shared";
 
 interface NavbarProps {
 	starCout: string | null;
@@ -20,13 +21,11 @@ export function Navbar({ starCout }: NavbarProps) {
 				<div className="flex items-center md:w-[272px] lg:w-[290px]">
 					<Link
 						href="/"
-						className="flex items-center gap-2 font-semibold p-0 pl-4 m-0"
+						className="flex items-center justify-center gap-2 font-semibold p-0 pl-6 m-0"
 					>
-						<div className="flex h-7 w-7 items-center rounded-md bg-foreground text-background sm:h-8 sm:w-8">
-							<span className="text-xs font-bold sm:text-sm"></span>
-						</div>
+						<Sparkles className="w-6 h-6 stroke-current stroke-[1.5] rotate-3" />
 						<span className="hidden text-base sm:inline-block sm:text-lg">
-							AI-SDK.rs
+							{TITLE}
 						</span>
 					</Link>
 
