@@ -14,6 +14,9 @@ export function baseOptions(): BaseLayoutProps {
 		nav: {
 			title: (
 				<>
+					{/*
+						*TODO: change the logo
+						*/}
 					<svg
 						width="24"
 						height="24"
