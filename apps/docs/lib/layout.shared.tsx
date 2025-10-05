@@ -1,4 +1,4 @@
-import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
+import type { BaseLayoutProps, NavOptions } from "fumadocs-ui/layouts/shared";
 
 /**
  * Shared layout configurations
@@ -8,27 +8,14 @@ import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
  * Docs Layout: app/docs/layout.tsx
  */
 
-export const TITLE = "AI-SDK.rs";
 export function baseOptions(): BaseLayoutProps {
 	return {
+		githubUrl: "https://github.com/lazy-hq/aisdk",
+		searchToggle: {
+			enabled: false,
+		},
 		nav: {
-			title: (
-				<>
-					{/*
-						*TODO: change the logo
-						*/}
-					<svg
-						width="24"
-						height="24"
-						xmlns="http://www.w3.org/2000/svg"
-						aria-label="Logo"
-						role="img"
-					>
-						<circle cx={12} cy={12} r={12} fill="currentColor" />
-					</svg>
-					{TITLE}
-				</>
-			),
+			enabled: false,
 		},
 		// see https://fumadocs.dev/docs/ui/navigation/links
 		links: [],
