@@ -1,9 +1,15 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import { Menu, Sparkles, Star, X } from "lucide-react";
+import { Menu, Shell, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "fumadocs-ui/utils/cn";
 import { TITLE } from "@/lib/layout.shared";
@@ -11,6 +17,12 @@ import { TITLE } from "@/lib/layout.shared";
 interface NavbarProps {
 	starCout: string | null;
 }
+
+const navItems: { href: string; label: string }[] = [
+	{ href: "/docs", label: "Docs" },
+	{ href: "/guides", label: "Guides" },
+	{ href: "/examples", label: "Examples" },
+];
 
 export function Navbar({ starCout }: NavbarProps) {
 	const [isOpen, setIsOpen] = React.useState(false);
@@ -23,7 +35,7 @@ export function Navbar({ starCout }: NavbarProps) {
 						href="/"
 						className="flex items-center justify-center gap-2 font-semibold p-0 pl-6 m-0"
 					>
-						<Sparkles className="w-6 h-6 stroke-current stroke-[1.5] rotate-3" />
+						<Shell className="w-6 h-6 stroke-current stroke-[1.5] rotate-3" />
 						<span className="hidden text-base sm:inline-block sm:text-lg">
 							{TITLE}
 						</span>
@@ -33,27 +45,17 @@ export function Navbar({ starCout }: NavbarProps) {
 				</div>
 
 				<div className="hidden items-center gap-4 sm:flex lg:gap-6">
-					<Link
-						href="/docs"
-						className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-					>
-						Docs
-					</Link>
-					<NavbarDivider />
-					<Link
-						href="/guides"
-						className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-					>
-						Guides
-					</Link>
-					<NavbarDivider />
-					<Link
-						href="/examples"
-						className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-					>
-						Examples
-					</Link>
-					<NavbarDivider />
+					{navItems.map((item) => (
+						<React.Fragment key={item.href}>
+							<Link
+								href={item.href}
+								className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+							>
+								{item.label}
+							</Link>
+							<NavbarDivider />
+						</React.Fragment>
+					))}
 
 					<Button variant="ghost" className="gap-2 p-4" asChild>
 						<Link
@@ -61,7 +63,7 @@ export function Navbar({ starCout }: NavbarProps) {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<div className="flex items-center ml-2">
+							<div className="flex items-center">
 								<GithubIcon className="w-4 h-4 fill-current" />
 								{/*
 								 *<span className="ml-2 text-black dark:text-white">
@@ -95,7 +97,7 @@ export function Navbar({ starCout }: NavbarProps) {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<GithubIcon className="h-4 w-4" />
+							<GithubIcon className="h-4 w-4 fill-current" />
 							<span className="sr-only">GitHub</span>
 						</Link>
 					</Button>
@@ -114,48 +116,28 @@ export function Navbar({ starCout }: NavbarProps) {
 							</Button>
 						</SheetTrigger>
 						<SheetContent side="right" className="w-[280px] sm:w-[320px]">
-							<div className="flex flex-col gap-6 pt-6">
-								<div className="flex items-center justify-between">
-									<span className="text-lg font-semibold">Menu</span>
-									<Button
-										variant="ghost"
-										size="icon"
-										className="h-8 w-8"
-										onClick={() => setIsOpen(false)}
-									>
-										<X className="h-5 w-5" />
-										<span className="sr-only">Close menu</span>
-									</Button>
-								</div>
-								<nav className="flex flex-col gap-4">
+							<SheetHeader className="border-b border-border">
+								<SheetTitle className="text-lg font-bold uppercase tracking-wide">
+									Menu
+								</SheetTitle>
+							</SheetHeader>
+							<div className="flex flex-col">
+								{navItems.map((item) => (
 									<Link
-										href="/docs"
-										className="text-base font-medium transition-colors hover:text-foreground"
+										key={item.href}
+										href={item.href}
+										className="text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground px-4 py-3 rounded-md"
 										onClick={() => setIsOpen(false)}
 									>
-										Docs
+										{item.label}
 									</Link>
-									<Link
-										href="/guides"
-										className="text-base font-medium transition-colors hover:text-foreground"
-										onClick={() => setIsOpen(false)}
-									>
-										Guides
-									</Link>
-									<Link
-										href="/examples"
-										className="text-base font-medium transition-colors hover:text-foreground"
-										onClick={() => setIsOpen(false)}
-									>
-										Examples
-									</Link>
-									{starCout !== null && (
-										<div className="flex items-center gap-2 pt-2 text-sm text-muted-foreground">
-											<Star className="h-4 w-4 fill-current" />
-											<span>{starCout}</span>
-										</div>
-									)}
-								</nav>
+								))}
+								{starCout !== null && (
+									<div className="flex items-center gap-2 px-4 pt-4 mt-4 border-t border-border text-sm text-muted-foreground">
+										<Star className="h-4 w-4 fill-current" />
+										<span>{starCout}</span>
+									</div>
+								)}
 							</div>
 						</SheetContent>
 					</Sheet>
