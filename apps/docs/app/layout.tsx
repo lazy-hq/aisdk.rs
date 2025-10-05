@@ -1,11 +1,11 @@
 import "@/app/global.css";
-import { RootProvider } from "fumadocs-ui/provider/next";
-import { Inter } from "next/font/google";
-import SearchDialog from "@/components/search";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
-import { baseOptions } from "@/lib/layout.shared";
+import { RootProvider } from "fumadocs-ui/provider/next";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { Navbar } from "@/components/navbar";
-import { Metadata } from "next";
+import SearchDialog from "@/components/search";
+import { baseOptions } from "@/lib/layout.shared";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -34,7 +34,7 @@ export default function Layout({ children }: LayoutProps<"/">) {
 }
 
 async function ServerNavbar() {
-	async function getGitHubStars() {
+	async function _getGitHubStars() {
 		try {
 			const response = await fetch(
 				"https://api.github.com/repos/lazy-hq/aisdk",
@@ -48,7 +48,7 @@ async function ServerNavbar() {
 				return null;
 			}
 			const json = await response.json();
-			const stars = parseInt(json.stargazers_count).toLocaleString();
+			const stars = parseInt(json.stargazers_count, 10).toLocaleString();
 			return stars;
 		} catch {
 			return null;
