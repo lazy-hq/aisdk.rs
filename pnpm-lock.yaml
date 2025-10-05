@@ -20,6 +20,9 @@ importers:
 
   apps/docs:
     dependencies:
+      '@orama/orama':
+        specifier: ^3.1.14
+        version: 3.1.14
       fumadocs-core:
         specifier: 15.8.3
         version: 15.8.3(@types/react@19.2.0)(lucide-react@0.544.0(react@19.2.0))(next@15.5.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
