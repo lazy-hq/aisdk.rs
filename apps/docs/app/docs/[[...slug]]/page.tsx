@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPageImage, source } from "@/lib/source";
 import { getMDXComponents } from "@/mdx-components";
+import { LLMCopyButton, ViewOptions } from "@/components/page-actions";
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
 	const params = await props.params;
@@ -20,6 +21,13 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
 	return (
 		<DocsPage toc={page.data.toc} full={page.data.full}>
 			<DocsTitle className="mt-[-5rem]">{page.data.title}</DocsTitle>
+			<div className="flex flex-row gap-2 items-center border-b pt-2 pb-6">
+				<LLMCopyButton markdownUrl={`${page.url}.mdx`} />
+				<ViewOptions
+					markdownUrl={`${page.url}.mdx`}
+					githubUrl={`https://github.com/lazy-hq/aisdk/blob/dev/apps/docs/content/docs/${page.path}`}
+				/>
+			</div>
 			<DocsDescription>{page.data.description}</DocsDescription>
 			<DocsBody>
 				<MDX
