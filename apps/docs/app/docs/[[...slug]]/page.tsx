@@ -1,8 +1,5 @@
 import { createRelativeLink } from "fumadocs-ui/mdx";
-import {
-	DocsBody,
-	DocsPage,
-} from "fumadocs-ui/page";
+import { DocsBody, DocsPage } from "fumadocs-ui/page";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPageImage, source } from "@/lib/source";
@@ -33,9 +30,11 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
 						githubUrl={`https://github.com/lazy-hq/aisdk/blob/dev/apps/docs/content/docs/${page.path}`}
 					/>
 				</div>
-				<p className="text-lg text-fd-muted-foreground mb-2 border-b pb-6">
-					{page.data.description}
-				</p>
+				{page.data.description && (
+					<p className="text-lg text-fd-muted-foreground mb-2 border-b pb-6">
+						{page.data.description}
+					</p>
+				)}
 				<DocsBody>
 					<MDX
 						components={getMDXComponents({
