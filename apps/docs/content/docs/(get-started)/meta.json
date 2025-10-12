@@ -2,7 +2,8 @@
 	"title": "Getting Started",
 	"icon": "FastForward",
 	"pages": [
-		"index"
+		"index",
+		"installation"
 	],
 	"defaultOpen": true
 }

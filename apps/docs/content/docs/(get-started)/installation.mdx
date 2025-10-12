@@ -1,0 +1,39 @@
+---
+title: Installation
+---
+
+### Quick Start
+To add the AISDK, you can use the following command:
+
+```bash
+cargo add aisdk
+```
+
+### Manual Installation
+
+To add aisdk manually, you can add it to your `Cargo.toml` file:
+
+```toml
+[dependencies]
+aisdk = "0.1.0"
+```
+
+This will add aisdk to your project's dependencies.
+
+## Feature Flags
+
+`aisdk` includes several features that extend its functionality
+
+* **[Providers](/docs#model-providers)**  interact with different AI model providers.
+
+  ```bash
+  cargo add aisdk --features <provider-name> # e.g. openai
+  ```
+
+* **[Prompt](/docs/concepts/prompt)** use the built-in prompt templating system.
+
+  ```bash
+  cargo add aisdk --features prompt
+  ```
+
+You can find more information about the available features in the  <Link href="https://docs.rs/crate/aisdk/latest/features" target="_blank" rel="noopener noreferrer">API documentations</Link>.
