@@ -1,0 +1,103 @@
+---
+title: OpenAI
+---
+
+AISDK supports OpenAI as a provider. You can use it to generate text, images, and other data.
+
+### Quick Installation
+
+To add the OpenAI provider, you can use the following command:
+
+```bash
+cargo add aisdk --features openai
+```
+
+### Manual Installation
+
+To add the OpenAI provider manually, you can enable the `openai` feature in your `Cargo.toml` file:
+
+```toml
+[dependencies]
+aisdk = { version = "0.1.0", features = ["openai"] }
+```
+
+This will install the OpenAI provider and its dependencies.
+
+### Usage
+
+Once you have installed the OpenAI provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+#### Example Generating Text
+
+```rust
+use aisdk::{
+    core::{LanguageModelRequest},
+    providers::openai::OpenAI,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    // with default openai provider settings
+    let openai = OpenAI::new("gpt-5");
+
+    let result = LanguageModelRequest::builder()
+        .model(openai)
+        .prompt("hello world")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("{}", result.text.unwrap());
+    Ok(())
+}
+```
+
+This will generate a response from the OpenAI provider.
+
+## Provider Settings
+
+You can customize the provider settings by passing them as arguments to the `OpenAI::builder()` method.
+
+#### API Key
+
+To set the API key, you can use the `api_key` method:
+
+```rust
+let openai = OpenAI::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+#### Base URL
+
+To set the base URL, you can use the `base_url` method:
+
+```rust
+let openai = OpenAI::builder()
+    .base_url("https://api.openai.com/v1")
+    .build()?;
+```
+
+#### Provider Name
+
+To set the provider name, you can use the `provider_name` method:
+This is used for observability and logging purposes.
+
+```rust
+let openai = OpenAI::builder()
+    .provider_name("OpenAI")
+    .build()?;
+```
+
+#### Model Name
+
+To set the model name, you can use the `model_name` method:
+
+```rust
+let openai = OpenAI::builder()
+    .model_name("gpt-4o")
+    .build()?;
+```
+
+
