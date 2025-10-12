@@ -3,7 +3,8 @@
 	"icon": "FastForward",
 	"pages": [
 		"index",
-		"installation"
+		"installation",
+		"basic-usage"
 	],
 	"defaultOpen": true
 }
