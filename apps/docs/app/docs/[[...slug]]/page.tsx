@@ -1,9 +1,7 @@
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import {
 	DocsBody,
-	DocsDescription,
 	DocsPage,
-	DocsTitle,
 } from "fumadocs-ui/page";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -19,25 +17,35 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
 	const MDX = page.data.body;
 
 	return (
-		<DocsPage toc={page.data.toc} full={page.data.full}>
-			<DocsTitle className="mt-[-5rem]">{page.data.title}</DocsTitle>
-			<div className="flex flex-row gap-2 items-center border-b pt-2 pb-6">
-				<LLMCopyButton markdownUrl={`${page.url}.mdx`} />
-				<ViewOptions
-					markdownUrl={`${page.url}.mdx`}
-					githubUrl={`https://github.com/lazy-hq/aisdk/blob/dev/apps/docs/content/docs/${page.path}`}
-				/>
-			</div>
-			<DocsDescription>{page.data.description}</DocsDescription>
-			<DocsBody>
-				<MDX
-					components={getMDXComponents({
-						// this allows you to link to other pages with relative file paths
-						a: createRelativeLink(source, page),
-					})}
-				/>
-			</DocsBody>
-		</DocsPage>
+		<div className="mt-[-80px]">
+			<DocsPage
+				toc={page.data.toc}
+				full={page.data.full}
+				tableOfContent={{
+					style: "clerk",
+				}}
+			>
+				<h1 className="text-[1.75em] font-semibold">{page.data.title}</h1>
+				<div className="flex flex-row gap-2 items-center pb-3">
+					<LLMCopyButton markdownUrl={`${page.url}.mdx`} />
+					<ViewOptions
+						markdownUrl={`${page.url}.mdx`}
+						githubUrl={`https://github.com/lazy-hq/aisdk/blob/dev/apps/docs/content/docs/${page.path}`}
+					/>
+				</div>
+				<p className="text-lg text-fd-muted-foreground mb-2 border-b pb-6">
+					{page.data.description}
+				</p>
+				<DocsBody>
+					<MDX
+						components={getMDXComponents({
+							// this allows you to link to other pages with relative file paths
+							a: createRelativeLink(source, page),
+						})}
+					/>
+				</DocsBody>
+			</DocsPage>
+		</div>
 	);
 }
 

@@ -11,9 +11,8 @@ import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 export const TITLE = "AI-SDK.rs";
 export function baseOptions(): BaseLayoutProps {
 	return {
-		githubUrl: "https://github.com/lazy-hq/aisdk",
 		searchToggle: {
-			enabled: false,
+			enabled: true,
 		},
 		nav: {
 			enabled: false,
