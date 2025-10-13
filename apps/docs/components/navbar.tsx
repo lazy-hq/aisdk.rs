@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "fumadocs-ui/utils/cn";
-import { Menu, Shell, Star } from "lucide-react";
+import { Brain, Menu, Star } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -35,7 +35,7 @@ export function Navbar({ starCout }: NavbarProps) {
 						href="/"
 						className="flex items-center justify-center gap-2 font-semibold p-0 pl-6 m-0"
 					>
-						<Shell className="w-6 h-6 stroke-current stroke-[1.5] rotate-3" />
+						<Brain className="w-6 h-6 stroke-current stroke-[1.5] rotate-3" />
 						<span className="hidden text-base sm:inline-block sm:text-lg">
 							{TITLE}
 						</span>
