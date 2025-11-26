@@ -8,7 +8,7 @@ import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
  * Docs Layout: app/docs/layout.tsx
  */
 
-export const TITLE = "AI-SDK.rs";
+export const TITLE = "AISDK.rs";
 export function baseOptions(): BaseLayoutProps {
 	return {
 		searchToggle: {
