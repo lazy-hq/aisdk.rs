@@ -1,7 +1,15 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Copy, Play, SquareArrowOutUpRight } from "lucide-react";
+import { Copy, SquareArrowOutUpRight } from "lucide-react";
+import {
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+} from "fumadocs-ui/components/tabs";
+import { Anthropic, Google, OpenAI } from "@lobehub/icons";
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 
 export function Hero() {
 	return (
@@ -81,95 +89,90 @@ export function Hero() {
 					</div>
 				</div>
 
-
 				{/* Right Column - Code Window */}
 				<div className="relative w-full">
-					<div className="rounded-xl border border-white/10 bg-black/50 backdrop-blur-sm overflow-hidden shadow-2xl">
-						{/* Window Header */}
-						<div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
-							<div className="flex items-center gap-2">
-								<div className="flex gap-1.5">
-									<div className="w-3 h-3 rounded-full bg-white/10" />
-									<div className="w-3 h-3 rounded-full bg-white/10" />
-									<div className="w-3 h-3 rounded-full bg-white/10" />{" "}
-								</div>
-								<div className="ml-4 flex gap-4 text-xs font-mono">
-									<span className="px-2 py-1 rounded bg-white/10 text-white">
-										main.rs
-									</span>
-									<span className="px-2 py-1 rounded text-gray-500">
-										Cargo.toml
-									</span>
-								</div>
-							</div>
-							<Copy className="w-4 h-4 text-gray-500" />
-						</div>
-						{/* Code Content */}
-						<div className="p-6 overflow-x-auto">
-							<pre className="font-mono text-sm leading-relaxed">
-								<code>
-									<span className="text-purple-400">use</span> aisdk::{`{`}
-									{"\n"}
-									{"    "}core::{`{`}LanguageModelRequest{`}`},{"\n"}
-									{"    "}providers::openai::OpenAI,{"\n"}
-									{`}`};{"\n"}
-									{"\n"}
-									<span className="text-purple-400">async fn</span>{" "}
-									<span className="text-blue-400">main</span>() -&gt;{" "}
-									<span className="text-yellow-400">Result</span>&lt;(),
-									Box&lt;dyn std::error::Error&gt;&gt; {`{`}
-									{"\n"}
-									{"\n"}
-									{"    "}
-									<span className="text-gray-500">// Initialize provider</span>
-									{"\n"}
-									{"    "}
-									<span className="text-purple-400">let</span> openai = OpenAI::
-									<span className="text-blue-400">new</span>(
-									<span className="text-green-400">&quot;gpt-4o&quot;</span>);
-									{"\n"}
-									{"\n"}
-									{"    "}
-									<span className="text-gray-500">// Create request</span>
-									{"\n"}
-									{"    "}
-									<span className="text-purple-400">let</span> result =
-									LanguageModelRequest::
-									<span className="text-blue-400">builder</span>(){"\n"}
-									{"        "}.<span className="text-blue-400">model</span>
-									(openai){"\n"}
-									{"        "}.<span className="text-blue-400">prompt</span>(
-									<span className="text-green-400">
-										&quot;What is the meaning of life?&quot;
-									</span>
-									){"\n"}
-									{"        "}.<span className="text-blue-400">build</span>()
-									{"\n"}
-									{"        "}.
-									<span className="text-blue-400">generate_text</span>(){"\n"}
-									{"        "}.<span className="text-purple-400">await</span>?;
-									{"\n"}
-									{"\n"}
-									{"    "}println!(
-									<span className="text-green-400">&quot;{`{}`}&quot;</span>,
-									result.<span className="text-blue-400">text</span>().
-									<span className="text-blue-400">unwrap</span>());{"\n"}
-									{"    "}
-									<span className="text-purple-400">Ok</span>(()){"\n"}
-									{`}`}
-								</code>
-							</pre>
-						</div>
-						{/* Footer/Status Bar */}
-						<div className="px-4 py-2 border-t border-white/10 bg-white/5 flex justify-end">
-							<div className="flex items-center gap-2 text-xs text-white bg-white/10 px-3 py-1.5 rounded cursor-pointer hover:bg-white/20 transition-colors">
-								<Play className="w-3 h-3 fill-current" />
-								<span>Run</span>
-							</div>
-						</div>
-					</div>
+					<ProvidersExampleCodeTabs />
 				</div>
 			</div>
 		</div>
 	);
 }
+
+const ProvidersExampleCodeTabs = () => {
+	const openAICode = `
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::openai::OpenAI,
+};
+
+let text = LanguageModelRequest::builder()
+	.model(OpenAI::new("gpt-5"))
+	.prompt("What is the meaning of life?")
+	.build()
+	.generate_text()
+	.await?
+	.text()?;
+}
+`;
+
+	const anthropicCode = `
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::anthropic::Anthropic,
+};
+
+let text = LanguageModelRequest::builder()
+	.model(Anthropic::new("claude-4.5-haiku"))
+	.prompt("What is the meaning of life?")
+	.build()
+	.generate_text()
+	.await?
+	.text()?;
+}
+`;
+
+	const googleCode = `
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::google::Google,
+};
+
+let text = LanguageModelRequest::builder()
+	.model(Google::new("gemini-2.5-pro"))
+	.prompt("What is the meaning of life?")
+	.build()
+	.generate_text()
+	.await?
+	.text()?;
+}
+`;
+
+	return (
+		<Tabs defaultValue="openai">
+			<TabsList>
+				<TabsTrigger value="openai">
+					<OpenAI />
+					OpenAI
+				</TabsTrigger>
+				<TabsTrigger value="anthropic">
+					<Anthropic />
+					Anthropic
+				</TabsTrigger>
+				<TabsTrigger value="google">
+					<Google.Color />
+					Google
+				</TabsTrigger>
+			</TabsList>
+			<TabsContent value="openai">
+				<DynamicCodeBlock lang="rust" code={openAICode} />
+			</TabsContent>
+			<TabsContent value="anthropic">
+				<DynamicCodeBlock lang="rust" code={anthropicCode} />
+			</TabsContent>
+
+			<TabsContent value="google">
+				<DynamicCodeBlock lang="rust" code={googleCode} />
+			</TabsContent>
+		</Tabs>
+	);
+};
