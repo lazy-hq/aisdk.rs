@@ -2,6 +2,7 @@
 import { cn } from "fumadocs-ui/utils/cn";
 import { Brain, Menu, Star } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import * as React from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ const navItems: { href: string; label: string }[] = [
 
 export function Navbar({ starCout }: NavbarProps) {
 	const [isOpen, setIsOpen] = React.useState(false);
+	const pathname = usePathname();
 	return (
 		<header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 			<nav className="container max-w-none flex h-14 items-center justify-between pl-0 pr-4 sm:h-16 sm:pl-0 sm:pr-6 lg:pr-8">
@@ -49,7 +51,12 @@ export function Navbar({ starCout }: NavbarProps) {
 						<React.Fragment key={item.href}>
 							<Link
 								href={item.href}
-								className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+								className={cn(
+									"text-sm font-medium transition-colors hover:text-foreground",
+									pathname.startsWith(item.href)
+										? "text-foreground"
+										: "text-muted-foreground",
+								)}
 							>
 								{item.label}
 							</Link>
@@ -126,7 +133,11 @@ export function Navbar({ starCout }: NavbarProps) {
 									<Link
 										key={item.href}
 										href={item.href}
-										className="text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground px-4 py-3 rounded-md"
+										className={cn(
+											"text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground px-4 py-3 rounded-md",
+											pathname.startsWith(item.href) &&
+											"bg-accent text-accent-foreground",
+										)}
 										onClick={() => setIsOpen(false)}
 									>
 										{item.label}
@@ -149,11 +160,22 @@ export function Navbar({ starCout }: NavbarProps) {
 
 interface NavbarDividerProps {
 	className?: string;
+	enabled?: boolean;
 }
 
-export function NavbarDivider({ className }: NavbarDividerProps) {
+export function NavbarDivider({
+	className,
+	enabled = true,
+}: NavbarDividerProps) {
 	return (
-		<div className={cn("h-6 w-px bg-border", className)} aria-hidden="true" />
+		<>
+			{enabled && (
+				<div
+					className={cn("h-6 w-px bg-border", className)}
+					aria-hidden="true"
+				/>
+			)}
+		</>
 	);
 }
 
