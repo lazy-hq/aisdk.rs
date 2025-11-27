@@ -136,7 +136,7 @@ export function Navbar({ starCout }: NavbarProps) {
 										className={cn(
 											"text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground px-4 py-3 rounded-md",
 											pathname.startsWith(item.href) &&
-											"bg-accent text-accent-foreground",
+												"bg-accent text-accent-foreground",
 										)}
 										onClick={() => setIsOpen(false)}
 									>

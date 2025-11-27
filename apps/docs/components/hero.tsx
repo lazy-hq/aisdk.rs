@@ -1,17 +1,17 @@
 "use client";
-import Link from "next/link";
-import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
-import { Copy, SquareArrowOutUpRight } from "lucide-react";
+import { Anthropic, Google, OpenAI } from "@lobehub/icons";
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import {
 	Tabs,
 	TabsContent,
 	TabsList,
 	TabsTrigger,
 } from "fumadocs-ui/components/tabs";
+import { Copy, SquareArrowOutUpRight } from "lucide-react";
+import Link from "next/link";
+import { useTheme } from "next-themes";
 import { useServerTheme } from "@/components/theme-provider";
-import { Anthropic, Google, OpenAI } from "@lobehub/icons";
-import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
+import { Button } from "@/components/ui/button";
 
 export function Hero() {
 	const { resolvedTheme } = useTheme();

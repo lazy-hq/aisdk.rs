@@ -3,11 +3,11 @@ import { HomeLayout } from "fumadocs-ui/layouts/home";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { cookies } from "next/headers";
 import { Navbar } from "@/components/navbar";
 import SearchDialog from "@/components/search";
-import { baseOptions } from "@/lib/layout.shared";
 import { ThemeProvider } from "@/components/theme-provider";
-import { cookies } from "next/headers";
+import { baseOptions } from "@/lib/layout.shared";
 
 const inter = Inter({
 	subsets: ["latin"],
