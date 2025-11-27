@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Copy, SquareArrowOutUpRight } from "lucide-react";
 import {
@@ -8,12 +9,23 @@ import {
 	TabsList,
 	TabsTrigger,
 } from "fumadocs-ui/components/tabs";
+import { useServerTheme } from "@/components/theme-provider";
 import { Anthropic, Google, OpenAI } from "@lobehub/icons";
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 
 export function Hero() {
+	const { resolvedTheme } = useTheme();
+	const { serverTheme } = useServerTheme();
+	const theme = resolvedTheme || serverTheme;
+	const isDark = theme === "dark";
+
+	const gridColor = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+	const overlayBackground = isDark
+		? "radial-gradient(ellipse 120% 100% at 50% 0%, transparent 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.7) 100%)"
+		: "radial-gradient(ellipse 120% 100% at 50% 0%, transparent 0%, rgba(255,255,255,0.3) 60%, rgba(255,255,255,0.7) 100%)";
+
 	return (
-		<div className="h-full w-full mt-[-12px] relative flex flex-col items-center justify-center bg-black text-white md:p-8">
+		<div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-64px)] w-full overflow-hidden p-4 md:p-8">
 			{/* Background Grid with Gradient Overlay */}
 			<div className="absolute inset-0 pointer-events-none">
 				{/* Grid Pattern */}
@@ -21,8 +33,8 @@ export function Hero() {
 					className="absolute inset-0"
 					style={{
 						backgroundImage: `
-              linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px)
+              linear-gradient(to right, ${gridColor} 1px, transparent 1px),
+              linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)
             `,
 						backgroundSize: "80px 80px",
 					}}
@@ -32,8 +44,7 @@ export function Hero() {
 				<div
 					className="absolute inset-0"
 					style={{
-						background:
-							"radial-gradient(ellipse 120% 100% at 50% 0%, transparent 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.7) 100%)",
+						background: overlayBackground,
 					}}
 				/>
 			</div>
@@ -41,29 +52,29 @@ export function Hero() {
 			<div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl w-full items-center">
 				{/* Left Column */}
 				<div className="flex flex-col items-start text-left space-y-6">
-					<div className="flex items-center gap-2 mb-2 text-xs text-gray-400">
-						<div className="w-2 h-2 rounded-full bg-white/50" />
+					<div className="flex items-center gap-2 mb-2 text-xs text-gray-600 dark:text-gray-400">
+						<div className="w-2 h-2 rounded-full bg-black/50 dark:bg-white/50" />
 						<span>Blazingly Fast :)</span>
 					</div>
 
-					<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
+					<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-black dark:text-white leading-tight">
 						The AI Toolkit for <span className="text-orange-500">Rust</span>
 					</h1>
 
-					<p className="text-base text-gray-400 max-w-xl">
+					<p className="text-base text-gray-600 dark:text-gray-400 max-w-xl">
 						An open-source Rust library for building AI-powered applications,
 						inspired by the Vercel AI SDK.
 					</p>
 
 					{/* Command Snippet */}
-					<div className="w-full rounded-xs max-w-md bg-black border border-white/10 p-2.5 flex items-center gap-2.5 font-mono text-xs">
-						<span className="text-white font-semibold">
-							<span className="text-red-400"> cargo </span>add{" "}
+					<div className="w-full rounded-xs max-w-md bg-white border border-black/10 dark:bg-black dark:border-white/10 p-2.5 flex items-center gap-2.5 font-mono text-xs">
+						<span className="text-black dark:text-white font-semibold">
+							<span className="text-red-500 dark:text-red-400"> cargo </span>add{" "}
 							<span className="text-orange-500">aisdk</span>
 						</span>
 						<div className="flex-1" />
 						<Copy
-							className="w-3.5 h-3.5 text-gray-500 cursor-pointer hover:text-white transition-colors"
+							className="w-3.5 h-3.5 text-gray-500 cursor-pointer hover:text-black dark:hover:text-white transition-colors"
 							onClick={() => navigator.clipboard.writeText("cargo add aisdk")}
 						/>
 					</div>
@@ -71,7 +82,7 @@ export function Hero() {
 						<Button
 							asChild
 							size="default"
-							className="bg-white rounded-xs font-semibold text-black hover:bg-gray-200 px-6"
+							className="bg-black dark:bg-white rounded-xs font-semibold text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 px-6"
 						>
 							<Link href="/docs">GET STARTED</Link>
 						</Button>
@@ -79,7 +90,7 @@ export function Hero() {
 							variant="outline"
 							size="default"
 							asChild
-							className="px-5 rounded-xs border-white/10 bg-transparent text-white hover:bg-white/5 hover:text-white"
+							className="px-5 rounded-xs border-black/10 dark:border-white/10 bg-transparent text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"
 						>
 							<Link href="https://github.com/lazy-hq/aisdk" target="_blank">
 								<SquareArrowOutUpRight className="mr-1 h-4 w-4" />

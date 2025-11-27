@@ -6,6 +6,8 @@ import { Inter } from "next/font/google";
 import { Navbar } from "@/components/navbar";
 import SearchDialog from "@/components/search";
 import { baseOptions } from "@/lib/layout.shared";
+import { ThemeProvider } from "@/components/theme-provider";
+import { cookies } from "next/headers";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -16,18 +18,24 @@ export const metadata: Metadata = {
 	description: "Rust library for AI apps, inspired by the Vercel AI SDK.",
 };
 
-export default function Layout({ children }: LayoutProps<"/">) {
+export default async function Layout({ children }: LayoutProps<"/">) {
+	const cookieStore = await cookies();
+	const themeCookie = cookieStore.get("theme");
+	const theme = themeCookie?.value || "dark";
+
 	return (
 		<html lang="en" className={inter.className} suppressHydrationWarning>
 			<body className="flex flex-col min-h-screen">
-				<RootProvider
-					search={{
-						SearchDialog,
-					}}
-				>
-					<ServerNavbar />
-					<HomeLayout {...baseOptions()}>{children}</HomeLayout>
-				</RootProvider>
+				<ThemeProvider theme={theme}>
+					<RootProvider
+						search={{
+							SearchDialog,
+						}}
+					>
+						<ServerNavbar />
+						<HomeLayout {...baseOptions()}>{children}</HomeLayout>
+					</RootProvider>
+				</ThemeProvider>
 			</body>
 		</html>
 	);
