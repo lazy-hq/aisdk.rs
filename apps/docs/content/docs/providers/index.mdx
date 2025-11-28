@@ -2,66 +2,68 @@
 title: OpenAI
 ---
 
-AISDK supports OpenAI as a provider. You can use it to generate text, images, and other data.
+AISDK includes first-class support for the OpenAI.  
 
-### Quick Installation
+## Installation
 
-To add the OpenAI provider, you can use the following command:
+Enable the OpenAI provider feature:
 
 ```bash
 cargo add aisdk --features openai
 ```
 
-### Manual Installation
+This installs AISDK with the OpenAI provider enabled.
 
-To add the OpenAI provider manually, you can enable the `openai` feature in your `Cargo.toml` file:
+Once you have enabled the OpenAI provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
-```toml
-[dependencies]
-aisdk = { version = "0.1.0", features = ["openai"] }
+### Quick Start
+
+Create an OpenAI provider instance with default settings:
+
+```rust
+use aisdk::providers::openai::OpenAI;
+
+let openai = OpenAI::new("gpt-5");
 ```
 
-This will install the OpenAI provider and its dependencies.
+This initializes the provider with:
 
-### Usage
+* Model: `"gpt-5"`
+* API key from environment (if set with `OPENAI_API_KEY`)
+* OpenAI’s default base URL
 
-Once you have installed the OpenAI provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
-
-#### Example Generating Text
+## Basic Text Generation
 
 ```rust
 use aisdk::{
-    core::{LanguageModelRequest},
+    core::LanguageModelRequest,
     providers::openai::OpenAI,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    // with default openai provider settings
+    // Initialize provider with default settings.
     let openai = OpenAI::new("gpt-5");
 
-    let result = LanguageModelRequest::builder()
+    let response = LanguageModelRequest::builder()
         .model(openai)
-        .prompt("hello world")
+        .prompt("Write a short poem about Rust.")
         .build()
         .generate_text()
-        .await?;
+        .await?
+        .text()?;
 
-    println!("{}", result.text.unwrap());
+    println!("Model output: {}", response);
     Ok(())
 }
 ```
 
-This will generate a response from the OpenAI provider.
-
 ## Provider Settings
 
-You can customize the provider settings by passing them as arguments to the `OpenAI::builder()` method.
+You can customize provider configuration using `OpenAI::builder()`
 
-#### API Key
-
-To set the API key, you can use the `api_key` method:
+### API Key
 
 ```rust
 let openai = OpenAI::builder()
@@ -69,9 +71,11 @@ let openai = OpenAI::builder()
     .build()?;
 ```
 
-#### Base URL
+If not specified, AISDK uses the `OPENAI_API_KEY` environment variable.
 
-To set the base URL, you can use the `base_url` method:
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
 let openai = OpenAI::builder()
@@ -79,10 +83,9 @@ let openai = OpenAI::builder()
     .build()?;
 ```
 
-#### Provider Name
+### Provider Name
 
-To set the provider name, you can use the `provider_name` method:
-This is used for observability and logging purposes.
+For logging, analytics, and observability.
 
 ```rust
 let openai = OpenAI::builder()
@@ -90,9 +93,9 @@ let openai = OpenAI::builder()
     .build()?;
 ```
 
-#### Model Name
+### Model Name
 
-To set the model name, you can use the `model_name` method:
+Set a default model for all requests using this provider instance:
 
 ```rust
 let openai = OpenAI::builder()
@@ -100,4 +103,13 @@ let openai = OpenAI::builder()
     .build()?;
 ```
 
+### Full Custom Configuration Example
 
+```rust
+let openai = OpenAI::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.openai.com/v1")
+    .provider_name("OpenAI")
+    .model_name("gpt-4o")
+    .build()?;
+```
