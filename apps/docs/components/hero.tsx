@@ -7,17 +7,26 @@ import {
 	TabsList,
 	TabsTrigger,
 } from "fumadocs-ui/components/tabs";
-import { Copy, SquareArrowOutUpRight } from "lucide-react";
+import { Check, Copy, SquareArrowOutUpRight } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import { useServerTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 
 export function Hero() {
+	const [copied, setCopied] = useState(false);
 	const { resolvedTheme } = useTheme();
 	const { serverTheme } = useServerTheme();
 	const theme = resolvedTheme || serverTheme;
 	const isDark = theme === "dark";
+
+	useEffect(() => {
+		if (copied) {
+			const timer = setTimeout(() => setCopied(false), 2000);
+			return () => clearTimeout(timer);
+		}
+	}, [copied]);
 
 	const gridColor = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
 	const overlayBackground = isDark
@@ -69,14 +78,21 @@ export function Hero() {
 					{/* Command Snippet */}
 					<div className="w-full rounded-xs max-w-full sm:max-w-md bg-white border border-black/10 dark:bg-black dark:border-white/10 p-2.5 flex items-center gap-2.5 font-mono text-xs">
 						<span className="text-black dark:text-white font-semibold">
-							<span className="text-red-500 dark:text-red-400"> cargo </span>add{" "}
+							<span className="text-red-500 dark:text-red-400">cargo</span> add{" "}
 							<span className="text-orange-500">aisdk</span>
 						</span>
 						<div className="flex-1" />
-						<Copy
-							className="w-3.5 h-3.5 text-gray-500 cursor-pointer hover:text-black dark:hover:text-white transition-colors"
-							onClick={() => navigator.clipboard.writeText("cargo add aisdk")}
-						/>
+						{copied ? (
+							<Check className="w-3.5 h-3.5 text-black dark:text-white" />
+						) : (
+							<Copy
+								className="w-3.5 h-3.5 text-gray-500 cursor-pointer hover:text-black dark:hover:text-white transition-colors"
+								onClick={() => {
+									navigator.clipboard.writeText("cargo add aisdk");
+									setCopied(true);
+								}}
+							/>
+						)}
 					</div>
 					<div className="flex flex-wrap gap-3">
 						<Button
