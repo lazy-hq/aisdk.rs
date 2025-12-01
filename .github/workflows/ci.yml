@@ -38,8 +38,8 @@ jobs:
       - name: Lint and Format
         run: pnpm format-and-lint
 
-      - name: Type Check
-        run: pnpm check-types
-
       - name: Build
         run: pnpm build
+
+      - name: Type Check
+        run: pnpm check-types
