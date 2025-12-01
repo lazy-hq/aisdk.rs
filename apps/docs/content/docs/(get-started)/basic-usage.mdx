@@ -5,21 +5,77 @@ title: Basic Usage
 AISDK provides a simple and intuitive API for interacting with AI models.
 
 You can easily perform tasks such as:  
-- [Text Generation](/docs/concepts/generate-text)  
-- [Streaming Text](/docs/concepts/stream-text)  
+- [Text Generation](/docs/concepts/generating-text)  
+- [Streaming Text](/docs/concepts/generating-text#streaming-text)
 - [Image Generation](/docs/concepts/generate-image)
 
 You can explore all available core features [here](/docs#core-features).
 
 
-## Text Generation
+## Basic Text Generation & Streaming
 
-example: text generation using openai as a provider you can find more info about generating text [here](/docs/concepts/generate-text)
+This section provides examples for generating text with `aisdk` using a model provider (e.g., OpenAI).  
 
-TODO: add example
+### Installation
+Install `aisdk` with the [OpenAI provider](/docs/providers/openai) feature or you can use any [other provider](/docs/#model-providers) you want.
 
-## Streaming Text
+```bash
+cargo add aisdk --features openai
+```
+Once you have enabled the OpenAI provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
-example: streaming text generation using openai as a provider you can find more info about streaming text [here](/docs/concepts/stream-text)
+### Generate Text
 
-TODO: add example
+Generating text using openai as a provider you can find more info about [here](/docs/concepts/generating-text)
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::openai::OpenAI,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+	let text = LanguageModelRequest::builder()
+		.model(OpenAI::new("gpt-5"))
+		.prompt("Write a short poem about Rust.")
+		.build()
+		.generate_text()
+		.await?
+		.text()?;
+
+	println!("Model output: {}", text);
+	Ok(())
+}
+```
+
+### Streaming Text
+
+Streaming text generation using openai as a provider you can find more info about [here](/docs/concepts/generating-text#streaming-text)
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::openai::OpenAI,
+};
+use futures::StreamExt;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+	let mut stream = LanguageModelRequest::builder()
+			.model(OpenAI::new("gpt-5"))
+			.prompt("Write a short poem about Rust.")
+			.build()
+			.stream_text()
+			.await?
+			.stream;
+
+	while let Some(chunk) = stream.next().await {
+		if let LanguageModelStreamChunkType::Text(text) = chunk {
+			println!("Streaming text: {}", text);
+		}
+	}
+
+	Ok(())
+}
+```
