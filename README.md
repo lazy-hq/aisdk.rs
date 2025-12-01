@@ -24,7 +24,7 @@ pnpm install
 Run the documentation locally:
 
 ```bash
-pnpm dev
+turbo run dev
 ```
 
 ## License
