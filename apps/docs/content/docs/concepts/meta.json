@@ -1,0 +1,6 @@
+{
+	"title": "Concepts",
+	"icon": "SquareLibrary",
+	"defaultOpen": true,
+	"pages": ["generating-text", "tools", "prompts"]
+}
