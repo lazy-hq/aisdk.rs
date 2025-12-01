@@ -2,4 +2,92 @@
 title: Tools
 ---
 
-//TODO:
+A 'Tool' is a general term for a function or logic that can be executed by an AI
+model. They can be user defined or pre-defined by the provider. Tools are provided
+to the AI model's context as per the developer's needs.The AI model can then use the
+provided tools to perform specific queries to aid in text generation or actions to
+be taken externally. Most common tools include the following searching the web,
+querying a public API, executing a shell command, and more.
+
+You can define your own tools in aisdk by instantiating the `Tool` struct and passing
+it to one of the AI model text generation builders.
+
+```rust
+let func = ToolExecute::new(Box::new(|inp: Value| {
+    Ok(format!("hello {}", inp.get("recipient").unwrap()))
+}));
+
+#[derive(schemars::JsonSchema, Debug)]
+struct ToolInput {
+    recipient: String,
+}
+
+let schema = schemars::schema_for!(ToolInput);
+
+let my_tool = Tool::builder()
+    .name("my-tool") // this is the name in which the Ai will use to call the tool
+    .description("my-description") // describes what the tool does, helpful for the Ai
+    .input_schema(schema.clone()) // the schema of the input. Ai will use this to generate inputs
+    .execute(func) // the function that will be called when the Ai calls the tool
+    .build()
+    .unwrap();
+```
+
+A tool has 4 components:
+
+- **name**: This is equivalent to a normal function name in programming languages. 
+It is used to identify the tool in the AI model. Make sure it is unique and describes
+what the tool does well.
+- **description**: This is a brief description of what the tool does. It is used to
+help the AI model understand what the tool does and how to use it.
+- **input_schema**: This is the schema of the input that the AI model will use to generate
+inputs for the tool. It uses the [schemars](https://docs.rs/schemars/latest/schemars/) crate
+to define the [json schema](https://json-schema.org/) of the input.
+- **execute**: This is the function that will be called when the AI model calls the tool. it 
+takes a single argument of type `Value` which is the input provided by the AI model. you can expect
+to find your arguements regiestered in `input_schema` here. the function should return a `Result<String, String>`
+which is the output of the tool. If the tool fails, you can return an error message as a `String` which can
+also be helpful for the AI model to understand what went wrong.
+
+## Using the `#[tool]` Macro
+This is the recommended and less verbose way to define a tool. It allows you to annotate native
+Rust functions with the `#[tool]` macro, which will generate the `Tool` struct for you.
+
+```rust
+#[tool]
+/// Get the weather information given a location
+pub fn get_weather(location: String) {
+    let weather = match location.as_str() {
+        // Some logic to query a weather API
+        "New York" => 75,
+        "Tokyo" => 80,
+        _ => 70,
+    };
+    Ok(weather.to_string())
+}
+```
+
+The macro will infer the following fields from the function:
+
+- **name**: The name of the function in this case `get_weather`
+- **description**: The function's doc comment. you can use rust style documentation with examples for few-shot prompting.
+- **input_schema**: The schema of the function's input(argument) type. remember that whatever you define as
+arguements should implement the `schemars::JsonSchema` trait or be natively supported by the `schemars` crate.
+- **execute**: The function itself. The body will be executed when the AI model calls the tool.
+
+
+## Registering the tool
+
+To register the tool with the AI model, you need to add it to text generation builders using the `with_tool` method. This
+appends the tool to the list of tools that the AI model will use to generate text.
+
+```rust
+let result = LanguageModelRequest::builder()
+    .model(OpenAI::new("gpt-4o"))
+    .system("You are a helpful assistant with access to tools.")
+    .prompt("What is the weather in New York?")
+    .with_tool(get_weather)
+    .build()
+    .generate_text()
+    .await?;
+```
