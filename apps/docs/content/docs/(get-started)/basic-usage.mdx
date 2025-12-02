@@ -54,14 +54,13 @@ Streaming text generation using openai as a provider you can find more info abou
 
 ```rust
 use aisdk::{
-    core::LanguageModelRequest,
-    providers::openai::OpenAI,
+	core::{LanguageModelRequest, LanguageModelStreamChunkType},
+	providers::openai::OpenAI,
 };
 use futures::StreamExt;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-
 	let mut stream = LanguageModelRequest::builder()
 			.model(OpenAI::new("gpt-5"))
 			.prompt("Write a short poem about Rust.")
