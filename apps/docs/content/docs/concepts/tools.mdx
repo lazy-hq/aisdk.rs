@@ -9,7 +9,62 @@ provided tools to perform specific queries to aid in text generation or actions 
 be taken externally. Most common tools include the following searching the web,
 querying a public API, executing a shell command, and more.
 
-You can define your own tools in aisdk by instantiating the `Tool` struct and passing
+Here is the recommended and less verbose way to define a tool. It allows you to annotate native
+Rust functions with the `#[tool]` macro, which will generate the `Tool` struct for you.
+
+```rust
+use crate::core::{tool, Tool};
+
+#[tool]
+/// Get the weather information given a location
+pub fn get_weather(location: String) {
+    let weather = match location.as_str() {
+        // Some logic to query a weather API
+        "New York" => 75,
+        "Tokyo" => 80,
+        _ => 70,
+    };
+    Ok(weather.to_string())
+}
+```
+The macro will infer the following fields from the function:
+
+- **name**: 
+- **description**: The function's doc comment. you can use rust style documentation with examples for few-shot prompting.
+- **input_schema**: The schema of the function's input(argument) type. remember that whatever you define as
+arguements should implement the `schemars::JsonSchema` trait or be natively supported by the `schemars` crate.
+- **execute**: The function itself. The body will be executed when the AI model calls the tool.
+
+
+
+
+
+
+A tool has 4 components:
+
+- **name**: It is used to identify the tool in the AI model. Make sure it is unique and describes
+what the tool does well. The name of the tool in this case is `get_weather`.
+
+- **description**: This is a brief description of what the tool does. It is used to
+help the AI model understand what the tool does and how to use it. The function's doc comment 
+as the description. you can use rust style documentation with examples for few-shot prompting
+
+- **arguments**: This is the schema of the input that the AI model will use to generate
+inputs for the tool. It uses the [schemars](https://docs.rs/schemars/latest/schemars/) crate
+to define the [json schema](https://json-schema.org/) of the input. The function's arguments
+are serialized into json schema in which the AI model will use to generate inputs. 
+just make sure
+the arguments implement the `schemars::JsonSchema` trait or are natively supported
+by the `schemars` crate.
+
+- **body**: This is the logic that will be called when the AI model calls the tool. it 
+takes a single argument of type `serde_json::Value` which is the json input provided by the AI model. the function should return a `Result<String, String>`
+which is the output of the tool. If the tool fails, you can return an error message as `Err(String)` which can
+also be helpful for the AI model to understand what went wrong.
+
+## Using the structs
+
+You can define your own tools in aisdk by instantiating the `Tool` and related structs and passing
 it to one of the AI model text generation builders.
 
 ```rust
@@ -33,47 +88,13 @@ let my_tool = Tool::builder()
     .unwrap();
 ```
 
-A tool has 4 components:
 
-- **name**: This is equivalent to a normal function name in programming languages. 
-It is used to identify the tool in the AI model. Make sure it is unique and describes
-what the tool does well.
-- **description**: This is a brief description of what the tool does. It is used to
-help the AI model understand what the tool does and how to use it.
-- **input_schema**: This is the schema of the input that the AI model will use to generate
-inputs for the tool. It uses the [schemars](https://docs.rs/schemars/latest/schemars/) crate
-to define the [json schema](https://json-schema.org/) of the input.
-- **execute**: This is the function that will be called when the AI model calls the tool. it 
-takes a single argument of type `Value` which is the input provided by the AI model. you can expect
-to find your arguements regiestered in `input_schema` here. the function should return a `Result<String, String>`
-which is the output of the tool. If the tool fails, you can return an error message as a `String` which can
-also be helpful for the AI model to understand what went wrong.
 
-## Using the `#[tool]` Macro
-This is the recommended and less verbose way to define a tool. It allows you to annotate native
-Rust functions with the `#[tool]` macro, which will generate the `Tool` struct for you.
 
-```rust
-#[tool]
-/// Get the weather information given a location
-pub fn get_weather(location: String) {
-    let weather = match location.as_str() {
-        // Some logic to query a weather API
-        "New York" => 75,
-        "Tokyo" => 80,
-        _ => 70,
-    };
-    Ok(weather.to_string())
-}
-```
 
-The macro will infer the following fields from the function:
 
-- **name**: The name of the function in this case `get_weather`
-- **description**: The function's doc comment. you can use rust style documentation with examples for few-shot prompting.
-- **input_schema**: The schema of the function's input(argument) type. remember that whatever you define as
-arguements should implement the `schemars::JsonSchema` trait or be natively supported by the `schemars` crate.
-- **execute**: The function itself. The body will be executed when the AI model calls the tool.
+
+
 
 
 ## Registering the tool
