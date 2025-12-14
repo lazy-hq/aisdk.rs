@@ -10,7 +10,7 @@ be taken externally. Most common tools include the following searching the web,
 querying a public API, executing a shell command, and more.
 
 Here is the recommended and less verbose way to define a tool. It allows you to annotate native
-Rust functions with the `#[tool]` macro, which will generate the `Tool` struct for you.
+Rust functions with the `#[tool]` macro, which will generate a `Tool` struct for you.
 
 ```rust
 use crate::core::{tool, Tool};
@@ -127,12 +127,26 @@ To register the tool with the AI model, you need to add it to text generation bu
 appends the tool to the list of tools that the AI model will use to generate text.
 
 ```rust
-// call the model with the tool
+// call the model with the `#[tool]` macro
 let result = LanguageModelRequest::builder()
     .model(OpenAI::new("gpt-4o"))
     .system("You are a helpful assistant with access to tools.")
     .prompt("What is the weather in New York?")
-    .with_tool(get_weather_tool) // you don't need to call it with.
+    .with_tool(get_weather())
+    .build()
+    .generate_text()
+    .await;
+```
+
+or if you are using the structs
+
+```rust
+// call the model with `Tool` struct
+let result = LanguageModelRequest::builder()
+    .model(OpenAI::new("gpt-4o"))
+    .system("You are a helpful assistant with access to tools.")
+    .prompt("What is the weather in New York?")
+    .with_tool(get_weather_tool) // you don't need to call it if using structs.
     .build()
     .generate_text()
     .await;
