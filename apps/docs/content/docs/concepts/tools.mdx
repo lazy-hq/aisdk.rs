@@ -35,11 +35,6 @@ The macro will infer the following fields from the function:
 arguements should implement the `schemars::JsonSchema` trait or be natively supported by the `schemars` crate.
 - **execute**: The function itself. The body will be executed when the AI model calls the tool.
 
-
-
-
-
-
 A tool has 4 components:
 
 - **name**: It is used to identify the tool in the AI model. Make sure it is unique and describes
@@ -87,15 +82,6 @@ let my_tool = Tool::builder()
     .build()
     .unwrap();
 ```
-
-
-
-
-
-
-
-
-
 
 ## Registering the tool
 
