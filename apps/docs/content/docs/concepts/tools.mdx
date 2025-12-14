@@ -27,13 +27,6 @@ pub fn get_weather(location: String) {
     Ok(weather.to_string())
 }
 ```
-The macro will infer the following fields from the function:
-
-- **name**: 
-- **description**: The function's doc comment. you can use rust style documentation with examples for few-shot prompting.
-- **input_schema**: The schema of the function's input(argument) type. remember that whatever you define as
-arguements should implement the `schemars::JsonSchema` trait or be natively supported by the `schemars` crate.
-- **execute**: The function itself. The body will be executed when the AI model calls the tool.
 
 A tool has 4 components:
 
@@ -63,24 +56,48 @@ You can define your own tools in aisdk by instantiating the `Tool` and related s
 it to one of the AI model text generation builders.
 
 ```rust
+use super::{Tool, ToolExecute};
+use serde_json::Value;
+    
+// define tool function body, should return Result<String, String>
+#[allow(unused_variables)]
 let func = ToolExecute::new(Box::new(|inp: Value| {
-    Ok(format!("hello {}", inp.get("recipient").unwrap()))
+    // Ai SDK will pass in a json object with the following structure
+    // ```json
+    // {
+    //     "location": "New York"
+    // }
+    // ```
+    let location = inp.get("location").unwrap();
+    Ok(format!("Cloudy"))
 }));
 
+// define tool input structure
 #[derive(schemars::JsonSchema, Debug)]
+#[allow(dead_code)]
 struct ToolInput {
-    recipient: String,
+    location: String,
 }
 
+// change tool arguments to json schema
+// Which will be similar to the following
+// ```json
+// "properties": {
+//     "location": {
+//         "type": "string"
+//     }
+// }
 let schema = schemars::schema_for!(ToolInput);
 
-let my_tool = Tool::builder()
-    .name("my-tool") // this is the name in which the Ai will use to call the tool
-    .description("my-description") // describes what the tool does, helpful for the Ai
-    .input_schema(schema.clone()) // the schema of the input. Ai will use this to generate inputs
-    .execute(func) // the function that will be called when the Ai calls the tool
+// bring it all together
+let get_weather_tool = Tool::builder()
+    .name("get-weather")
+    .description("Get the weather information given a location")
+    .input_schema(schema.clone())
+    .execute(func)
     .build()
     .unwrap();
+
 ```
 
 ## Registering the tool
@@ -89,12 +106,13 @@ To register the tool with the AI model, you need to add it to text generation bu
 appends the tool to the list of tools that the AI model will use to generate text.
 
 ```rust
+// call the model with the tool
 let result = LanguageModelRequest::builder()
     .model(OpenAI::new("gpt-4o"))
     .system("You are a helpful assistant with access to tools.")
     .prompt("What is the weather in New York?")
-    .with_tool(get_weather)
+    .with_tool(get_weather_tool) // you don't need to call it with.
     .build()
     .generate_text()
-    .await?;
+    .await;
 ```
