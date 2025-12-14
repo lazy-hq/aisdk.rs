@@ -133,7 +133,7 @@ use aisdk::{
 };
 
 let text = LanguageModelRequest::builder()
-	.model(OpenAI::new("gpt-5"))
+	.model(OpenAI::gpt_5())
 	.prompt("What is the meaning of life?")
 	.build()
 	.generate_text()
@@ -149,7 +149,7 @@ use aisdk::{
 };
 
 let text = LanguageModelRequest::builder()
-	.model(Anthropic::new("claude-4.5-haiku"))
+	.model(Anthropic::claude_opus_4())
 	.prompt("What is the meaning of life?")
 	.build()
 	.generate_text()
@@ -165,7 +165,7 @@ use aisdk::{
 };
 
 let text = LanguageModelRequest::builder()
-	.model(Google::new("gemini-2.5-pro"))
+	.model(Google::gemini_2_5_pro())
 	.prompt("What is the meaning of life?")
 	.build()
 	.generate_text()
