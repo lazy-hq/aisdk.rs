@@ -50,6 +50,27 @@ takes a single argument of type `serde_json::Value` which is the json input prov
 which is the output of the tool. If the tool fails, you can return an error message as `Err(String)` which can
 also be helpful for the AI model to understand what went wrong.
 
+You can optionally override the `name` and `description` of the tool by passing them as arguments to the `#[tool]` macro.
+
+```rust
+use crate::core::{tool, Tool};
+
+#[tool(name = "get-weather", description = "Get the weather information given a location")]
+/// A tool that returns the weather information given a location
+pub fn get_weather(location: String) {
+    let weather = match location.as_str() {
+        // Some logic to query a weather API
+        "New York" => 75,
+        "Tokyo" => 80,
+        _ => 70,
+    };
+    Ok(weather.to_string())
+}
+```
+
+This will make the tool name and description configurable. name will be `get-weather` and description will be `Get the weather information given a location`.
+
+
 ## Using the structs
 
 You can define your own tools in aisdk by instantiating the `Tool` and related structs and passing
