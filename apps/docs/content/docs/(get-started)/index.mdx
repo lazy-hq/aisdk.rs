@@ -1,34 +1,26 @@
 ---
 title: Introduction
-description: AISDK is the Rust toolkit designed to help developers build AI-powered applications and agents. Inspired by the Vercel AI SDK.
+description: AISDK is a Rust toolkit for building AI applications. It is provider agnostic, type safe with compile time model/task validation and seamlessly integrates with popular Rust backends and Vercel’s ai-sdk UI for React, Svelte, Vue and more. inspired by the Vercel AI SDK.
 ---
 
 ## Core Features
 
 <Cards>
 
+<Card icon={<BicepsFlexed/>} title="Strongly Typed">
+No more “model doesn’t support tool calling” errors in prod. aisdk guarantees the model fits the task at compile time.
+</Card>
+
 <Card icon={<Workflow/>} title="Provider Agnostic">
-AISDK is designed to be provider agnostic, allowing you to easily integrate with any AI provider.
+Designed to be provider agnostic, allowing you to easily integrate with any AI provider.
 </Card>
 
 <Card icon={<Brain/>} title="Agents">
 Build AI agents that can interact with users and perform tasks.
 </Card>
 
-<Card icon={<Type/>} title="Text Generation">
-Produce or stream natural language text from any compatible language model.
-</Card>
-
-<Card icon={<ImageIcon/>} title="Image Generation">
-Generate, Edit, or Enhance images from textual prompts or existing visuals.
-</Card>
-
-<Card icon={<Music/>} title="Audio Generation & Processing">
-Create, transcribe, or transform audio content using supported AI providers.
-</Card>
-
-<Card icon={<Grid/>} title="Embeddings">
-Convert text, images, or other data into vector embeddings.
+<Card icon={<Blocks/>} title="Seamless Integrations">
+Seamlessly integrates with Axum, Actix and more. Compatible with Vercel's ai-sdk ui for React, Svelte, Vue and more.
 </Card>
 
 </Cards>
@@ -38,4 +30,6 @@ Convert text, images, or other data into vector embeddings.
 AISDK supports a wide range of AI providers, including:
 
 - <Link href="/docs/providers">OpenAI</Link>
+- <Link href="/docs/providers/anthropic">Anthropic</Link>
+- <Link href="/docs/providers/google">Google</Link>
 - more to come

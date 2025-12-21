@@ -2,79 +2,68 @@
 title: Basic Usage
 ---
 
-AISDK provides a simple and intuitive API for interacting with AI models.
+The AI SDK standardizes integrating artificial intelligence (AI) models across [supported providers](/docs/#model-providers). This enables developers to focus on building great AI applications, not waste time on technical details.
 
-You can easily perform tasks such as:  
-- [Text Generation](/docs/concepts/generating-text)  
-- [Streaming Text](/docs/concepts/generating-text#streaming-text)
-- [Image Generation](/docs/concepts/generate-image)
+For example, here’s how you can generate text with various models using the AI SDK
 
-You can explore all available core features [here](/docs#core-features).
+### Enable the [Provider](/docs/#model-providers) of your choice
 
-
-## Basic Text Generation & Streaming
-
-This section provides examples for generating text with `aisdk` using a model provider (e.g., OpenAI).  
-
-### Installation
-Install `aisdk` with the [OpenAI provider](/docs/providers/openai) feature or you can use any [other provider](/docs/#model-providers) you want.
+You can enable the provider you want by using the feature flag of the provider. e.g. for OpenAI
 
 ```bash
-cargo add aisdk --features openai
+cargo add aisdk --features openai # anthropic, google or any other provider
 ```
-Once you have enabled the OpenAI provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
-### Generate Text
+### Generating Text
 
-Generating text using openai as a provider you can find more info about [here](/docs/concepts/generating-text)
-```rust
-use aisdk::{
-    core::LanguageModelRequest,
-    providers::openai::OpenAI,
-};
+To generate text, you can use the `LanguageModelRequest` builder and call the `generate_text()` method. This method returns a `GenerateTextResponse` which contains the generated text and other information such as token usage statistics, stop reason, and tool call results
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	let text = LanguageModelRequest::builder()
-		.model(OpenAI::new("gpt-5"))
-		.prompt("Write a short poem about Rust.")
-		.build()
-		.generate_text()
-		.await?
-		.text()?;
+you can find more info about generating text [here](/docs/concepts/generating-text).
 
-	println!("Model output: {}", text);
-	Ok(())
-}
-```
+<CustomCodeTabs tabsData={[
+	{
+		value: "openai",
+		label: "OpenAI",
+		icon: "OpenAI",
+		code: "OpenAIGenerateText",
+	},
+	{
+		value: "anthropic",
+		label: "Anthropic",
+		icon: "Anthropic",
+		code: "AnthropicGenerateText",
+	},
+	{
+		value: "google",
+		label: "Google",
+		icon: "Google",
+		code: "GoogleGenerateText",
+	},
+]} />
 
 ### Streaming Text
 
-Streaming text generation using openai as a provider you can find more info about [here](/docs/concepts/generating-text#streaming-text)
+To stream text, you can use the `LanguageModelRequest` builder and call the `stream_text()` method. This method returns a `StreamTextResponse` which contains the generated text and other information such as token usage statistics, stop reason, and tool call results.
 
-```rust
-use aisdk::{
-	core::{LanguageModelRequest, LanguageModelStreamChunkType},
-	providers::openai::OpenAI,
-};
-use futures::StreamExt;
+You can find more info about streaming text [here](/docs/concepts/generating-text#streaming-text).
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	let mut stream = LanguageModelRequest::builder()
-			.model(OpenAI::new("gpt-5"))
-			.prompt("Write a short poem about Rust.")
-			.build()
-			.stream_text()
-			.await?
-			.stream;
-
-	while let Some(chunk) = stream.next().await {
-		if let LanguageModelStreamChunkType::Text(text) = chunk {
-			println!("Streaming text: {}", text);
-		}
-	}
-
-	Ok(())
-}
-```
+<CustomCodeTabs tabsData={[
+	{
+		value: "openai",
+		label: "OpenAI",
+		icon: "OpenAI",
+		code: "OpenAIStreamText",
+	},
+	{
+		value: "anthropic",
+		label: "Anthropic",
+		icon: "Anthropic",
+		code: "AnthropicStreamText",
+	},
+	{
+		value: "google",
+		label: "Google",
+		icon: "Google",
+		code: "GoogleStreamText",
+	},
+]} />
