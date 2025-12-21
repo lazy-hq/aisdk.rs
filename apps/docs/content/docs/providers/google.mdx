@@ -1,0 +1,107 @@
+---
+title: Google
+---
+
+AISDK provides first-class support for Google with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust’s type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Google provider feature:
+
+```bash
+cargo add aisdk --features google
+```
+
+This installs AISDK with the Google provider enabled.
+
+Once you have enabled the Google provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+### Quick Start
+
+Create a Google provider instance with default settings:
+
+```rust
+use aisdk::providers::google::Google;
+
+let google = Google::gemini_2_5_flash();
+```
+
+This initializes the provider with:
+
+* Model: `"gemini-2-5-flash"`
+* API key from environment (if set with `GOOGLE_API_KEY`)
+* Google’s default base URL
+
+## Basic Text Generation
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::google::Google,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    // Initialize provider with default settings.
+    let google = Google::gemini_2_5_flash();
+
+    let response = LanguageModelRequest::builder()
+        .model(google)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?
+        .text()?;
+
+    println!("Model output: {}", response);
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Google::builder()`
+
+### API Key
+
+```rust
+let google = Google::<Gemini25Flash>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `GOOGLE_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let google = Google::<Gemini25Flash>::builder()
+    .base_url("https://generativelanguage.googleapis.com/v1beta")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let google = Google::<Gemini25Flash>::builder()
+    .provider_name("Google")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let google = Google::<Gemini25Flash>::builder()
+    .api_key("your-api-key")
+    .base_url("https://generativelanguage.googleapis.com/v1beta")
+    .provider_name("Google")
+    .build()?;
+```

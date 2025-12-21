@@ -1,5 +1,5 @@
 {
 	"title": "Providers",
 	"icon": "Workflow",
-	"pages": ["index"]
+	"pages": ["index","google"]
 }
