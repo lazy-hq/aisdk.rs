@@ -18,7 +18,7 @@ cargo add aisdk --features openai # anthropic, google or any other provider
 
 To generate text, you can use the `LanguageModelRequest` builder and call the `generate_text()` method. This method returns a `GenerateTextResponse` which contains the generated text and other information such as token usage statistics, stop reason, and tool call results
 
-you can find more info about generating text [here](/docs/concepts/generating-text).
+you can find more info about generating text [here](/docs/concepts/language-model-request#generate_text).
 
 <CustomCodeTabs tabsData={[
 	{
@@ -45,7 +45,7 @@ you can find more info about generating text [here](/docs/concepts/generating-te
 
 To stream text, you can use the `LanguageModelRequest` builder and call the `stream_text()` method. This method returns a `StreamTextResponse` which contains the generated text and other information such as token usage statistics, stop reason, and tool call results.
 
-You can find more info about streaming text [here](/docs/concepts/generating-text#streaming-text).
+You can find more info about streaming text [here](/docs/concepts/language-model-request#stream_text).
 
 <CustomCodeTabs tabsData={[
 	{
@@ -68,4 +68,4 @@ You can find more info about streaming text [here](/docs/concepts/generating-tex
 	},
 ]} />
 
-These examples cover the basic usage of the AI SDK. To explore more advanced capabilities, dive into the core concepts such as [Tool Calling](/docs/concepts/tools) and [Agents](/docs/concepts/agents) or take a deeper look at text generation features [generating text](/docs/concepts/generating-text) and [streaming text](/docs/concepts/generating-text#streaming-text).
+These examples cover the basic usage of the AI SDK. To explore more advanced capabilities, dive into the core concepts such as [Tool Calling](/docs/concepts/tools) and [Agents](/docs/concepts/agents) or take a deeper look at text generation features [generating text](/docs/concepts/language-model-request#generate_text) and [streaming text](/docs/concepts/language-model-request#stream_text).

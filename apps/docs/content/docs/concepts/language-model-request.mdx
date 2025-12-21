@@ -1,0 +1,219 @@
+---
+title: Language Model Request
+---
+
+The `LanguageModelRequest` is the central interface for interacting with Large Language Models (LLMs) in `aisdk`. It provides a type-safe, fluent API for configuring and executing generation tasks.
+
+## Model Providers
+
+To interact with a model, you first need a **Provider**. Providers act as a bridge to different AI services (like OpenAI, Google Gemini, or Anthropic). You can see the full list of [Available Providers](/docs#model-providers).
+
+### Enable the provider of your choice
+
+For this example, we'll use OpenAI as our provider. But you can enable the provider you want by using the feature flag of the [Provider](/docs/#model-providers).
+
+```bash
+cargo add aisdk --features openai # anthropic, google or any other provider.
+```
+
+All providers share a consistent interface and can be initialized using dedicated model methods:
+
+```rust
+let openai = OpenAI::gpt_5();
+```
+This initializes the OpenAI provider with the GPT-5 model and its full range of capabilities (tool calling, structured output, etc..
+
+### The Capability System
+
+Instead of discovering "Model Unsupported" errors at runtime, AISDK leverages Rust's type system to enforce model-specific constraints at compile time. This Capability System ensures that every request you build is guaranteed to be valid for the selected model before your code even runs.
+
+The Capability system will garentee the following:
+- **Tool calling**: is only available on models that support it.
+- **Reasoning**: is only available on models that support it.
+- **Structured output**: is only available on models that support it.
+- **Multimodal I/O**: Image, audio, and video Input/Output are only available on models that support them.
+
+Example:
+
+```rust
+// ✅ THIS WORKS: GPT-5 supports tool calls
+let request = LanguageModelRequest::builder()
+    .model(OpenAI::gpt_5())
+    .with_tool(my_tool) // Valid!
+    .build();
+
+// ❌ THIS FAILS TO COMPILE: Because O1 Mini doesn't support tool calls
+let request = LanguageModelRequest::builder()
+    .model(OpenAI::o1_mini())
+    .with_tool(my_tool) // ERROR: The trait `ToolCallSupport` is not implemented..
+    .build();
+```
+
+## The Type-State Builder
+
+To ensure requests are constructed correctly, `LanguageModelRequest` uses a **type-state builder pattern**. This catches configuration errors at compile time by enforcing a specific order of operations.
+
+The builder flows through several stages:
+
+1.  **ModelStage**: Initialize the builder and specify the model using `.model(M)`.
+2.  **SystemStage**: (Optional) Provide context or instructions using `.system("...")`.
+3.  **ConversationStage**: Provide the core input using either `.prompt("...")` or `.messages(msgs)`. 
+    > These two are **mutually exclusive**. The type-state builder ensures that once you choose one, the other becomes unavailable at compile time.
+4.  **OptionsStage**: Configure optional parameters like temperature or tools, then call `.build()`.
+
+## Available Methods
+
+### Input Methods
+
+```rust
+// System Prompt/Instructions
+.system("You are a helpful assistant that speaks like a pirate.")
+
+// Simple text prompt
+.prompt("What is the capital of France?")
+
+// Full conversation history using Message::builder()
+let messages = Message::builder()
+    .user("Oh great and wise Borrow Checker, why do you reject my humble reference?")
+    .assistant("Your reference's lifespan is shorter than a mayfly's existence in this scope.")
+    .user("But I promised to use 'unsafe' only on weekends!")
+    .assistant("Safety is a lifestyle, not a part-time job.")
+    .build();
+
+builder.messages(messages)
+```
+
+- `system(impl Into<String>)`: Sets the system prompt (available in `SystemStage`).
+- `prompt(impl Into<String>)`: Sets a simple user prompt.
+- `messages(Messages)`: Sets a full conversation history for multi-turn interactions.
+
+### Generation Configuration
+
+Parameters that accept a `u32` (0-100) are automatically scaled: `0` is the minimum, and `100` is the maximum. These values are converted to **provider-specific configurations** under the hood.
+
+```rust
+let request = LanguageModelRequest::builder()
+    .model(OpenAI::gpt_5())
+    .prompt("Verify this complex algorithm.")
+    .temperature(20) // More deterministic
+    .top_p(95)
+    .max_retries(5)
+    .build();
+```
+
+- `temperature(u32)`: Controls randomness (0-100).
+- `top_p(u32)`: Nucleus sampling (0-100).
+- `top_k(u32)`: Limits the model to the top-K most likely tokens.
+- `seed(u32)`: Sets a random seed for deterministic outputs.
+- `max_retries(u32)`: Number of times to retry failed requests.
+- `frequency_penalty(f32)`: Reduces repetition.
+- `stop_sequences(Vec<String>)`: Sequences that trigger early termination.
+
+### Advanced Features
+- `with_tool(Tool)`: Registers a tool. See [Tool Calling](/docs/concepts/tools).
+- `schema<T: JsonSchema>()`: Configures model for [structured output](/docs/concepts/structuredoutput).
+- `reasoning_effort(ReasoningEffort)`: Sets reasoning level for supported models.
+
+## Advanced Orchestration (Agentic Systems)
+
+For complex use cases like building [Agents](/docs/concepts/agents), AISDK provides deep hooks into the request lifecycle and granular access to every interaction step.
+
+- **Lifecycle Hooks**: Methods like `on_step_start`, `on_step_finish`, and `stop_when` allow you to intercept and control the model's decision-making loop.
+- **Steps**: Every interaction (including intermediate tool calls) is captured as a `Step`, providing its own `usage()`, `messages()`, and `tool_calls()`.
+
+Detailed coverage of these features is available in the [Agents](/docs/concepts/agents#lifecylehooks) documentation.
+
+## Execution
+
+After configuring your options, you **must** call `.build()` to finalize the request before execution.
+
+### `generate_text()`
+A non-streaming method that returns the final result after all steps are completed.
+
+```rust
+let mut response = request.generate_text().await?;
+```
+
+### `stream_text()`
+
+AISDK provides real-time updates via a stream of chunks. Before initiating the stream, it is useful to understand the possible chunk types:
+
+**LanguageModelStreamChunkType:**
+- `Start`: Indicates the beginning of the stream.
+- `Text(String)`: A partial text delta.
+- `Reasoning(String)`: A partial reasoning delta.
+- `ToolCall(String)`: A partial tool call argument delta.
+- `End(AssistantMessage)`: The final terminal message containing the full result and usage.
+
+Consume the stream using a loop:
+
+```rust
+let response = request.stream_text().await?;
+let mut stream = response.stream;
+
+while let Some(chunk) = stream.next().await {
+    if let LanguageModelStreamChunkType::Text(text) = chunk {
+        print!("{}", text);
+    }
+}
+```
+
+## Response Types Reference
+
+Both `GenerateTextResponse` and `StreamTextResponse` provide methods to inspect the final state. 
+
+> [!NOTE]
+> Methods on `StreamTextResponse` are **async** and should be called after consumption for final metadata. Detailed information is available in the API reference.
+
+| Method | Description |
+| :--- | :--- |
+| `text()` | The text content of the last assistant message. |
+| `content()` | The content of the last assistant message (excluding reasoning). |
+| `usage()` | Aggregated token usage across all steps. |
+| `messages()` | Returns all messages in the conversation history. |
+| `stop_reason()` | The reason generation stopped (e.g., `Finish`, `Hook`, `Error`). |
+| `options()` | Access the configuration options that generated this response. |
+| `steps()` | Returns all `Step`s in chronological order. |
+| `last_step()` | Returns the most recent `Step`. |
+| `step(id)` | Returns a specific `Step` by its ID. |
+| `tool_calls()` | All tool calls requested during the entire process. |
+| `tool_results()` | All tool results obtained during the entire process. |
+
+### Non-Streaming Example
+
+```rust
+let response = LanguageModelRequest::builder()
+    .model(OpenAI::gpt_5())
+    .prompt("What is 2+2?")
+    .build()
+    .generate_text()
+    .await?;
+
+println!("Text: {}", response.text().unwrap());
+println!("Usage: {:?}", response.usage());
+println!("Stop Reason: {:?}", response.stop_reason());
+println!("Final Content: {:?}", response.content());
+```
+
+### Streaming Example
+
+```rust
+let response = LanguageModelRequest::builder()
+    .model(OpenAI::gpt_5())
+    .prompt("Write a short story.")
+    .build()
+    .stream_text()
+    .await?;
+
+let mut stream = response.stream;
+while let Some(chunk) = stream.next().await {
+    if let LanguageModelStreamChunkType::Text(text) = chunk {
+        print!("{}", text);
+    }
+}
+
+// Access final metadata after stream consumption
+let final_usage = response.usage().await;
+let steps = response.steps().await;
+let reason = response.stop_reason().await;
+```
