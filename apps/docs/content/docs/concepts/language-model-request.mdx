@@ -142,7 +142,6 @@ AISDK provides real-time updates via a stream of chunks. Before initiating the s
 - `Start`: Indicates the beginning of the stream.
 - `Text(String)`: A partial text delta.
 - `Reasoning(String)`: A partial reasoning delta.
-- `ToolCall(String)`: A partial tool call argument delta.
 - `End(AssistantMessage)`: The final terminal message containing the full result and usage.
 
 Consume the stream using a loop:
@@ -172,7 +171,6 @@ Both `GenerateTextResponse` and `StreamTextResponse` provide methods to inspect 
 | `usage()` | Aggregated token usage across all steps. |
 | `messages()` | Returns all messages in the conversation history. |
 | `stop_reason()` | The reason generation stopped (e.g., `Finish`, `Hook`, `Error`). |
-| `options()` | Access the configuration options that generated this response. |
 | `steps()` | Returns all `Step`s in chronological order. |
 | `last_step()` | Returns the most recent `Step`. |
 | `step(id)` | Returns a specific `Step` by its ID. |
