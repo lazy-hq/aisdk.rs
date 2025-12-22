@@ -33,7 +33,7 @@ The Capability system will garentee the following:
 - **Structured output**: is only available on models that support it.
 - **Multimodal I/O**: Image, audio, and video Input/Output are only available on models that support them.
 
-Example:
+Here is how the type system protects you:
 
 ```rust
 // ✅ THIS WORKS: GPT-5 supports tool calls
@@ -120,7 +120,7 @@ let request = LanguageModelRequest::builder()
 
 ### Orchestration Features
 - `with_tool(Tool)`: Registers a tool. See [Tool Calling](/docs/concepts/tools).
-- `schema<T: JsonSchema>()`: Configures model for [structured output](/docs/concepts/structuredoutput).
+- `schema<T: JsonSchema>()`: Configures model for [structured output](/docs/concepts/structured-output).
 - **Lifecycle Hooks** : Lifecycle hooks and step-level introspection See [Agents](/docs/concepts/agents#lifecycle-hooks).
 	- `on_step_start`: Invoked when a new reasoning step begins.
 	- `on_step_finish`: Invoked when a step completes.
@@ -233,5 +233,5 @@ let reason = response.stop_reason().await;
 ## Next Steps
 
 * Learn how to create [Custom Tools](/docs/concepts/tools).
-* Explore [Structured Output](/docs/concepts/structuredoutput) for reliable agent data.
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 * Learn more about [Agents](/docs/concepts/agents).

@@ -1,0 +1,138 @@
+---
+title: Structured Output
+---
+
+Structured Output allows you to force a model to output valid JSON that matches a specific schema. This is essential for building reliable applications where the model's response is consumed directly by application logic.
+
+## Introduction & Type Safety
+
+AISDK utilizes the [**Capability System**](/docs/concepts/language-model-request#the-capability-system) to ensure that **structured output** is only requested from models that officially support it. This check happens at **compile time**, preventing runtime errors and ensuring your code is robust.
+
+Here is how the type system protects you:
+
+```rust
+// ✅ Supported Model (GPT-4o)
+let result = LanguageModelRequest::builder()
+    .model(OpenAI::gpt_4o())
+    .prompt("Extract user info")
+    .schema::<User>() // Works!
+    .build()
+    .generate_text()
+    .await?;
+```
+
+```rust
+// ❌ THIS FAILS TO COMPILE: Because gpt-4o-turbo doesn't support structured output
+let result = LanguageModelRequest::builder()
+    .model(OpenAI::gpt_4_turbo()) 
+    .prompt("Extract user info")
+    .schema::<User>() // ERROR: The trait `StructuredOutputSupport` is not implemented..
+    .build()
+    .generate_text()
+    .await?;
+```
+
+## Getting Started
+
+AISDK relies on the `serde` and `schemars` crates to convert rust structs into JSON and vice versa. Add them to your Cargo.toml to enable structured output.
+
+```bash
+cargo add serde schemars
+```
+
+### Defining a Schema
+
+Define your target data structures using simple patterns, such as `#[derive(JsonSchema, Deserialize)]`.:
+
+```rust
+use schemars::JsonSchema;
+use serde::Deserialize;
+
+#[derive(JsonSchema, Deserialize, Debug)]
+struct UserInfo {
+    name: String,
+    age: u32,
+    email: Option<String>,
+}
+```
+
+## Example: Information Extraction
+
+Here is how to extract structured data from a block of text.
+
+```rust
+use aisdk::core::LanguageModelRequest;
+use aisdk::providers::openai::OpenAI;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let input = "My name is Alice, I am 28 years old and you can reach me at alice@example.com";
+
+    let response = LanguageModelRequest::builder()
+        .model(OpenAI::gpt_5())
+        .prompt(format!("Extract information from: {}", input))
+        .schema::<UserInfo>() // Tell the model what structure you expect
+        .build()
+        .generate_text()
+        .await?;
+
+    // Deserialize the response into your struct
+    let user: UserInfo = response.into_schema()?;
+
+    println!("Name: {}", user.name);
+    println!("Age: {}", user.age);
+    println!("Email: {}", user.email.unwrap_or_default());
+
+    Ok(())
+}
+```
+
+## Advanced Schemas
+
+You can use complex Rust types to define sophisticated schemas.
+
+### Enums for Classification
+
+Enums are perfect for categorizing input into a fixed set of options.
+
+```rust
+#[derive(JsonSchema, Deserialize, Debug)]
+enum Sentiment {
+    Positive,
+    Negative,
+    Neutral,
+}
+
+#[derive(JsonSchema, Deserialize, Debug)]
+struct SentimentAnalysis {
+    sentiment: Sentiment,
+    confidence: f32, // 0.0 to 1.0
+}
+```
+
+### Nested Objects and Lists
+
+You can nest structs and use `Vec` to represent complex heirarchies.
+
+```rust
+#[derive(JsonSchema, Deserialize, Debug)]
+struct Recipe {
+    name: String,
+    ingredients: Vec<Ingredient>,
+    prep_time_minutes: u32,
+}
+
+#[derive(JsonSchema, Deserialize, Debug)]
+struct Ingredient {
+    item: String,
+    amount: String,
+}
+```
+
+---
+
+## Next Steps
+- Explore creating [Custom Tools](/docs/concepts/tools).
+- Learn how [Agents](/docs/concepts/agents) use Structured Output for routing.
+- See the full [Language Model Request](/docs/concepts/language-model-request) documentation.

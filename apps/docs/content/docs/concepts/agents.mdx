@@ -183,7 +183,7 @@ enum QueryType {
 }
 
 // 1. Classify the query using Structured Output
-let mut response = LanguageModelRequest::builder()
+let response = LanguageModelRequest::builder()
     .model(OpenAI::gpt_4o_mini())
     .prompt(user_query)
     .schema::<QueryType>()
@@ -272,5 +272,5 @@ println!("Final Structured Report: {:?}", summary);
 
 ## Next Steps
 - Learn how to create [Custom Tools](/docs/concepts/tools).
-- Explore [Structured Output](/docs/concepts/structuredoutput) for reliable agent data.
+- Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 - See how [Capabilities](/docs/concepts/language-model-request#capability-system) protect your agent logic.
