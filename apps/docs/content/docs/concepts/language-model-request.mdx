@@ -53,17 +53,23 @@ let request = LanguageModelRequest::builder()
 
 To ensure requests are constructed correctly, `LanguageModelRequest` uses a **type-state builder pattern**. This catches configuration errors at compile time by enforcing a specific order of operations.
 
-The builder flows through several stages:
+Builder steps through well-defined stages. Each stage exposes only its own methods:
 
 1.  **ModelStage**: Initialize the builder and specify the model using `.model(M)`.
 2.  **SystemStage**: (Optional) Provide context or instructions using `.system("...")`.
-3.  **ConversationStage**: Provide the core input using either `.prompt("...")` or `.messages(msgs)`. 
+3.  **ConversationStage**: Provide the **[Request Inputs](#request-inputs)** using either `.prompt("...")` or `.messages(msgs)`. 
     > These two are **mutually exclusive**. The type-state builder ensures that once you choose one, the other becomes unavailable at compile time.
-4.  **OptionsStage**: Configure optional parameters like temperature or tools, then call `.build()`.
+4. **OptionsStage**
+   Tune model behavior and enable advanced capabilities using:
 
-## Available Methods
+   * **[Model Options](#model-options)** (e.g. `.temperature(..)`)
+   * **[Orchestration Features](#orchestration-features)** (e.g. `.with_tool(..)`, structured output)
 
-### Input Methods
+Finalize the request by calling `.build()`
+
+This structure ensures each method is only available when valid, while still supporting advanced and agentic workflows.
+
+### Request Inputs
 
 ```rust
 // System Prompt/Instructions
@@ -71,6 +77,8 @@ The builder flows through several stages:
 
 // Simple text prompt
 .prompt("What is the capital of France?")
+
+// OR
 
 // Full conversation history using Message::builder()
 let messages = Message::builder()
@@ -80,14 +88,14 @@ let messages = Message::builder()
     .assistant("Safety is a lifestyle, not a part-time job.")
     .build();
 
-builder.messages(messages)
+.messages(messages)
 ```
 
 - `system(impl Into<String>)`: Sets the system prompt (available in `SystemStage`).
 - `prompt(impl Into<String>)`: Sets a simple user prompt.
 - `messages(Messages)`: Sets a full conversation history for multi-turn interactions.
 
-### Generation Configuration
+### Model Options
 
 Parameters that accept a `u32` (0-100) are automatically scaled: `0` is the minimum, and `100` is the maximum. These values are converted to **provider-specific configurations** under the hood.
 
@@ -108,31 +116,37 @@ let request = LanguageModelRequest::builder()
 - `max_retries(u32)`: Number of times to retry failed requests.
 - `frequency_penalty(f32)`: Reduces repetition.
 - `stop_sequences(Vec<String>)`: Sequences that trigger early termination.
-
-### Advanced Features
-- `with_tool(Tool)`: Registers a tool. See [Tool Calling](/docs/concepts/tools).
-- `schema<T: JsonSchema>()`: Configures model for [structured output](/docs/concepts/structuredoutput).
 - `reasoning_effort(ReasoningEffort)`: Sets reasoning level for supported models.
 
-## Advanced Orchestration (Agentic Systems)
-
-For complex use cases like building [Agents](/docs/concepts/agents), AISDK provides deep hooks into the request lifecycle and granular access to every interaction step.
-
-- **Lifecycle Hooks**: Methods like `on_step_start`, `on_step_finish`, and `stop_when` allow you to intercept and control the model's decision-making loop.
-- **Steps**: Every interaction (including intermediate tool calls) is captured as a `Step`, providing its own `usage()`, `messages()`, and `tool_calls()`.
-
-Detailed coverage of these features is available in the [Agents](/docs/concepts/agents#lifecylehooks) documentation.
+### Orchestration Features
+- `with_tool(Tool)`: Registers a tool. See [Tool Calling](/docs/concepts/tools).
+- `schema<T: JsonSchema>()`: Configures model for [structured output](/docs/concepts/structuredoutput).
+- **Lifecycle Hooks** : Lifecycle hooks and step-level introspection See [Agents](/docs/concepts/agents#lifecylehooks).
+	- `on_step_start`: Invoked when a new reasoning step begins.
+	- `on_step_finish`: Invoked when a step completes.
+	- `stop_when`: Terminates execution based on a custom condition.
 
 ## Execution
 
 After configuring your options, you **must** call `.build()` to finalize the request before execution.
+````rust
+let request = LanguageModelRequest::builder()
+	.model(OpenAI::gpt_5())
+	.prompt("Why is the sky blue?")
+	.temperature(60)
+	// Other options...
+	.build();
+````
 
 ### `generate_text()`
 A non-streaming method that returns the final result after all steps are completed.
 
 ```rust
-let mut response = request.generate_text().await?;
+let response = request.generate_text().await?;
+
+println!("Response Text: {:?}", response.text());
 ```
+See the full Response Types Reference [here](/docs/concepts/language-model-request#response-types-reference)
 
 ### `stream_text()`
 
@@ -187,7 +201,7 @@ let response = LanguageModelRequest::builder()
     .generate_text()
     .await?;
 
-println!("Text: {}", response.text().unwrap());
+println!("Text: {:?}", response.text());
 println!("Usage: {:?}", response.usage());
 println!("Stop Reason: {:?}", response.stop_reason());
 println!("Final Content: {:?}", response.content());
@@ -215,3 +229,9 @@ let final_usage = response.usage().await;
 let steps = response.steps().await;
 let reason = response.stop_reason().await;
 ```
+
+## Next Steps
+
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Explore [Structured Output](/docs/concepts/structuredoutput) for reliable agent data.
+* Learn more about [Agents](/docs/concepts/agents).

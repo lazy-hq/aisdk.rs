@@ -15,13 +15,12 @@ Enable the Google provider feature:
 cargo add aisdk --features google
 ```
 
-This installs AISDK with the Google provider enabled.
+This installs AISDK with the Google provider enabled. Once you have enabled the Google provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
-Once you have enabled the Google provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+## Create a Provider Instance
 
-### Quick Start
-
-Create a Google provider instance with default settings:
+To create a provider instance, call `Google::model_name()`, where **model_name** is the Google model you want to use.
+Model names are exposed as snake-case methods.
 
 ```rust
 use aisdk::providers::google::Google;
@@ -33,9 +32,11 @@ This initializes the provider with:
 
 * Model: `"gemini-2-5-flash"`
 * API key from environment (if set with `GOOGLE_API_KEY`)
-* Google’s default base URL
+* Google’s default base URL (https://generativelanguage.googleapis.com/v1beta)
 
 ## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
 
 ```rust
 use aisdk::{
@@ -46,7 +47,6 @@ use aisdk::{
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    // Initialize provider with default settings.
     let google = Google::gemini_2_5_flash();
 
     let response = LanguageModelRequest::builder()
@@ -54,10 +54,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .prompt("Write a short poem about Rust.")
         .build()
         .generate_text()
-        .await?
-        .text()?;
+        .await?;
 
-    println!("Model output: {}", response);
+    println!("Response text: {:?}", response.text());
     Ok(())
 }
 ```
@@ -105,3 +104,10 @@ let google = Google::<Gemini25Flash>::builder()
     .provider_name("Google")
     .build()?;
 ```
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structuredoutput) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

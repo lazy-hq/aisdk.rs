@@ -138,7 +138,7 @@ let text = LanguageModelRequest::builder()
 	.build()
 	.generate_text()
 	.await?
-	.text()?;
+	.text();
 }
 `;
 
@@ -154,7 +154,7 @@ let text = LanguageModelRequest::builder()
 	.build()
 	.generate_text()
 	.await?
-	.text()?;
+	.text();
 }
 `;
 
@@ -170,7 +170,7 @@ let text = LanguageModelRequest::builder()
 	.build()
 	.generate_text()
 	.await?
-	.text()?;
+	.text();
 }
 `;
 

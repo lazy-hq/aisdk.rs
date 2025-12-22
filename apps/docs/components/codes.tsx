@@ -15,7 +15,7 @@ async fn main() {
         .await
         .unwrap();
 
-    println!("{}", result.text().unwrap());
+    println!("{:?}", result.text());
 }
 `;
 
@@ -36,7 +36,7 @@ async fn main() {
         .await
         .unwrap();
 
-    println!("{}", result.text().unwrap());
+    println!("{:?}", result.text());
 }
 `;
 
@@ -57,7 +57,7 @@ async fn main() {
         .await
         .unwrap();
 
-    println!("{}", result.text().unwrap());
+    println!("{:?}", result.text());
 }
 `;
 
