@@ -121,7 +121,7 @@ let request = LanguageModelRequest::builder()
 ### Orchestration Features
 - `with_tool(Tool)`: Registers a tool. See [Tool Calling](/docs/concepts/tools).
 - `schema<T: JsonSchema>()`: Configures model for [structured output](/docs/concepts/structuredoutput).
-- **Lifecycle Hooks** : Lifecycle hooks and step-level introspection See [Agents](/docs/concepts/agents#lifecylehooks).
+- **Lifecycle Hooks** : Lifecycle hooks and step-level introspection See [Agents](/docs/concepts/agents#lifecycle-hooks).
 	- `on_step_start`: Invoked when a new reasoning step begins.
 	- `on_step_finish`: Invoked when a step completes.
 	- `stop_when`: Terminates execution based on a custom condition.

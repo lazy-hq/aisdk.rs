@@ -13,40 +13,18 @@ In AISDK, these components work together:
 
 ## The Agentic Loop
 
-When you provide tools to a [LanguageModelRequest](/docs/concepts/language-model-request), AISDK automatically manages the agentic loop. 
+When you provide tools to a [LanguageModelRequest](/docs/concepts/language-model-request), AISDK automatically manages the **Agentic Loop**. 
 
-1. **Reasoning**: The model decides to call one or more tools.
+Every interaction between the model and the environment (including tool calls and intermediate reasoning) is recorded as a **Step**. A single complex request might result in multiple steps, each containing full context.
+
+1. **Reasoning**: The model decides to call one or more tools. This triggers a new **Step**.
 2. **Action**: AISDK executes the tools and captures their results.
 3. **Observation**: The results are fed back into the conversation history.
 4. **Re-evaluation**: The model decides the next step based on the new context.
 
-### Loop Control (`stop_when`)
+## Example: The Weather Agent
 
-Because agents operate in a loop, it is critical to prevent infinite execution or excessive token usage. AISDK provides the `.stop_when()` method to define explicit exit conditions.
-
-The `stop_when` method accepts a closure with the following signature:
-`Fn(&LanguageModelOptions) -> bool`
-
-This closure receives the current state of the request (including all interaction history and options) and returns `true` if the loop should terminate.
-
-#### Using `step_count_is`
-
-The most common way to control an agent loop is by limiting the number of turns. AISDK provides a `step_count_is(n)` utility for this purpose.
-
-```rust
-use aisdk::core::utils::step_count_is;
-
-let request = LanguageModelRequest::builder()
-    .model(OpenAI::gpt_5())
-    .prompt("Research the history of Rust and summarize it.")
-    .with_tool(search_web())
-    .stop_when(step_count_is(5)) // Exit after 5 turns
-    .build();
-```
-
-## Core Example: The Weather Agent
-
-Here is a complete agent that uses multiple tools in a loop to answer complex queries.
+Here is a example agent that uses multiple tools to answer questions.
 
 ```rust
 use aisdk::core::{LanguageModelRequest, Tool, utils::step_count_is};
@@ -69,10 +47,9 @@ fn fahrenheit_to_celsius(f: f32) -> Tool {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let openai = OpenAI::gpt_5();
 
-    let mut response = LanguageModelRequest::builder()
-        .model(openai)
+    let weather_agent = LanguageModelRequest::builder()
+        .model(OpenAI::gpt_5())
         .system("You are a helpful weather assistant.")
         .prompt("What is the weather in San Francisco in Celsius?")
         .with_tool(get_weather())
@@ -82,15 +59,59 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .generate_text()
         .await?;
 
-    println!("Final Answer: {:?}", response.text());
-    
-    // Inspect the steps taken
-    for step in response.steps() {
-        println!("Turn {}: Usage: {:?}", step.step_id, step.usage());
-    }
+    println!("Final Answer: {:?}", weather_agent.text());
 
     Ok(())
 }
+```
+
+## Accessing Step Metadata
+
+You can access the history of these turns from the response. Each **Step** provides:
+
+- `step_id`: The chronological identifier of the turn.
+- `messages()`: All messages recorded during this specific step.
+- `usage()`: Token usage statistics for this turn.
+- `tool_calls()`: Any tools requested by the model.
+- `tool_results()`: Any results received from tools.
+
+```rust
+for step in weather_agent.steps() {
+    println!("--- Turn {} ---", step.step_id);
+    println!("Messages in this turn: {} Usage: {:?}", step.messages().len(), step.usage());
+}
+```
+
+## Loop Control (`stop_when`)
+
+Because agents operate in a loop, it is critical to prevent infinite execution or excessive token usage. AISDK provides the `.stop_when()` method to define explicit exit conditions.
+
+The `stop_when` method accepts a closure with the following signature: `Fn(&LanguageModelOptions) -> bool`. This closure receives the current state of the request (including all interaction history and options) and returns `true` if the loop should terminate.
+
+```rust
+/// Example: Stop when total token usage exceeds 1000:
+.stop_when(|options| options.usage().total_tokens > 1000)
+
+/// Example: Stop if the last assistant message contains "DONE":
+.stop_when(|options| {
+    options.text().map_or(false, |t| t.contains("DONE"))
+})
+
+/// Example: Stop after 5 tool calls:
+.stop_when(|options| {
+    options.tool_calls().map_or(false, |calls| calls.len() > 5)
+})
+```
+
+#### Using `step_count_is` Helper:
+
+The most common way to control an agent loop is by limiting the number of turns (steps). AISDK provides a `step_count_is(n)` utility for this purpose.
+
+```rust
+use aisdk::core::utils::step_count_is;
+
+// Stop after 3 steps
+.stop_when(step_count_is(3))
 ```
 
 ## Lifecycle Hooks
@@ -98,17 +119,47 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 Hooks allow you to intercept the agent at different stages of its thinking process. This is powerful for logging, custom moderation, or dynamically adjusting the agent's context.
 
 ### `on_step_start`
-Runs before the model generates a response for a specific step.
-- **Use case**: Log the exact context being sent to the model for debugging.
 
-### `on_step_finish`
-Runs after a model response is received but before tools are executed (or after the final response).
-- **Use case**: Intercept a model's request to call a "dangerous" tool and ask for user permission.
+Runs **before** the model generates a response for a specific step. It receives a mutable reference to the current options, allowing you to modify the request context on the fly.
+
+**Signature**: `Fn(&mut LanguageModelOptions)`
 
 ```rust
-.on_step_finish(|opts| {
-    if let Some(tool_calls) = opts.last_step().tool_calls() {
-        println!("The agent wants to call {} tools.", tool_calls.len());
+/// Example: Dynamically update the system prompt based on turn count:
+.on_step_start(|options| {
+    let turn = options.steps().len();
+    if turn > 3 {
+        options.system = Some("You are now in 'Critical Mode'. Be brief.".into());
+    }
+})
+
+/// Example: Increase temperature as the conversation progresses:
+.on_step_start(|options| {
+    let turn = options.steps().len();
+    options.temperature = Some(turn as u32 * 10); // Increases randomness
+})
+```
+
+### `on_step_finish`
+
+Runs **after** a model response is received but **before** tools are executed (or after the final response). It is ideal for observing the model's intent or performing safety checks.
+
+**Signature**: `Fn(&mut LanguageModelOptions)`
+
+```rust
+/// Example: Log the model's intent or reasoning:
+.on_step_finish(|options| {
+    if let Some(step) = options.last_step() {
+        println!("Turn {} finished. Reasoning: {:?}", step.step_id, step.usage());
+    }
+})
+
+/// Example: Monitor for specific tool usage:
+.on_step_finish(|options| {
+    if let Some(calls) = options.tool_calls() {
+        if calls.iter().any(|c| c.function.name == "delete_database") {
+            println!("WARNING: Agent requested a dangerous operation!");
+        }
     }
 })
 ```
@@ -172,35 +223,51 @@ let translation = LanguageModelRequest::builder()
 ```
 
 ### Parallel Processing
-Execute independent tasks concurrently using `tokio::try_join!` to reduce total latency.
+
+Execute independent tasks concurrently using `tokio::try_join!` to reduce latency. This is ideal for patterns like multi-expert reviews, where specialized models audit the same input for different concerns.
 
 ```rust
-let (security, performance) = tokio::try_join!(
-    run_security_audit(code), // Internal functions returning Results
-    run_performance_benchmark(code)
+use schemars::JsonSchema;
+use serde::Deserialize;
+
+#[derive(JsonSchema, Deserialize, Debug)]
+struct ReviewSummary {
+    vulnerabilities_found: bool,
+    performance_score: u32,
+    action_items: Vec<String>,
+}
+
+// 1. Run specialized reviews in parallel (Returning Text)
+let (security_res, performance_res) = tokio::try_join!(
+    LanguageModelRequest::builder()
+        .model(OpenAI::gpt_4o())
+        .system("You are a security expert.")
+        .prompt(format!("Review this code: {}", code))
+        .build()
+        .generate_text(),
+    LanguageModelRequest::builder()
+        .model(OpenAI::gpt_4o())
+        .system("You are a performance expert.")
+        .prompt(format!("Review this code: {}", code))
+        .build()
+        .generate_text()
 )?;
-```
 
-### Evaluator-Optimizer
-One request generates a solution, while a second critques and improves it.
-
-```rust
-// 1. Initial Draft
-let draft = LanguageModelRequest::builder()
+// 2. Aggregate results into a Structured Report
+let report = LanguageModelRequest::builder()
     .model(OpenAI::gpt_5())
-    .prompt("Write a startup pitch for a solar-powered toaster.")
+    .system("You are a technical lead summarizing multiple code reviews.")
+    .prompt(format!(
+        "Synthesize these reviews into a structured report: \nSecurity: {:?} \nPerformance: {:?}",
+        security_res.text(), performance_res.text()
+    ))
+    .schema::<ReviewSummary>()
     .build()
     .generate_text()
     .await?;
 
-// 2. Refined Draft with Critique
-let refined = LanguageModelRequest::builder()
-    .model(OpenAI::gpt_5())
-    .system("You are a picky investor.")
-    .prompt(format!("Critique and improve this pitch: {:?}", draft.text()))
-    .build()
-    .generate_text()
-    .await?;
+let summary: ReviewSummary = report.into_schema().unwrap();
+println!("Final Structured Report: {:?}", summary);
 ```
 
 ## Next Steps
