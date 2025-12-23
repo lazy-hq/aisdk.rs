@@ -126,131 +126,155 @@ export function Hero() {
 }
 
 const ProvidersExampleCodeTabs = () => {
-	const [activeCategory, setActiveCategory] = useState<
-		"basic" | "tool" | "structured"
-	>("basic");
+	const [activeCategory, setActiveCategory] = useState<Category>("basic");
 	const [isStreaming, setIsStreaming] = useState(false);
-	const [isGuardEnabled, setIsGuardEnabled] = useState(false);
 
-	const codeSnippets = {
-		basic: {
-			openai: (
-				streaming: boolean,
-				guard: boolean,
-			) => `use aisdk::{core::LanguageModelRequest, providers::openai::OpenAI};
+	/* ------------------------------------------------------------------ */
+	/* Types */
+	/* ------------------------------------------------------------------ */
 
-let response = LanguageModelRequest::builder()
-    .model(OpenAI::${guard ? "gpt_4o_mini()" : "gpt_5()"})
-    .${guard ? "reasoning_effort(ReasoningEffort::High)" : 'prompt("What is the meaning of life?")'}
-    .build() ${guard ? "// ❌ COMPILE ERROR: Reasoning not supported" : ""}
-    .${streaming ? "stream_text()" : "generate_text()"}
-    .await?;${streaming ? "\n\nlet mut stream = response.stream;\nwhile let Some(chunk) = stream.next().await {\n    // process chunk\n}" : "\n\nlet text = response.text();"}`,
-			anthropic: (
-				streaming: boolean,
-				guard: boolean,
-			) => `use aisdk::{core::LanguageModelRequest, providers::anthropic::Anthropic};
+	type Category = "basic" | "tool" | "structured";
+	type ProviderKey = "openai" | "anthropic" | "google";
 
-let response = LanguageModelRequest::builder()
-    .model(Anthropic::${guard ? "claude_3_haiku()" : "claude_opus_4_5()"})
-    .prompt("What is the meaning of life?")
-    .build()
-    .${streaming ? "stream_text()" : "generate_text()"}
-    .await?;${streaming ? "\n\nlet mut stream = response.stream;\nwhile let Some(chunk) = stream.next().await {\n    // process chunk\n}" : "\n\nlet text = response.text();"}`,
-			google: (
-				streaming: boolean,
-				guard: boolean,
-			) => `use aisdk::{core::LanguageModelRequest, providers::google::Google};
+	interface ProviderConfig {
+		label: string;
+		model: string;
+		basicPrompt?: string;
+		icon: React.ReactNode;
+	}
 
-let response = LanguageModelRequest::builder()
-    .model(Google::${guard ? "gemini_1_flash()" : "gemini_3_flash_preview()"})
-    .prompt("What is the meaning of life?")
-    .build()
-    .${streaming ? "stream_text()" : "generate_text()"}
-    .await?;${streaming ? "\n\nlet mut stream = response.stream;\nwhile let Some(chunk) = stream.next().await {\n    // process chunk\n}" : "\n\nlet text = response.text();"}`,
+	interface CodeContext {
+		provider: string;
+		model: string;
+		method: string;
+		streaming: boolean;
+	}
+
+	/* ------------------------------------------------------------------ */
+	/* Provider Definitions */
+	/* ------------------------------------------------------------------ */
+
+	const PROVIDERS: Record<ProviderKey, ProviderConfig> = {
+		openai: {
+			label: "OpenAI",
+			model: "gpt_5()",
+			basicPrompt: '.prompt("What is the meaning of life?")',
+			icon: <OpenAI className="w-4 h-4 mr-2" />,
 		},
-		tool: {
-			openai: (streaming: boolean, guard: boolean) => `#[tool]
-fn get_weather(location: String) -> Tool {
-    Ok(format!("72°F in {}", location))
-}
-
-let response = LanguageModelRequest::builder()
-    .model(OpenAI::${guard ? "o1_mini()" : "gpt_5()"})
-    .prompt("Weather in SF?")
-    .with_tool(get_weather()) ${guard ? "// ❌ COMPILE ERROR: Tools not supported" : ""}
-    .build()
-    .${streaming ? "stream_text()" : "generate_text()"}
-    .await?;`,
-			anthropic: (streaming: boolean, guard: boolean) => `#[tool]
-fn get_weather(location: String) -> Tool {
-    Ok(format!("72°F in {}", location))
-}
-
-let response = LanguageModelRequest::builder()
-    .model(Anthropic::${guard ? "claude_3_haiku()" : "claude_opus_4_5()"})
-    .prompt("Weather in SF?")
-    .with_tool(get_weather())
-    .build()
-    .${streaming ? "stream_text()" : "generate_text()"}
-    .await?;`,
-			google: (streaming: boolean, guard: boolean) => `#[tool]
-fn get_weather(location: String) -> Tool {
-    Ok(format!("72°F in {}", location))
-}
-
-let response = LanguageModelRequest::builder()
-    .model(Google::${guard ? "gemini_1_0_pro()" : "gemini_3_flash_preview()"})
-    .prompt("Weather in SF?")
-    .with_tool(get_weather())
-    .build()
-    .${streaming ? "stream_text()" : "generate_text()"}
-    .await?;`,
+		anthropic: {
+			label: "Anthropic",
+			model: "claude_opus_4_5()",
+			basicPrompt: '.prompt("What is the meaning of life?")',
+			icon: <Anthropic className="w-4 h-4 mr-2" />,
 		},
-		structured: {
-			openai: (
-				streaming: boolean,
-				guard: boolean,
-			) => `#[derive(JsonSchema, Deserialize)]
-struct User { name: String, age: u32 }
-
-let response = LanguageModelRequest::builder()
-    .model(OpenAI::${guard ? "gpt_4_turbo()" : "gpt_5()"})
-    .prompt("Extract: Alice, 28")
-    .schema::<User>() ${guard ? "// ❌ COMPILE ERROR: Structured Output not supported" : ""}
-    .build()
-    .${streaming ? "stream_text()" : "generate_text()"}
-    .await?;${streaming ? "" : "\n\nlet user: User = response.into_schema()?;"}`,
-			anthropic: (
-				streaming: boolean,
-				guard: boolean,
-			) => `#[derive(JsonSchema, Deserialize)]
-struct User { name: String, age: u32 }
-
-let response = LanguageModelRequest::builder()
-    .model(Anthropic::${guard ? "claude_3_haiku()" : "claude_opus_4_5()"})
-    .prompt("Extract: Alice, 28")
-    .schema::<User>()
-    .build()
-    .${streaming ? "stream_text()" : "generate_text()"}
-    .await?;${streaming ? "" : "\n\nlet user: User = response.into_schema()?;"}`,
-			google: (
-				streaming: boolean,
-				guard: boolean,
-			) => `#[derive(JsonSchema, Deserialize)]
-struct User { name: String, age: u32 }
-
-let response = LanguageModelRequest::builder()
-    .model(Google::${guard ? "gemini_1_0_pro()" : "gemini_3_flash_preview()"})
-    .prompt("Extract: Alice, 28")
-    .schema::<User>()
-    .build()
-    .${streaming ? "stream_text()" : "generate_text()"}
-    .await?;${streaming ? "" : "\n\nlet user: User = response.into_schema()?;"}`,
+		google: {
+			label: "Google",
+			model: "gemini_3_flash_preview()",
+			basicPrompt: '.prompt("What is the meaning of life?")',
+			icon: <Google.Color className="w-4 h-4 mr-2" />,
 		},
 	};
 
+	/* ------------------------------------------------------------------ */
+	/* Templates */
+	/* ------------------------------------------------------------------ */
+
+	const TEMPLATES: Record<
+		Category,
+		(ctx: CodeContext, providerConfig: ProviderConfig) => string
+	> = {
+		basic: ({ provider, model, method, streaming }, cfg) =>
+			`use aisdk::{
+    core::LanguageModelRequest,
+    providers::${provider.toLowerCase()}::${provider},
+};
+
+let ${streaming ? "stream" : "model_response"} = LanguageModelRequest::builder()
+    .model(${provider}::${model})
+    ${cfg.basicPrompt}
+    .build()
+    .${method}()
+    .await?
+    .${streaming ? "stream" : "text()"};`,
+
+		tool: ({ provider, model, method, streaming }) => `#[tool]
+/// Get the weather in a given location
+fn get_weather(location: String) -> Tool {
+    Ok(format!("72°F in {}", location))
+}
+
+let ${streaming ? "stream" : "model_response"} = LanguageModelRequest::builder()
+    .model(${provider}::${model})
+    .system("You are a helpful assistant.")
+    .prompt("Weather in SF?")
+    .with_tool(get_weather())
+    .build()
+    .${method}()
+    .await?
+    .${streaming ? "stream" : "text()"};`,
+
+		structured: ({ provider, model, method, streaming }) => {
+			const schema = `#[derive(JsonSchema, Deserialize)]
+struct User { 
+    name: String,
+    age: u32,
+    email: String
+}`;
+
+			if (streaming) {
+				return `${schema}
+
+let stream = LanguageModelRequest::builder()
+    .model(${provider}::${model})
+    .prompt("Generate a random user")
+    .schema::<User>()
+    .build()
+    .${method}()
+    .await?
+    .stream;`;
+			}
+
+			return `${schema}
+
+let user: User = LanguageModelRequest::builder()
+    .model(${provider}::${model})
+    .prompt("Generate a random user")
+    .schema::<User>()
+    .build()
+    .${method}()
+    .await?
+    .into_schema()?;`;
+		},
+	};
+
+	/* ------------------------------------------------------------------ */
+	/* Code Generator */
+	/* ------------------------------------------------------------------ */
+
+	const generateCode = (
+		category: Category,
+		providerKey: ProviderKey,
+		streaming: boolean,
+	) => {
+		const providerConfig = PROVIDERS[providerKey];
+
+		const context: CodeContext = {
+			provider: providerConfig.label,
+			model: providerConfig.model,
+			method: streaming ? "stream_text" : "generate_text",
+			streaming,
+		};
+
+		return TEMPLATES[category](context, providerConfig);
+	};
+
+	/* ------------------------------------------------------------------ */
+	/* Render */
+	/* ------------------------------------------------------------------ */
+
 	return (
 		<div className="flex flex-col space-y-4 w-full max-w-2xl mx-auto">
+			{/* Category Switch */}
 			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-4">
 				<div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-xs w-fit">
 					{(["basic", "tool", "structured"] as const).map((cat) => (
@@ -258,113 +282,69 @@ let response = LanguageModelRequest::builder()
 							key={cat}
 							type="button"
 							onClick={() => setActiveCategory(cat)}
-							className={`px-4 py-1.5 text-xs font-medium rounded-xs transition-all ${
+							className={`px-4 py-1.5 text-xs font-medium rounded-xs transition-all cursor-pointer ${
 								activeCategory === cat
 									? "bg-white dark:bg-zinc-800 text-black dark:text-white shadow-sm"
 									: "text-gray-500 hover:text-black dark:hover:text-white"
 							}`}
 						>
-							{cat.charAt(0).toUpperCase() + cat.slice(1)}
+							{cat === "tool"
+								? "Tools"
+								: cat === "structured"
+									? "Structured Output"
+									: "Basic"}
 						</button>
 					))}
 				</div>
 
-				<div className="flex items-center gap-2">
-					<div className="flex items-center gap-3 px-3 py-1.5 bg-black/5 dark:bg-white/5 rounded-xs border border-transparent transition-all">
-						<span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-							Stream
-						</span>
-						<button
-							type="button"
-							onClick={() => setIsStreaming(!isStreaming)}
-							className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none ${
-								isStreaming ? "bg-orange-500" : "bg-gray-300 dark:bg-zinc-700"
-							}`}
-						>
-							<div
-								className={`absolute top-0.75 left-0.75 w-3 h-3 bg-white rounded-full shadow-sm transition-transform duration-200 ${
-									isStreaming ? "translate-x-3.5" : "translate-x-0"
-								}`}
-							/>
-						</button>
-					</div>
-
-					<div
-						className={`flex items-center gap-3 px-3 py-1.5 bg-black/5 dark:bg-white/5 rounded-xs border transition-all ${isGuardEnabled ? "border-red-500/50 bg-red-500/5 dark:bg-red-500/10" : "border-transparent"}`}
+				{/* Streaming Toggle */}
+				<div className="flex items-center gap-3 px-3 py-1.5 bg-black/5 dark:bg-white/5 rounded-xs">
+					<span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+						Stream
+					</span>
+					<button
+						type="button"
+						onClick={() => setIsStreaming((s) => !s)}
+						className={`relative w-8 h-4.5 rounded-xs transition-colors cursor-pointer ${
+							isStreaming ? "bg-orange-500" : "bg-gray-300 dark:bg-zinc-700"
+						}`}
 					>
-						<span
-							className={`text-[10px] font-bold uppercase tracking-wider ${isGuardEnabled ? "text-red-500" : "text-gray-500 dark:text-gray-400"}`}
-						>
-							Type Guard
-						</span>
-						<button
-							type="button"
-							onClick={() => setIsGuardEnabled(!isGuardEnabled)}
-							className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none ${
-								isGuardEnabled ? "bg-red-500" : "bg-gray-300 dark:bg-zinc-700"
+						<div
+							className={`absolute top-0.75 left-0.75 w-3 h-3 bg-white rounded-full transition-transform ${
+								isStreaming ? "translate-x-3.5" : ""
 							}`}
-						>
-							<div
-								className={`absolute top-0.75 left-0.75 w-3 h-3 bg-white rounded-full shadow-sm transition-transform duration-200 ${
-									isGuardEnabled ? "translate-x-3.5" : "translate-x-0"
-								}`}
-							/>
-						</button>
-					</div>
+						/>
+					</button>
 				</div>
 			</div>
 
-			<Tabs defaultValue="openai" className="w-full rounded-xs">
-				<TabsList className="bg-transparent border-b border-black/10 dark:border-white/10 w-full justify-start rounded-none h-auto p-0 mb-4">
-					<TabsTrigger
-						value="openai"
-						className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-xs bg-transparent px-4 py-2"
-					>
-						<OpenAI className="w-4 h-4 mr-2" />
-						OpenAI
-					</TabsTrigger>
-					<TabsTrigger
-						value="anthropic"
-						className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-xs bg-transparent px-4 py-2"
-					>
-						<Anthropic className="w-4 h-4 mr-2" />
-						Anthropic
-					</TabsTrigger>
-					<TabsTrigger
-						value="google"
-						className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-xs bg-transparent px-4 py-2"
-					>
-						<Google.Color className="w-4 h-4 mr-2" />
-						Google
-					</TabsTrigger>
+			{/* Provider Tabs */}
+			<Tabs defaultValue="openai" className="w-full mt-0 rounded-xs">
+				<TabsList className="bg-transparent border-b border-black/10 dark:border-white/10 p-0">
+					{Object.entries(PROVIDERS).map(([key, cfg]) => (
+						<TabsTrigger
+							key={key}
+							value={key}
+							className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 px-4 py-2 flex items-center cursor-pointer"
+						>
+							{cfg.icon}
+							{cfg.label}
+						</TabsTrigger>
+					))}
 				</TabsList>
-				<TabsContent value="openai" className="rounded-xs bg-[#0A0A0A]">
+
+				{(Object.keys(PROVIDERS) as ProviderKey[]).map((key) => (
+					<TabsContent
+						key={key}
+						value={key}
+						className="bg-[#0A0A0A] rounded-xs"
+					>
 						<DynamicCodeBlock
 							lang="rust"
-							code={codeSnippets[activeCategory].openai(
-								isStreaming,
-								isGuardEnabled,
-							)}
+							code={generateCode(activeCategory, key, isStreaming)}
 						/>
-				</TabsContent>
-				<TabsContent value="anthropic" className="rounded-xs bg-[#0A0A0A]">
-						<DynamicCodeBlock
-							lang="rust"
-							code={codeSnippets[activeCategory].anthropic(
-								isStreaming,
-								isGuardEnabled,
-							)}
-						/>
-				</TabsContent>
-				<TabsContent value="google" className="rounded-xs bg-[#0A0A0A]">
-						<DynamicCodeBlock
-							lang="rust"
-							code={codeSnippets[activeCategory].google(
-								isStreaming,
-								isGuardEnabled,
-							)}
-						/>
-				</TabsContent>
+					</TabsContent>
+				))}
 			</Tabs>
 		</div>
 	);
