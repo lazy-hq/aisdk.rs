@@ -126,80 +126,246 @@ export function Hero() {
 }
 
 const ProvidersExampleCodeTabs = () => {
-	const openAICode = `
-use aisdk::{
-    core::LanguageModelRequest,
-    providers::openai::OpenAI,
-};
+	const [activeCategory, setActiveCategory] = useState<
+		"basic" | "tool" | "structured"
+	>("basic");
+	const [isStreaming, setIsStreaming] = useState(false);
+	const [isGuardEnabled, setIsGuardEnabled] = useState(false);
 
-let text = LanguageModelRequest::builder()
-	.model(OpenAI::gpt_5())
-	.prompt("What is the meaning of life?")
-	.build()
-	.generate_text()
-	.await?
-	.text();
+	const codeSnippets = {
+		basic: {
+			openai: (
+				streaming: boolean,
+				guard: boolean,
+			) => `use aisdk::{core::LanguageModelRequest, providers::openai::OpenAI};
+
+let response = LanguageModelRequest::builder()
+    .model(OpenAI::${guard ? "gpt_4o_mini()" : "gpt_5()"})
+    .${guard ? "reasoning_effort(ReasoningEffort::High)" : 'prompt("What is the meaning of life?")'}
+    .build() ${guard ? "// ❌ COMPILE ERROR: Reasoning not supported" : ""}
+    .${streaming ? "stream_text()" : "generate_text()"}
+    .await?;${streaming ? "\n\nlet mut stream = response.stream;\nwhile let Some(chunk) = stream.next().await {\n    // process chunk\n}" : "\n\nlet text = response.text();"}`,
+			anthropic: (
+				streaming: boolean,
+				guard: boolean,
+			) => `use aisdk::{core::LanguageModelRequest, providers::anthropic::Anthropic};
+
+let response = LanguageModelRequest::builder()
+    .model(Anthropic::${guard ? "claude_3_haiku()" : "claude_opus_4_5()"})
+    .prompt("What is the meaning of life?")
+    .build()
+    .${streaming ? "stream_text()" : "generate_text()"}
+    .await?;${streaming ? "\n\nlet mut stream = response.stream;\nwhile let Some(chunk) = stream.next().await {\n    // process chunk\n}" : "\n\nlet text = response.text();"}`,
+			google: (
+				streaming: boolean,
+				guard: boolean,
+			) => `use aisdk::{core::LanguageModelRequest, providers::google::Google};
+
+let response = LanguageModelRequest::builder()
+    .model(Google::${guard ? "gemini_1_flash()" : "gemini_3_flash_preview()"})
+    .prompt("What is the meaning of life?")
+    .build()
+    .${streaming ? "stream_text()" : "generate_text()"}
+    .await?;${streaming ? "\n\nlet mut stream = response.stream;\nwhile let Some(chunk) = stream.next().await {\n    // process chunk\n}" : "\n\nlet text = response.text();"}`,
+		},
+		tool: {
+			openai: (streaming: boolean, guard: boolean) => `#[tool]
+fn get_weather(location: String) -> Tool {
+    Ok(format!("72°F in {}", location))
 }
-`;
 
-	const anthropicCode = `
-use aisdk::{
-    core::LanguageModelRequest,
-    providers::anthropic::Anthropic,
-};
-
-let text = LanguageModelRequest::builder()
-	.model(Anthropic::claude_opus_4_5())
-	.prompt("What is the meaning of life?")
-	.build()
-	.generate_text()
-	.await?
-	.text();
+let response = LanguageModelRequest::builder()
+    .model(OpenAI::${guard ? "o1_mini()" : "gpt_5()"})
+    .prompt("Weather in SF?")
+    .with_tool(get_weather()) ${guard ? "// ❌ COMPILE ERROR: Tools not supported" : ""}
+    .build()
+    .${streaming ? "stream_text()" : "generate_text()"}
+    .await?;`,
+			anthropic: (streaming: boolean, guard: boolean) => `#[tool]
+fn get_weather(location: String) -> Tool {
+    Ok(format!("72°F in {}", location))
 }
-`;
 
-	const googleCode = `
-use aisdk::{
-    core::LanguageModelRequest,
-    providers::google::Google,
-};
-
-let text = LanguageModelRequest::builder()
-	.model(Google::gemini_3_flash_preview())
-	.prompt("What is the meaning of life?")
-	.build()
-	.generate_text()
-	.await?
-	.text();
+let response = LanguageModelRequest::builder()
+    .model(Anthropic::${guard ? "claude_3_haiku()" : "claude_opus_4_5()"})
+    .prompt("Weather in SF?")
+    .with_tool(get_weather())
+    .build()
+    .${streaming ? "stream_text()" : "generate_text()"}
+    .await?;`,
+			google: (streaming: boolean, guard: boolean) => `#[tool]
+fn get_weather(location: String) -> Tool {
+    Ok(format!("72°F in {}", location))
 }
-`;
+
+let response = LanguageModelRequest::builder()
+    .model(Google::${guard ? "gemini_1_0_pro()" : "gemini_3_flash_preview()"})
+    .prompt("Weather in SF?")
+    .with_tool(get_weather())
+    .build()
+    .${streaming ? "stream_text()" : "generate_text()"}
+    .await?;`,
+		},
+		structured: {
+			openai: (
+				streaming: boolean,
+				guard: boolean,
+			) => `#[derive(JsonSchema, Deserialize)]
+struct User { name: String, age: u32 }
+
+let response = LanguageModelRequest::builder()
+    .model(OpenAI::${guard ? "gpt_4_turbo()" : "gpt_5()"})
+    .prompt("Extract: Alice, 28")
+    .schema::<User>() ${guard ? "// ❌ COMPILE ERROR: Structured Output not supported" : ""}
+    .build()
+    .${streaming ? "stream_text()" : "generate_text()"}
+    .await?;${streaming ? "" : "\n\nlet user: User = response.into_schema()?;"}`,
+			anthropic: (
+				streaming: boolean,
+				guard: boolean,
+			) => `#[derive(JsonSchema, Deserialize)]
+struct User { name: String, age: u32 }
+
+let response = LanguageModelRequest::builder()
+    .model(Anthropic::${guard ? "claude_3_haiku()" : "claude_opus_4_5()"})
+    .prompt("Extract: Alice, 28")
+    .schema::<User>()
+    .build()
+    .${streaming ? "stream_text()" : "generate_text()"}
+    .await?;${streaming ? "" : "\n\nlet user: User = response.into_schema()?;"}`,
+			google: (
+				streaming: boolean,
+				guard: boolean,
+			) => `#[derive(JsonSchema, Deserialize)]
+struct User { name: String, age: u32 }
+
+let response = LanguageModelRequest::builder()
+    .model(Google::${guard ? "gemini_1_0_pro()" : "gemini_3_flash_preview()"})
+    .prompt("Extract: Alice, 28")
+    .schema::<User>()
+    .build()
+    .${streaming ? "stream_text()" : "generate_text()"}
+    .await?;${streaming ? "" : "\n\nlet user: User = response.into_schema()?;"}`,
+		},
+	};
 
 	return (
-		<Tabs defaultValue="openai">
-			<TabsList>
-				<TabsTrigger value="openai">
-					<OpenAI />
-					OpenAI
-				</TabsTrigger>
-				<TabsTrigger value="anthropic">
-					<Anthropic />
-					Anthropic
-				</TabsTrigger>
-				<TabsTrigger value="google">
-					<Google.Color />
-					Google
-				</TabsTrigger>
-			</TabsList>
-			<TabsContent value="openai">
-				<DynamicCodeBlock lang="rust" code={openAICode} />
-			</TabsContent>
-			<TabsContent value="anthropic">
-				<DynamicCodeBlock lang="rust" code={anthropicCode} />
-			</TabsContent>
+		<div className="flex flex-col space-y-4 w-full max-w-2xl mx-auto">
+			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-4">
+				<div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-xs w-fit">
+					{(["basic", "tool", "structured"] as const).map((cat) => (
+						<button
+							key={cat}
+							type="button"
+							onClick={() => setActiveCategory(cat)}
+							className={`px-4 py-1.5 text-xs font-medium rounded-xs transition-all ${
+								activeCategory === cat
+									? "bg-white dark:bg-zinc-800 text-black dark:text-white shadow-sm"
+									: "text-gray-500 hover:text-black dark:hover:text-white"
+							}`}
+						>
+							{cat.charAt(0).toUpperCase() + cat.slice(1)}
+						</button>
+					))}
+				</div>
 
-			<TabsContent value="google">
-				<DynamicCodeBlock lang="rust" code={googleCode} />
-			</TabsContent>
-		</Tabs>
+				<div className="flex items-center gap-2">
+					<div className="flex items-center gap-3 px-3 py-1.5 bg-black/5 dark:bg-white/5 rounded-xs border border-transparent transition-all">
+						<span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+							Stream
+						</span>
+						<button
+							type="button"
+							onClick={() => setIsStreaming(!isStreaming)}
+							className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none ${
+								isStreaming ? "bg-orange-500" : "bg-gray-300 dark:bg-zinc-700"
+							}`}
+						>
+							<div
+								className={`absolute top-0.75 left-0.75 w-3 h-3 bg-white rounded-full shadow-sm transition-transform duration-200 ${
+									isStreaming ? "translate-x-3.5" : "translate-x-0"
+								}`}
+							/>
+						</button>
+					</div>
+
+					<div
+						className={`flex items-center gap-3 px-3 py-1.5 bg-black/5 dark:bg-white/5 rounded-xs border transition-all ${isGuardEnabled ? "border-red-500/50 bg-red-500/5 dark:bg-red-500/10" : "border-transparent"}`}
+					>
+						<span
+							className={`text-[10px] font-bold uppercase tracking-wider ${isGuardEnabled ? "text-red-500" : "text-gray-500 dark:text-gray-400"}`}
+						>
+							Type Guard
+						</span>
+						<button
+							type="button"
+							onClick={() => setIsGuardEnabled(!isGuardEnabled)}
+							className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none ${
+								isGuardEnabled ? "bg-red-500" : "bg-gray-300 dark:bg-zinc-700"
+							}`}
+						>
+							<div
+								className={`absolute top-0.75 left-0.75 w-3 h-3 bg-white rounded-full shadow-sm transition-transform duration-200 ${
+									isGuardEnabled ? "translate-x-3.5" : "translate-x-0"
+								}`}
+							/>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<Tabs defaultValue="openai" className="w-full rounded-xs">
+				<TabsList className="bg-transparent border-b border-black/10 dark:border-white/10 w-full justify-start rounded-none h-auto p-0 mb-4">
+					<TabsTrigger
+						value="openai"
+						className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-xs bg-transparent px-4 py-2"
+					>
+						<OpenAI className="w-4 h-4 mr-2" />
+						OpenAI
+					</TabsTrigger>
+					<TabsTrigger
+						value="anthropic"
+						className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-xs bg-transparent px-4 py-2"
+					>
+						<Anthropic className="w-4 h-4 mr-2" />
+						Anthropic
+					</TabsTrigger>
+					<TabsTrigger
+						value="google"
+						className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-xs bg-transparent px-4 py-2"
+					>
+						<Google.Color className="w-4 h-4 mr-2" />
+						Google
+					</TabsTrigger>
+				</TabsList>
+				<TabsContent value="openai" className="rounded-xs bg-[#0A0A0A]">
+						<DynamicCodeBlock
+							lang="rust"
+							code={codeSnippets[activeCategory].openai(
+								isStreaming,
+								isGuardEnabled,
+							)}
+						/>
+				</TabsContent>
+				<TabsContent value="anthropic" className="rounded-xs bg-[#0A0A0A]">
+						<DynamicCodeBlock
+							lang="rust"
+							code={codeSnippets[activeCategory].anthropic(
+								isStreaming,
+								isGuardEnabled,
+							)}
+						/>
+				</TabsContent>
+				<TabsContent value="google" className="rounded-xs bg-[#0A0A0A]">
+						<DynamicCodeBlock
+							lang="rust"
+							code={codeSnippets[activeCategory].google(
+								isStreaming,
+								isGuardEnabled,
+							)}
+						/>
+				</TabsContent>
+			</Tabs>
+		</div>
 	);
 };
