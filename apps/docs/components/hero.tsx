@@ -298,8 +298,8 @@ let user: User = LanguageModelRequest::builder()
 				</div>
 
 				{/* Streaming Toggle */}
-				<div className="flex items-center gap-3 px-3 py-1.5 bg-black/5 dark:bg-white/5 rounded-xs">
-					<span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+				<div className="flex items-center gap-3 px-3 py-2 bg-black/5 dark:bg-white/5 rounded-xs">
+					<span className="text-[10px] font-bold uppercase tracking-wider text-dark dark:text-gray-200">
 						Stream
 					</span>
 					<button
@@ -310,7 +310,7 @@ let user: User = LanguageModelRequest::builder()
 						}`}
 					>
 						<div
-							className={`absolute top-0.75 left-0.75 w-3 h-3 bg-white rounded-full transition-transform ${
+							className={`absolute top-0.75 left-0.75 w-3 h-3 bg-white rounded-xs transition-transform ${
 								isStreaming ? "translate-x-3.5" : ""
 							}`}
 						/>
@@ -337,7 +337,7 @@ let user: User = LanguageModelRequest::builder()
 					<TabsContent
 						key={key}
 						value={key}
-						className="bg-[#0A0A0A] rounded-xs"
+						className="bg-white rounded-xs dark:bg-[#0A0A0A]"
 					>
 						<DynamicCodeBlock
 							lang="rust"
