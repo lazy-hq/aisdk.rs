@@ -189,7 +189,7 @@ const ProvidersExampleCodeTabs = () => {
     providers::${provider.toLowerCase()}::${provider},
 };
 
-let ${streaming ? "stream" : "model_response"} = LanguageModelRequest::builder()
+let ${streaming ? "stream" : "response"} = LanguageModelRequest::builder()
     .model(${provider}::${model})
     ${cfg.basicPrompt}
     .build()
@@ -203,7 +203,7 @@ fn get_weather(location: String) -> Tool {
     Ok(format!("72°F in {}", location))
 }
 
-let ${streaming ? "stream" : "model_response"} = LanguageModelRequest::builder()
+let ${streaming ? "stream" : "response"} = LanguageModelRequest::builder()
     .model(${provider}::${model})
     .system("You are a helpful assistant.")
     .prompt("Weather in SF?")
