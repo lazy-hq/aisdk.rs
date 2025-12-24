@@ -21,7 +21,7 @@ interface NavbarProps {
 
 const navItems: { href: string; label: string }[] = [
 	{ href: "/docs", label: "Docs" },
-	{ href: "/guides", label: "Guides" },
+	//{ href: "/guides", label: "Guides" }, // TODO: add guides
 	{ href: "/examples", label: "Examples" },
 ];
 

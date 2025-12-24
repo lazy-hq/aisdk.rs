@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-	title: "AI SDK | Open Source AI SDK for Rust",
+	title: "AI SDK | Open Source AI Toolkit for Rust",
 	description: "Rust library for AI apps, inspired by the Vercel AI SDK.",
 };
 

@@ -10,7 +10,7 @@ import {
 import { Check, Copy, SquareArrowOutUpRight } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useServerTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 
@@ -34,7 +34,7 @@ export function Hero() {
 		: "radial-gradient(ellipse 120% 100% at 50% 0%, transparent 0%, rgba(255,255,255,0.3) 60%, rgba(255,255,255,0.7) 100%)";
 
 	return (
-		<div className="relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden pt-24 p-4 md:pt-32 lg:p-8 ">
+		<div className="hero-component relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden pt-24 p-4 md:pt-32 lg:p-8 ">
 			{/* Background Grid with Gradient Overlay */}
 			<div className="absolute inset-0 pointer-events-none">
 				{/* Grid Pattern */}
@@ -272,6 +272,27 @@ let user: User = LanguageModelRequest::builder()
 	/* Render */
 	/* ------------------------------------------------------------------ */
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: generateCode is a stable function that doesn't depend on props or state
+	const codes = useMemo(() => {
+		const result = {} as Record<
+			ProviderKey,
+			Record<Category, { streaming: string; nonStreaming: string }>
+		>;
+		for (const provider of Object.keys(PROVIDERS) as ProviderKey[]) {
+			result[provider] = {} as Record<
+				Category,
+				{ streaming: string; nonStreaming: string }
+			>;
+			for (const category of ["basic", "tool", "structured"] as const) {
+				result[provider][category] = {
+					streaming: generateCode(category, provider, true),
+					nonStreaming: generateCode(category, provider, false),
+				};
+			}
+		}
+		return result;
+	}, []);
+
 	return (
 		<div className="flex flex-col space-y-4 w-full max-w-2xl mx-auto">
 			{/* Category Switch */}
@@ -334,15 +355,26 @@ let user: User = LanguageModelRequest::builder()
 				</TabsList>
 
 				{(Object.keys(PROVIDERS) as ProviderKey[]).map((key) => (
-					<TabsContent
-						key={key}
-						value={key}
-						className="bg-white rounded-xs dark:bg-[#0A0A0A]"
-					>
-						<DynamicCodeBlock
-							lang="rust"
-							code={generateCode(activeCategory, key, isStreaming)}
-						/>
+					<TabsContent key={key} value={key} className="rounded-xs p-0 m-0">
+						{(["basic", "tool", "structured"] as const).flatMap((cat) =>
+							[true, false].map((stream) => (
+								<div
+									key={`${key}-${cat}-${stream}`}
+									className={`custom-code-block rounded-xs ${
+										activeCategory === cat && isStreaming === stream
+											? "block"
+											: "hidden"
+									}`}
+								>
+									<DynamicCodeBlock
+										lang="rust"
+										code={
+											codes[key][cat][stream ? "streaming" : "nonStreaming"]
+										}
+									/>
+								</div>
+							)),
+						)}
 					</TabsContent>
 				))}
 			</Tabs>
