@@ -22,7 +22,7 @@ interface NavbarProps {
 const navItems: { href: string; label: string }[] = [
 	{ href: "/docs", label: "Docs" },
 	//{ href: "/guides", label: "Guides" }, // TODO: add guides
-	{ href: "/examples", label: "Examples" },
+	//{ href: "/examples", label: "Examples" }, // TODO: add examples and examples page
 ];
 
 export function Navbar({ starCout }: NavbarProps) {

@@ -1,0 +1,182 @@
+---
+title: Axum
+---
+
+The Axum integration provides seamless support for building AI-powered web applications with `aisdk` and Axum web framework. It handles server-sent events (SSE) streaming, enabling real-time delivery of AI-generated content to frontend clients.
+
+## Installation
+
+Add the `axum` feature to enable Axum-specific integrations:
+
+```bash
+cargo add aisdk --features axum
+```
+
+Additional dependencies for the Axum web server:
+
+```bash
+cargo add axum tower-http tower-cors
+```
+
+
+## Vercel AI SDK UI
+
+AISDK.rs Axum integration includes built-in support for [Vercel's AI SDK UI](https://ai-sdk.dev/docs/ai-sdk-ui/overview). The integration automatically converts [`StreamTextResponse`](/docs/ai-sdk-ui/overview) to Axum SSE responses in Vercel-compatible format, allowing you to use frontend hooks like `useChat` and `useCompletion` with minimal setup.
+
+### How It Works
+
+1. **Request**: Frontend sends `VercelUIRequest` using Vercel's AI SDK UI hooks such as `useChat` via SSE
+2. **Processing**: AISDK.rs processes the request with [`LanguageModelRequest`](/docs/concepts/language-model-request) Streaming API
+3. **Conversion**: Response is automatically converted to Vercel UI stream chunks
+4. **Response**: Axum streams the chunks back to the frontend
+
+### Quick Example
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    integrations::{
+        axum::AxumSseResponse,
+        vercel_aisdk_ui::VercelUIRequest,
+    },
+    providers::openai::OpenAI,
+};
+
+// Example handler function
+async fn chat_handler(
+    axum::Json(request): axum::Json<VercelUIRequest>,
+) -> AxumSseResponse {
+
+    // Convert the Message sent by the frontend to AISDK.rs Messages
+    let messages = request.into();
+
+    // Generate streaming response
+    let response = LanguageModelRequest::builder()
+        .model(OpenAI::gpt_4o())
+        .messages(messages)
+        .build()
+        .stream_text()
+        .await?;
+
+    // Convert to Axum SSE response (Vercel UI compatible)
+    response.into()
+}
+
+#[tokio::main]
+async fn main() {
+    let app = axum::Router::new()
+        .route("/api/chat", axum::routing::post(chat_handler))
+        .layer(tower_http::cors::CorsLayer::permissive());
+
+    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 8080));
+    println!("Listening on http://{}", addr);
+
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    axum::serve(listener, app).await.unwrap();
+}
+```
+
+> **Note**: `AxumSseResponse` is a type alias for `axum::response::Sse<impl Stream<Item = Result<axum::response::sse::Event, aisdk::Error>>>`. You can replace `AxumSseResponse` with the full type definition if you prefer.
+
+### Frontend Example (React)
+
+This example uses React, but you can use any Vercel AI SDK UI supported frontend framework such as React, Vue.js, Svelte, Angular, or SolidJS. See the [complete list of supported frameworks](https://ai-sdk.dev/docs/ai-sdk-ui/overview#ui-framework-support).
+
+```tsx
+'use client';
+
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
+import { useState } from 'react';
+
+export default function Page() {
+  const { messages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({
+      api: 'http://localhost:8080/api/chat',
+    }),
+  });
+  const [input, setInput] = useState('');
+
+  return (
+    <>
+      {messages.map(message => (
+        <div key={message.id}>
+          {message.role === 'user' ? 'User: ' : 'AI: '}
+          {message.parts.map((part, index) =>
+            part.type === 'text' ? <span key={index}>{part.text}</span> : null,
+          )}
+        </div>
+      ))}
+
+      <form
+        onSubmit={e => {
+          e.preventDefault();
+          if (input.trim()) {
+            sendMessage({ text: input });
+            setInput('');
+          }
+        }}
+      >
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          disabled={status !== 'ready'}
+          placeholder="Say something..."
+        />
+        <button type="submit" disabled={status !== 'ready'}>
+          Submit
+        </button>
+      </form>
+    </>
+  );
+}
+```
+
+### Builder Configuration
+
+For more control over streaming behavior, use the builder API to configure which chunk types to send:
+
+```rust
+use aisdk::core::LanguageModelRequest;
+use aisdk::integrations::vercel_aisdk_ui::VercelUIRequest;
+use aisdk::integrations::axum::AxumSseResponse;
+use aisdk::providers::openai::OpenAI;
+
+async fn chat_handler(
+    Json(request): Json<VercelUIRequest>,
+) -> AxumSseResponse {
+    let messages = request.into();
+
+    let response = LanguageModelRequest::builder()
+        .model(OpenAI::gpt_4o())
+        .messages(messages)
+        .build()
+        .stream_text()
+        .await?;
+
+    // Configure stream with builder
+    response
+        .to_axum_vercel_ui_stream()
+        .send_reasoning()   // Enable reasoning chunks
+        .send_start()       // Include start signals
+        .send_finish()      // Include finish signals
+        .build()
+}
+```
+
+#### Builder Options
+
+| Method | Description |
+|---------|-------------|
+| `send_reasoning()` | Include reasoning chunks in the stream |
+| `send_start()` | Send start signal chunks |
+| `send_finish()` | Send finish signal chunks |
+| `with_id_generator(fn)` | Set custom message ID generator function |
+| `build()` | Build the final `AxumSseResponse` |
+
+## Next Steps
+
+* Read the [Vercel AI SDK UI docs](https://ai-sdk.dev/docs/ai-sdk-ui/overview) for frontend details
+* Take a deeper look at [`LanguageModelRequest`](/docs/concepts/language-model-request)
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

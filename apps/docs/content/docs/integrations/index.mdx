@@ -1,0 +1,175 @@
+---
+title: Vercel AI-SDK UI
+---
+
+The Vercel AI SDK UI integration allows you to build **Rust backends** that work seamlessly with [Vercel's AI SDK UI frontend hooks](https://ai-sdk.dev/docs/ai-sdk-ui/overview). It converts AISDK.rs streams into the Vercel-compatible SSE format, enabling you to use `useChat`, `useCompletion`, and other frontend hooks with a Rust backend.
+
+## How It Works
+
+```
+Frontend (useChat) → SSE → Rust Backend (AISDK.rs)
+                                      ↓
+                          VercelUIStream chunks
+```
+
+## Quick Start
+
+AISDK.rs provides framework support for Rust backends with seamless integration. In this example, we'll use **Axum** for the Rust backend and **React** for the frontend. However, you can use [other supported Rust backends](#backend-framework-supports) with AISDK.rs. Similarly, Vercel's AI SDK UI supports many frontend frameworks, so you can choose the one that works best for your project. See the [list of supported frontend frameworks](https://ai-sdk.dev/docs/ai-sdk-ui/overview#ui-framework-support).
+
+### Install Dependencies
+
+Since we're using Axum, you need to enable the `axum` feature in AISDK. For the AI provider, we're using OpenAI, but you can use [any available provider](/docs#model-providers).
+
+```bash
+cargo add aisdk --features openai axum
+```
+
+### Backend Example (Axum)
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    integrations::{
+        axum::AxumSseResponse,
+        vercel_aisdk_ui::VercelUIRequest,
+    },
+    providers::openai::OpenAI,
+};
+
+// Example Axum handler function
+async fn chat_handler(
+    axum::Json(request): axum::Json<VercelUIRequest>,
+) -> AxumSseResponse {
+
+    // Convert the Message sent by the frontend to AISDK.rs Messages
+    let messages = request.into();
+
+    // Generate streaming response
+    let response = LanguageModelRequest::builder()
+        .model(OpenAI::gpt_4o())
+        .messages(messages)
+        .build()
+        .stream_text()
+        .await?;
+
+    // Convert to Axum SSE response (Vercel UI compatible)
+    response.into()
+}
+```
+For more information, see the [Axum integration docs](/docs/integrations/axum#vercel-ai-sdk-ui).
+
+### Frontend Example (React)
+
+This example uses React, but you can use any Vercel AI SDK UI supported frontend framework such as React, Vue.js, Svelte, Angular, or SolidJS. See the [complete list of supported frameworks](https://ai-sdk.dev/docs/ai-sdk-ui/overview#ui-framework-support).
+
+```tsx
+'use client';
+
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
+import { useState } from 'react';
+
+export default function Page() {
+  const { messages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({
+      api: 'http://localhost:8080/api/chat',
+    }),
+  });
+  const [input, setInput] = useState('');
+
+  return (
+    <>
+      {messages.map(message => (
+        <div key={message.id}>
+          {message.role === 'user' ? 'User: ' : 'AI: '}
+          {message.parts.map((part, index) =>
+            part.type === 'text' ? <span key={index}>{part.text}</span> : null,
+          )}
+        </div>
+      ))}
+
+      <form
+        onSubmit={e => {
+          e.preventDefault();
+          if (input.trim()) {
+            sendMessage({ text: input });
+            setInput('');
+          }
+        }}
+      >
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          disabled={status !== 'ready'}
+          placeholder="Say something..."
+        />
+        <button type="submit" disabled={status !== 'ready'}>
+          Submit
+        </button>
+      </form>
+    </>
+  );
+}
+```
+
+## Backend Framework Supports
+
+AISDK.rs provides seamless integration for receiving requests from Vercel's AI SDK UI frontend hooks, processing them with the [`LanguageModelRequest`](/docs/concepts/language-model-request) API, and streaming responses back in the Vercel-compatible format. This integration handles all of the low-level details of SSE streaming and message format conversion.
+
+Currently supported frameworks:
+
+- [Axum](/docs/integrations/axum#vercel-ai-sdk-ui)
+
+More frameworks will be added in the future.
+
+### Manual Conversion
+
+If you need full control over the request handling and streaming process, or if your framework isn't yet supported by AISDK.rs, you can use the manual conversion approach. This gives you complete flexibility to integrate with any web framework.
+
+Use the `into_vercel_ui_stream()` method to convert a `StreamTextResponse` into Vercel UI stream chunk types. You can configure which chunk types to send (reasoning, start, finish) using `VercelUIStreamOptions`.
+
+```rust
+use aisdk::core::{LanguageModelRequest, Messages};
+use aisdk::integrations::vercel_aisdk_ui::{VercelUIRequest, VercelUIStreamOptions};
+use aisdk::providers::openai::OpenAI;
+use futures::Stream;
+
+// Handler function signature varies by your framework
+async fn chat_handler(request: impl Into<VercelUIRequest>) -> impl Stream<Item = Result<String, aisdk::Error>> {
+    // Extract VercelUIRequest from the framework-specific request
+    let ui_message: VercelUIRequest = request.into();
+
+    // Convert VercelUIRequest to AISDK Messages
+    let messages: Messages = ui_message.into();
+
+    // Generate streaming response
+    let response = LanguageModelRequest::builder()
+        .model(OpenAI::gpt_3_5_turbo())
+        .messages(messages)
+        .build()
+        .stream_text()
+        .await?;
+
+    // Configure which chunk types to send
+    let options = VercelUIStreamOptions {
+        send_reasoning: true,
+        send_start: true,
+        send_finish: true,
+        generate_message_id: None,
+    };
+
+    // Convert LanguageModelStream to VercelUIStream
+    let vercel_stream = response.into_vercel_ui_stream(options);
+
+    // Return the stream using your framework's specific response type
+    // This is framework-specific - see Axum integration for a complete example
+    vercel_stream
+}
+```
+
+## Next Steps
+
+* Read the [Vercel AI SDK UI docs](https://ai-sdk.dev/docs/ai-sdk-ui/overview) for frontend details
+* Take a deeper look at [`LanguageModelRequest`](/docs/concepts/language-model-request)
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).
