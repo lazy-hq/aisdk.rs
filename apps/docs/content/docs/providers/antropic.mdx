@@ -1,0 +1,113 @@
+---
+title: Anthropic
+---
+
+AISDK provides first-class support for Anthropic with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust’s type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Anthropic provider feature:
+
+```bash
+cargo add aisdk --features anthropic
+```
+
+This installs AISDK with the Anthropic provider enabled. Once you have enabled the Anthropic provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Anthropic::model_name()`, where **model_name** is the Anthropic model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::anthropic::Anthropic;
+
+let anthropic = Anthropic::claude_3_5_sonnet();
+```
+
+This initializes the provider with:
+
+* Model: `"claude-3-5-sonnet"`
+* API key from environment (if set with `ANTHROPIC_API_KEY`)
+* Anthropic’s default base URL (https://api.anthropic.com/v1)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::anthropic::Anthropic,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let anthropic = Anthropic::claude_3_5_sonnet();
+
+    let response = LanguageModelRequest::builder()
+        .model(anthropic)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Anthropic::builder()`
+
+### API Key
+
+```rust
+let anthropic = Anthropic::<Claude35Sonnet>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `ANTHROPIC_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let anthropic = Anthropic::<Claude35Sonnet>::builder()
+    .base_url("https://api.anthropic.com/v1")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let anthropic = Anthropic::<Claude35Sonnet>::builder()
+    .provider_name("Anthropic")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let anthropic = Anthropic::<Claude35Sonnet>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.anthropic.com/v1")
+    .provider_name("Anthropic")
+    .build()?;
+```
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).
