@@ -133,7 +133,7 @@ const ProvidersExampleCodeTabs = () => {
 	/* Types */
 	/* ------------------------------------------------------------------ */
 
-	type Category = "basic" | "tool" | "structured";
+	type Category = "basic" | "tool" | "structured" | "type_safety";
 	type ProviderKey = "openai" | "anthropic" | "google";
 
 	interface ProviderConfig {
@@ -245,6 +245,65 @@ let user: User = LanguageModelRequest::builder()
     .await?
     .into_schema()?;`;
 		},
+
+		type_safety: ({ provider, model: _model, method, streaming }) => {
+			if (provider === "OpenAI") {
+				return `#[tool]
+/// Get the weather in a given location
+fn get_weather(location: String) -> Tool {
+    Ok(format!("72°F in {}", location))
+}
+
+// Using model that doesn't support tool calls
+let ${streaming ? "stream" : "response"} = LanguageModelRequest::builder()
+	.model(OpenAI::gpt_3_5_turbo())
+	.system("You are a helpful assistant.")
+	.prompt("Weather in SF?")
+	.with_tool(get_weather()) 
+	// ^ 🦀 COMPILE ERROR 🦀
+	// GPT 3.5 Turbo doesn't support tools
+	.build() 
+	.${streaming ? "stream_text" : "generate_text"}()
+	.await?;`;
+			}
+
+			if (provider === "Anthropic") {
+				return `#[derive(JsonSchema, Deserialize)]
+struct User { 
+    name: String,
+    email: String
+}
+
+// Using model that doesn't support structured output
+let ${streaming ? "stream" : "user: User"} = LanguageModelRequest::builder()
+	.model(Anthropic::claude_opus_4_0())
+	.prompt("Generate a random user")
+	.schema::<User>()
+	// ^ 🦀 COMPILE ERROR 🦀
+	// Claude Opus 4.0 doesn't support structured output
+	.build()
+	.${method}()
+	.await?
+	.${streaming ? "stream" : "into_schema()?"};`;
+			}
+
+			return `use aisdk::{
+    core::LanguageModelRequest,
+    providers::${provider.toLowerCase()}::${provider},
+};
+
+// Using model that doesn't text output for text generation
+let ${streaming ? "stream" : "response"} = LanguageModelRequest::builder()
+    .model(Google::gemini_2_5_pro_preview_tts())
+	// ^ 🦀 COMPILE ERROR 🦀
+	// Gemini 2.5 Pro Preview TTS doesn't support text generation
+    .prompt("Explain lifetimes like I'm five")
+    .build()
+    .${method}()
+    .await?
+    .${streaming ? "stream" : "text()"};
+`;
+		},
 	};
 
 	/* ------------------------------------------------------------------ */
@@ -283,7 +342,12 @@ let user: User = LanguageModelRequest::builder()
 				Category,
 				{ streaming: string; nonStreaming: string }
 			>;
-			for (const category of ["basic", "tool", "structured"] as const) {
+			for (const category of [
+				"basic",
+				"tool",
+				"structured",
+				"type_safety",
+			] as const) {
 				result[provider][category] = {
 					streaming: generateCode(category, provider, true),
 					nonStreaming: generateCode(category, provider, false),
@@ -298,24 +362,28 @@ let user: User = LanguageModelRequest::builder()
 			{/* Category Switch */}
 			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-4">
 				<div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-xs w-fit">
-					{(["basic", "tool", "structured"] as const).map((cat) => (
-						<button
-							key={cat}
-							type="button"
-							onClick={() => setActiveCategory(cat)}
-							className={`px-4 py-1.5 text-xs font-medium rounded-xs transition-all cursor-pointer ${
-								activeCategory === cat
-									? "bg-white dark:bg-zinc-800 text-black dark:text-white shadow-sm"
-									: "text-gray-500 hover:text-black dark:hover:text-white"
-							}`}
-						>
-							{cat === "tool"
-								? "Tools"
-								: cat === "structured"
-									? "Structured Output"
-									: "Basic"}
-						</button>
-					))}
+					{(["basic", "tool", "structured", "type_safety"] as const).map(
+						(cat) => (
+							<button
+								key={cat}
+								type="button"
+								onClick={() => setActiveCategory(cat)}
+								className={`px-4 py-1.5 text-xs font-medium rounded-xs transition-all cursor-pointer ${
+									activeCategory === cat
+										? "bg-white dark:bg-zinc-800 text-black dark:text-white shadow-sm"
+										: "text-gray-500 hover:text-black dark:hover:text-white"
+								}`}
+							>
+								{cat === "tool"
+									? "Tools"
+									: cat === "structured"
+										? "Structured Output"
+										: cat === "type_safety"
+											? "Type Safety"
+											: "Basic"}
+							</button>
+						),
+					)}
 				</div>
 
 				{/* Streaming Toggle */}
@@ -356,24 +424,25 @@ let user: User = LanguageModelRequest::builder()
 
 				{(Object.keys(PROVIDERS) as ProviderKey[]).map((key) => (
 					<TabsContent key={key} value={key} className="rounded-xs p-0 m-0">
-						{(["basic", "tool", "structured"] as const).flatMap((cat) =>
-							[true, false].map((stream) => (
-								<div
-									key={`${key}-${cat}-${stream}`}
-									className={`custom-code-block rounded-xs ${
-										activeCategory === cat && isStreaming === stream
-											? "block"
-											: "hidden"
-									}`}
-								>
-									<DynamicCodeBlock
-										lang="rust"
-										code={
-											codes[key][cat][stream ? "streaming" : "nonStreaming"]
-										}
-									/>
-								</div>
-							)),
+						{(["basic", "tool", "structured", "type_safety"] as const).flatMap(
+							(cat) =>
+								[true, false].map((stream) => (
+									<div
+										key={`${key}-${cat}-${stream}`}
+										className={`custom-code-block rounded-xs ${
+											activeCategory === cat && isStreaming === stream
+												? "block"
+												: "hidden"
+										}`}
+									>
+										<DynamicCodeBlock
+											lang="rust"
+											code={
+												codes[key][cat][stream ? "streaming" : "nonStreaming"]
+											}
+										/>
+									</div>
+								)),
 						)}
 					</TabsContent>
 				))}
