@@ -2,11 +2,5 @@
 	"title": "Concepts",
 	"icon": "SquareLibrary",
 	"defaultOpen": true,
-	"pages": [
-		"language-model-request",
-		"structured-output",
-		"tools",
-		"agents",
-		"prompts"
-	]
+	"pages": ["language-model-request", "structured-output", "tools", "agents"]
 }

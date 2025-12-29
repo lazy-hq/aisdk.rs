@@ -32,7 +32,7 @@ This initializes the provider with:
 
 * Model: `"gpt-5"`
 * API key from environment (if set with `OPENAI_API_KEY`)
-* OpenAI’s default base URL (https://api.openai.com/v1)
+* OpenAI’s default base URL (https://api.openai.com)
 
 ## Basic Text Generation
 
@@ -81,7 +81,7 @@ Useful when routing through a proxy, gateway, or self-hosted compatible endpoint
 
 ```rust
 let openai = OpenAI::<Gpt5>::builder()
-    .base_url("https://api.openai.com/v1")
+    .base_url("https://api.openai.com")
     .build()?;
 ```
 
@@ -100,7 +100,7 @@ let openai = OpenAI::<Gpt5>::builder()
 ```rust
 let openai = OpenAI::<Gpt5>::builder()
     .api_key("your-api-key")
-    .base_url("https://api.openai.com/v1")
+    .base_url("https://api.openai.com")
     .provider_name("OpenAI")
     .build()?;
 ```

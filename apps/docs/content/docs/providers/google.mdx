@@ -32,7 +32,7 @@ This initializes the provider with:
 
 * Model: `"gemini-2-5-flash"`
 * API key from environment (if set with `GOOGLE_API_KEY`)
-* Google’s default base URL (https://generativelanguage.googleapis.com/v1beta)
+* Google’s default base URL (https://generativelanguage.googleapis.com)
 
 ## Basic Text Generation
 
@@ -81,7 +81,7 @@ Useful when routing through a proxy, gateway, or self-hosted compatible endpoint
 
 ```rust
 let google = Google::<Gemini25Flash>::builder()
-    .base_url("https://generativelanguage.googleapis.com/v1beta")
+    .base_url("https://generativelanguage.googleapis.com")
     .build()?;
 ```
 
@@ -100,7 +100,7 @@ let google = Google::<Gemini25Flash>::builder()
 ```rust
 let google = Google::<Gemini25Flash>::builder()
     .api_key("your-api-key")
-    .base_url("https://generativelanguage.googleapis.com/v1beta")
+    .base_url("https://generativelanguage.googleapis.com")
     .provider_name("Google")
     .build()?;
 ```
