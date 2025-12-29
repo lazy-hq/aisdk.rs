@@ -1,4 +1,5 @@
 import "@/app/global.css";
+import { Analytics } from "@vercel/analytics/next";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
@@ -36,6 +37,7 @@ export default async function Layout({ children }: LayoutProps<"/">) {
 						<HomeLayout {...baseOptions()}>{children}</HomeLayout>
 					</RootProvider>
 				</ThemeProvider>
+				<Analytics />
 			</body>
 		</html>
 	);
