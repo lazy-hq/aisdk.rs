@@ -11,6 +11,10 @@ const config = {
 				source: "/docs/:path*.mdx",
 				destination: "/llms.mdx/:path*",
 			},
+			{
+				source: "/api/data/:match*",
+				destination: "https://aisdk.rs/_vercel/insights/:match*",
+			},
 		];
 	},
 };

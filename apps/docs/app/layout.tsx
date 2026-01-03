@@ -1,5 +1,4 @@
 import "@/app/global.css";
-import { Analytics } from "@vercel/analytics/next";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
@@ -8,6 +7,7 @@ import { cookies } from "next/headers";
 import { Navbar } from "@/components/navbar";
 import SearchDialog from "@/components/search";
 import { ThemeProvider } from "@/components/theme-provider";
+import { VercelAnalytics } from "@/lib/analytics";
 import { baseOptions } from "@/lib/layout.shared";
 
 const inter = Inter({
@@ -37,7 +37,7 @@ export default async function Layout({ children }: LayoutProps<"/">) {
 						<HomeLayout {...baseOptions()}>{children}</HomeLayout>
 					</RootProvider>
 				</ThemeProvider>
-				<Analytics />
+				<VercelAnalytics />
 			</body>
 		</html>
 	);
