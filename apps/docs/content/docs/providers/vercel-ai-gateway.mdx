@@ -1,0 +1,126 @@
+---
+title: Vercel AI Gateway
+---
+
+AISDK provides first-class support for Vercel AI Gateway with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Vercel AI Gateway provider feature:
+
+```bash
+cargo add aisdk --features vercel
+```
+
+This installs AISDK with the Vercel AI Gateway provider enabled. Once you have enabled the Vercel AI Gateway provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Vercel::model_name()`, where **model_name** is the model you want to use from the Vercel AI Gateway.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::vercel::Vercel;
+
+let vercel = Vercel::openai_gpt_4o_mini();
+```
+
+This initializes the provider with:
+
+* Model: `"openai/gpt-4o-mini"`
+* API key from environment (if set with `AI_GATEWAY_API_KEY`)
+* Vercel AI Gateway's default base URL (https://ai-gateway.vercel.sh/)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::vercel::Vercel,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let vercel = Vercel::openai_gpt_4o_mini();
+
+    let response = LanguageModelRequest::builder()
+        .model(vercel)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Vercel::builder()`
+
+### API Key
+
+```rust
+let vercel = Vercel::<OpenaiGpt4oMini>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `AI_GATEWAY_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let vercel = Vercel::<OpenaiGpt4oMini>::builder()
+    .base_url("https://ai-gateway.vercel.sh/")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let vercel = Vercel::<OpenaiGpt4oMini>::builder()
+    .provider_name("Vercel AI Gateway")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let vercel = Vercel::<OpenaiGpt4oMini>::builder()
+    .api_key("your-api-key")
+    .base_url("https://ai-gateway.vercel.sh/")
+    .provider_name("Vercel AI Gateway")
+    .build()?;
+```
+
+## Available Models
+
+Vercel AI Gateway provides access to a wide variety of models through a unified API, including:
+
+- **OpenAI Models**: GPT-4o, GPT-4o-mini, GPT-5, o1, o3, and more
+- **Anthropic Models**: Claude 3.5, Claude 3.7, Claude 4, and more
+- **Google Models**: Gemini 2.0, Gemini 2.5, and more
+- **DeepSeek Models**: DeepSeek-V3, DeepSeek-R1, and more
+- **Meta Models**: Llama 3.1, Llama 3.2, Llama 3.3, Llama 4, and more
+- **And many more** providers including Cohere, Perplexity, Voyage, and more
+
+All models are fully typed and available through the Vercel AI Gateway provider with their capabilities enforced at compile time.
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).
