@@ -214,10 +214,16 @@ async function main() {
 		fs.writeFileSync(outputPath, content, "utf-8");
 
 		console.log(`\n✅ Successfully created: ${outputPath}`);
-		console.log("\nNext steps:");
+		console.log("\n📋 Next steps:");
 		console.log("  1. Review the generated file");
 		console.log("  2. Customize if needed");
-		console.log(`  3. Add entry to meta.json if required\n`);
+		console.log(
+			`  3. Add "${data.PROVIDER_LOWERCASE}" to apps/docs/content/docs/providers/meta.json (alphabetical order)`,
+		);
+		console.log(
+			`  4. Add link to apps/docs/content/docs/(get-started)/index.mdx (alphabetical order)`,
+		);
+		console.log("\n💡 See scripts/README.md for detailed instructions\n");
 	} catch (error) {
 		console.error(
 			"\n❌ Error:",

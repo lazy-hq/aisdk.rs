@@ -53,6 +53,40 @@ Next steps:
   3. Add entry to meta.json if required
 ```
 
+## Post-Generation Steps
+
+After generating a new provider documentation file, you **must** manually add it to two locations:
+
+### 1. Add to Sidebar Navigation
+
+Edit `apps/docs/content/docs/providers/meta.json` and add your provider to the `pages` array in **alphabetical order**:
+
+```json
+{
+  "title": "Providers",
+  "icon": "Workflow",
+  "pages": ["index", "antropic", "cohere", "google"]
+}
+```
+
+### 2. Add to Get Started Page
+
+Edit `apps/docs/content/docs/(get-started)/index.mdx` and add a link in the **Model Providers** section in **alphabetical order**:
+
+```mdx
+## Model Providers
+
+AISDK supports a wide range of AI providers, including:
+
+- <Link href="/docs/providers/anthropic">Anthropic</Link>
+- <Link href="/docs/providers/cohere">Cohere</Link>
+- <Link href="/docs/providers/google">Google</Link>
+- <Link href="/docs/providers">OpenAI</Link>
+- more to come
+```
+
+> **Note**: Both files require entries to be in **alphabetical order** for consistency.
+
 ## Files
 
 - `scripts/generate-provider-doc.ts` - The generator script
