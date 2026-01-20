@@ -4,6 +4,8 @@ This script automates the creation of provider documentation files for AISDK.
 
 ## Usage
 
+### Interactive Mode
+
 From the `apps/docs` directory:
 
 ```bash
@@ -20,6 +22,33 @@ The script will interactively prompt you for the following information:
 6. **Model type example** (e.g., `CommandRPlus`)
 7. **Default base URL** (e.g., `https://api.cohere.ai`)
 8. **Output filename** (e.g., `cohere.mdx`) - auto-suggested
+
+### Non-Interactive Mode (Batch Generation)
+
+For batch generation or CI/CD pipelines, you can pass all options as command line arguments:
+
+```bash
+pnpm gen:provider --provider-name "Groq" --provider-lowercase "groq" --env-var-name "GROQ_API_KEY" --example-model-method "llama_3_1_8b_instruct" --example-model-string "llama-3.1-8b-instruct" --model-type-example "MetaLlamaLlama318bInstructV10" --default-base-url "https://api.groq.com/openai/" --output-filename "groq.mdx"
+```
+
+**Available Arguments:**
+
+| Short | Long | Description | Required |
+|-------|------|-------------|----------|
+| `-n` | `--provider-name` | Provider name (e.g., "Groq") | Yes |
+| `-l` | `--provider-lowercase` | Lowercase provider name | No (derived from name) |
+| `-e` | `--env-var-name` | Environment variable name | No (derived from name) |
+| `-m` | `--example-model-method` | Example model method (snake_case) | Yes |
+| `-s` | `--example-model-string` | Model string (kebab-case) | No (derived from method) |
+| `-t` | `--model-type-example` | Model type example (PascalCase) | Yes |
+| `-b` | `--default-base-url` | Default base URL | Yes |
+| `-o` | `--output-filename` | Output filename | No (derived from lowercase) |
+
+**Example with short arguments:**
+
+```bash
+pnpm gen:provider -n "DeepSeek" -l "deepseek" -e "DEEPSEEK_API_KEY" -m "deepseek_chat" -s "deepseek-chat" -t "DeepseekChat" -b "https://api.deepseek.com/" -o "deepseek.mdx"
+```
 
 ## Features
 

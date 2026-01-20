@@ -1,6 +1,6 @@
-import * as readline from "readline";
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import * as readline from "node:readline";
 
 // Get the directory of this script file
 const scriptDir = path.join(process.cwd(), "scripts");
@@ -60,8 +60,99 @@ function deriveOutputFilename(providerLowercase: string): string {
 	return `${providerLowercase}.mdx`;
 }
 
+// Parse command line arguments for non-interactive mode
+function parseArgs(): Partial<ProviderData> | null {
+	const args = process.argv.slice(2);
+	if (args.length === 0) return null;
+
+	const data: Record<string, string> = {};
+	let i = 0;
+	while (i < args.length) {
+		const arg = args[i];
+		if (arg.startsWith("--")) {
+			const key = arg.slice(2).toUpperCase().replace(/-/g, "_");
+			const value = args[i + 1];
+			if (value && !value.startsWith("--")) {
+				data[key] = value;
+				i += 2;
+			} else {
+				i++;
+			}
+		} else {
+			i++;
+		}
+	}
+
+	// Map command line args to ProviderData fields
+	const result: Partial<ProviderData> = {};
+	if (data.PROVIDER_NAME) result.PROVIDER_NAME = data.PROVIDER_NAME;
+	if (data.PROVIDER_LOWERCASE)
+		result.PROVIDER_LOWERCASE = data.PROVIDER_LOWERCASE;
+	if (data.ENV_VAR_NAME) result.ENV_VAR_NAME = data.ENV_VAR_NAME;
+	if (data.EXAMPLE_MODEL_METHOD)
+		result.EXAMPLE_MODEL_METHOD = data.EXAMPLE_MODEL_METHOD;
+	if (data.EXAMPLE_MODEL_STRING)
+		result.EXAMPLE_MODEL_STRING = data.EXAMPLE_MODEL_STRING;
+	if (data.MODEL_TYPE_EXAMPLE)
+		result.MODEL_TYPE_EXAMPLE = data.MODEL_TYPE_EXAMPLE;
+	if (data.DEFAULT_BASE_URL) result.DEFAULT_BASE_URL = data.DEFAULT_BASE_URL;
+	if (data.OUTPUT_FILENAME) result.OUTPUT_FILENAME = data.OUTPUT_FILENAME;
+
+	return result;
+}
+
+// Check if all required fields are provided
+function hasAllRequiredFields(
+	data: Partial<ProviderData>,
+): data is ProviderData {
+	return !!(
+		data.PROVIDER_NAME &&
+		data.PROVIDER_LOWERCASE &&
+		data.ENV_VAR_NAME &&
+		data.EXAMPLE_MODEL_METHOD &&
+		data.MODEL_TYPE_EXAMPLE &&
+		data.DEFAULT_BASE_URL &&
+		data.OUTPUT_FILENAME
+	);
+}
+
+// Fill in derived fields
+function fillDerivedFields(data: Partial<ProviderData>): ProviderData {
+	const fullData = data as ProviderData;
+
+	if (!fullData.PROVIDER_LOWERCASE) {
+		fullData.PROVIDER_LOWERCASE = deriveProviderLowercase(
+			fullData.PROVIDER_NAME,
+		);
+	}
+	if (!fullData.ENV_VAR_NAME) {
+		fullData.ENV_VAR_NAME = deriveEnvVarName(fullData.PROVIDER_NAME);
+	}
+	if (!fullData.EXAMPLE_MODEL_STRING) {
+		fullData.EXAMPLE_MODEL_STRING = deriveModelString(
+			fullData.EXAMPLE_MODEL_METHOD,
+		);
+	}
+	if (!fullData.OUTPUT_FILENAME) {
+		fullData.OUTPUT_FILENAME = deriveOutputFilename(
+			fullData.PROVIDER_LOWERCASE,
+		);
+	}
+
+	return fullData;
+}
+
 // Main function to gather provider data
 async function gatherProviderData(): Promise<ProviderData> {
+	// Check for non-interactive mode
+	const argsData = parseArgs();
+	if (argsData && hasAllRequiredFields(argsData)) {
+		console.log(
+			"\n🚀 Provider Documentation Generator (Non-Interactive Mode)\n",
+		);
+		return fillDerivedFields(argsData);
+	}
+
 	const rl = createReadline();
 	const data = {} as ProviderData;
 
