@@ -23,7 +23,7 @@ To create a provider instance, call `Vercel::model_name()`, where **model_name**
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::vercel::Vercel;
+use aisdk::providers::Vercel;
 
 let vercel = Vercel::openai_gpt_4o_mini();
 ```
@@ -41,7 +41,7 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::vercel::Vercel,
+    providers::Vercel,
 };
 
 #[tokio::main]

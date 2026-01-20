@@ -1,7 +1,7 @@
 export const googleGenerateText = `
 use aisdk::{
     core::LanguageModelRequest,
-    providers::google::Google,
+    providers::Google,
 };
 
 #[tokio::main]
@@ -22,7 +22,7 @@ async fn main() {
 export const openaiGenerateText = `
 use aisdk::{
     core::LanguageModelRequest,
-    providers::openai::OpenAI,
+    providers::OpenAI,
 };
 
 #[tokio::main]
@@ -43,7 +43,7 @@ async fn main() {
 export const anthropicGenerateText = `
 use aisdk::{
     core::LanguageModelRequest,
-    providers::anthropic::Anthropic,
+    providers::Anthropic,
 };
 
 #[tokio::main]
@@ -64,7 +64,7 @@ async fn main() {
 export const openaiStreamText = `
 use aisdk::{
     core::{LanguageModelRequest, LanguageModelStreamChunkType},
-    providers::openai::OpenAI,
+    providers::OpenAI,
 };
 use futures::StreamExt;
 
@@ -91,7 +91,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 export const anthropicStreamText = `
 use aisdk::{
     core::{LanguageModelRequest, LanguageModelStreamChunkType},
-    providers::anthropic::Anthropic,
+    providers::Anthropic,
 };
 use futures::StreamExt;
 
@@ -118,7 +118,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 export const googleStreamText = `
 use aisdk::{
     core::{LanguageModelRequest, LanguageModelStreamChunkType},
-    providers::google::Google,
+    providers::Google,
 };
 use futures::StreamExt;
 

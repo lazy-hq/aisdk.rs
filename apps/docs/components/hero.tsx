@@ -186,7 +186,7 @@ const ProvidersExampleCodeTabs = () => {
 		basic: ({ provider, model, method, streaming }, cfg) =>
 			`use aisdk::{
     core::LanguageModelRequest,
-    providers::${provider.toLowerCase()}::${provider},
+    providers::${provider},
 };
 
 let ${streaming ? "stream" : "response"} = LanguageModelRequest::builder()
@@ -289,7 +289,7 @@ let ${streaming ? "stream" : "user: User"} = LanguageModelRequest::builder()
 
 			return `use aisdk::{
     core::LanguageModelRequest,
-    providers::${provider.toLowerCase()}::${provider},
+    providers::${provider},
 };
 
 // Using model that doesn't text output for text generation

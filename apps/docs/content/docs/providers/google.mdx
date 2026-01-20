@@ -23,7 +23,7 @@ To create a provider instance, call `Google::model_name()`, where **model_name**
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::google::Google;
+use aisdk::providers::Google;
 
 let google = Google::gemini_2_5_flash();
 ```
@@ -41,7 +41,7 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::google::Google,
+    providers::Google,
 };
 
 #[tokio::main]

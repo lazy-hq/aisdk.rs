@@ -33,7 +33,7 @@ use aisdk::{
         axum::AxumSseResponse,
         vercel_aisdk_ui::VercelUIRequest,
     },
-    providers::openai::OpenAI,
+    providers::OpenAI,
 };
 
 // Example Axum handler function
@@ -131,7 +131,7 @@ Use the `into_vercel_ui_stream()` method to convert a `StreamTextResponse` into 
 ```rust
 use aisdk::core::{LanguageModelRequest, Messages};
 use aisdk::integrations::vercel_aisdk_ui::{VercelUIRequest, VercelUIStreamOptions};
-use aisdk::providers::openai::OpenAI;
+use aisdk::providers::OpenAI;
 use futures::Stream;
 
 // Handler function signature varies by your framework

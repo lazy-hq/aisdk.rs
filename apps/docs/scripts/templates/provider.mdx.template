@@ -23,7 +23,7 @@ To create a provider instance, call `{{PROVIDER_NAME}}::model_name()`, where **m
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::{{PROVIDER_LOWERCASE}}::{{PROVIDER_NAME}};
+use aisdk::providers::{{PROVIDER_NAME}};
 
 let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::{{EXAMPLE_MODEL_METHOD}}();
 ```
@@ -41,7 +41,7 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::{{PROVIDER_LOWERCASE}}::{{PROVIDER_NAME}},
+    providers::{{PROVIDER_NAME}},
 };
 
 #[tokio::main]

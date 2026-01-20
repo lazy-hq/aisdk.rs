@@ -23,7 +23,7 @@ To create a provider instance, call `OpenAI::model_name()`, where **model_name**
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::openai::OpenAI;
+use aisdk::providers::OpenAI;
 
 let openai = OpenAI::gpt_5();
 ```
@@ -41,7 +41,7 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::openai::OpenAI,
+    providers::OpenAI,
 };
 
 #[tokio::main]
