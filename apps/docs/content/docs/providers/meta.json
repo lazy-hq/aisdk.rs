@@ -1,5 +1,16 @@
 {
 	"title": "Providers",
 	"icon": "Workflow",
-	"pages": ["index", "antropic", "google", "vercel-ai-gateway"]
+	"pages": [
+		"index",
+		"amazon-bedrock",
+		"antropic",
+		"deepseek",
+		"google",
+		"groq",
+		"openrouter",
+		"togetherai",
+		"vercel-ai-gateway",
+		"xai"
+	]
 }

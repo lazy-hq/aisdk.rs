@@ -1,0 +1,113 @@
+---
+title: XAI
+---
+
+AISDK provides first-class support for XAI with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the XAI provider feature:
+
+```bash
+cargo add aisdk --features xai
+```
+
+This installs AISDK with the XAI provider enabled. Once you have enabled the XAI provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `XAI::model_name()`, where **model_name** is the XAI model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::XAI;
+
+let xai = XAI::grok_3();
+```
+
+This initializes the provider with:
+
+* Model: `"grok-3"`
+* API key from environment (if set with `XAI_API_KEY`)
+* XAI's default base URL (https://api.x.ai/)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::XAI,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let xai = XAI::grok_3();
+
+    let response = LanguageModelRequest::builder()
+        .model(xai)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `XAI::builder()`
+
+### API Key
+
+```rust
+let xai = XAI::<Grok3>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `XAI_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let xai = XAI::<Grok3>::builder()
+    .base_url("https://api.x.ai/")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let xai = XAI::<Grok3>::builder()
+    .provider_name("XAI")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let xai = XAI::<Grok3>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.x.ai/")
+    .provider_name("XAI")
+    .build()?;
+```
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

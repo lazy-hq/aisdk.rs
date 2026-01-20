@@ -1,0 +1,113 @@
+---
+title: TogetherAI
+---
+
+AISDK provides first-class support for TogetherAI with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the TogetherAI provider feature:
+
+```bash
+cargo add aisdk --features togetherai
+```
+
+This installs AISDK with the TogetherAI provider enabled. Once you have enabled the TogetherAI provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `TogetherAI::model_name()`, where **model_name** is the TogetherAI model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::TogetherAI;
+
+let togetherai = TogetherAI::meta_llama_llama_3_3_70b_instruct_turbo();
+```
+
+This initializes the provider with:
+
+* Model: `"meta-llama/Llama-3.3-70B-Instruct-Turbo"`
+* API key from environment (if set with `TOGETHER_API_KEY`)
+* TogetherAI's default base URL (https://api.together.xyz/)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::TogetherAI,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let togetherai = TogetherAI::meta_llama_llama_3_3_70b_instruct_turbo();
+
+    let response = LanguageModelRequest::builder()
+        .model(togetherai)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `TogetherAI::builder()`
+
+### API Key
+
+```rust
+let togetherai = TogetherAI::<MetaLlamaLlama3370bInstructTurbo>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `TOGETHER_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let togetherai = TogetherAI::<MetaLlamaLlama3370bInstructTurbo>::builder()
+    .base_url("https://api.together.xyz/")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let togetherai = TogetherAI::<MetaLlamaLlama3370bInstructTurbo>::builder()
+    .provider_name("TogetherAI")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let togetherai = TogetherAI::<MetaLlamaLlama3370bInstructTurbo>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.together.xyz/")
+    .provider_name("TogetherAI")
+    .build()?;
+```
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).
