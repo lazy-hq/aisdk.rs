@@ -105,6 +105,40 @@ let openrouter = OpenRouter::<OpenaiGpt4oMini>::builder()
     .build()?;
 ```
 
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::OpenRouter;
+
+// Specify model as a string at runtime
+let openrouter = OpenRouter::model_name("openai/gpt-4o-mini");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::OpenRouter,
+};
+
+let openrouter = OpenRouter::<DynamicModel>::builder()
+    .model_name("openai/gpt-4o-mini")
+    .api_key("your-api-key")
+		.base_url("https://openrouter.ai/api/")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `OpenRouter::openai_gpt_4o_mini()`.
+</Callout>
+
 ## Next Steps
 
 * Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)

@@ -105,6 +105,40 @@ let togetherai = TogetherAI::<MetaLlamaLlama3370bInstructTurbo>::builder()
     .build()?;
 ```
 
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::TogetherAI;
+
+// Specify model as a string at runtime
+let togetherai = TogetherAI::model_name("meta-llama/Llama-3.3-70B-Instruct-Turbo");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::TogetherAI,
+};
+
+let togetherai = TogetherAI::<DynamicModel>::builder()
+    .model_name("meta-llama/Llama-3.3-70B-Instruct-Turbo")
+    .api_key("your-api-key")
+		.base_url("https://api.together.xyz/")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `TogetherAI::meta_llama_llama_3_3_70b_instruct_turbo()`.
+</Callout>
+
 ## Next Steps
 
 * Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)

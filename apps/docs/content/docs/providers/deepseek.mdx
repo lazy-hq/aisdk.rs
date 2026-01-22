@@ -105,6 +105,40 @@ let deepseek = DeepSeek::<DeepseekChat>::builder()
     .build()?;
 ```
 
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::DeepSeek;
+
+// Specify model as a string at runtime
+let deepseek = DeepSeek::model_name("deepseek-chat");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::DeepSeek,
+};
+
+let deepseek = DeepSeek::<DynamicModel>::builder()
+    .model_name("deepseek-chat")
+    .api_key("your-api-key")
+		.base_url("https://api.deepseek.com/")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `DeepSeek::deepseek_chat()`.
+</Callout>
+
 ## Next Steps
 
 * Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)

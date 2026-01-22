@@ -105,18 +105,39 @@ let vercel = Vercel::<OpenaiGpt4oMini>::builder()
     .build()?;
 ```
 
-## Available Models
+## Dynamic Model Selection
 
-Vercel AI Gateway provides access to a wide variety of models through a unified API, including:
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
 
-- **OpenAI Models**: GPT-4o, GPT-4o-mini, GPT-5, o1, o3, and more
-- **Anthropic Models**: Claude 3.5, Claude 3.7, Claude 4, and more
-- **Google Models**: Gemini 2.0, Gemini 2.5, and more
-- **DeepSeek Models**: DeepSeek-V3, DeepSeek-R1, and more
-- **Meta Models**: Llama 3.1, Llama 3.2, Llama 3.3, Llama 4, and more
-- **And many more** providers including Cohere, Perplexity, Voyage, and more
+### Using model_name() Method with Default Settings
 
-All models are fully typed and available through the Vercel AI Gateway provider with their capabilities enforced at compile time.
+```rust
+use aisdk::providers::Vercel;
+
+// Specify model as a string at runtime
+let vercel = Vercel::model_name("openai/gpt-4o-mini");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Vercel,
+};
+
+let vercel = Vercel::<DynamicModel>::builder()
+    .model_name("openai/gpt-4o-mini")
+    .api_key("your-api-key")
+		.base_url("https://ai-gateway.vercel.sh/")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Vercel::openai_gpt_4o_mini()`.
+</Callout>
 
 ## Next Steps
 

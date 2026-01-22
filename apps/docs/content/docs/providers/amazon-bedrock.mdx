@@ -105,6 +105,40 @@ let amazon-bedrock = AmazonBedrock::<AnthropicClaude35Haiku20241022V10>::builder
     .build()?;
 ```
 
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::AmazonBedrock;
+
+// Specify model as a string at runtime
+let amazon-bedrock = AmazonBedrock::model_name("anthropic.claude-3-5-haiku-20241022-v1:0");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::AmazonBedrock,
+};
+
+let amazon-bedrock = AmazonBedrock::<DynamicModel>::builder()
+    .model_name("anthropic.claude-3-5-haiku-20241022-v1:0")
+    .api_key("your-api-key")
+		.base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `AmazonBedrock::anthropic_claude_3_5_haiku_20241022_v1_0()`.
+</Callout>
+
 ## Next Steps
 
 * Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)

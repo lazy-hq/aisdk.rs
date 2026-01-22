@@ -105,6 +105,40 @@ let xai = XAI::<Grok3>::builder()
     .build()?;
 ```
 
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::XAI;
+
+// Specify model as a string at runtime
+let xai = XAI::model_name("grok-3");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::XAI,
+};
+
+let xai = XAI::<DynamicModel>::builder()
+    .model_name("grok-3")
+    .api_key("your-api-key")
+		.base_url("https://api.x.ai/")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `XAI::grok_3()`.
+</Callout>
+
 ## Next Steps
 
 * Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)

@@ -3,7 +3,7 @@ title: Anthropic
 ---
 
 AISDK provides first-class support for Anthropic with fully typed model APIs.
-Model capabilities are enforced at compile time using Rust’s type system.
+Model capabilities are enforced at compile time using Rust's type system.
 This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
 
 
@@ -32,7 +32,7 @@ This initializes the provider with:
 
 * Model: `"claude-3-5-sonnet"`
 * API key from environment (if set with `ANTHROPIC_API_KEY`)
-* Anthropic’s default base URL (https://api.anthropic.com)
+* Anthropic's default base URL (https://api.anthropic.com)
 
 ## Basic Text Generation
 
@@ -104,6 +104,40 @@ let anthropic = Anthropic::<Claude35Sonnet>::builder()
     .provider_name("Anthropic")
     .build()?;
 ```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::Anthropic;
+
+// Specify model as a string at runtime
+let anthropic = Anthropic::model_name("claude-3-5-sonnet");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Anthropic,
+};
+
+let anthropic = Anthropic::<DynamicModel>::builder()
+    .model_name("claude-3-5-sonnet")
+    .api_key("your-api-key")
+		.base_url("https://api.anthropic.com")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Anthropic::claude_3_5_sonnet()`.
+</Callout>
 
 ## Next Steps
 
