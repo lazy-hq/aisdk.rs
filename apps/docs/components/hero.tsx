@@ -61,10 +61,12 @@ export function Hero() {
 			<div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 max-w-7xl w-full items-center mt-8">
 				{/* Left Column */}
 				<div className="flex flex-col items-center text-center space-y-4 sm:space-y-6 lg:items-start lg:text-left">
-					<div className="flex items-center gap-2 mb-1 sm:mb-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-						<div className="w-2 h-2 rounded-full bg-black/50 dark:bg-white/50" />
-						<span>Blazingly Fast :)</span>
-					</div>
+					{/*
+					 *<div className="flex items-center gap-2 mb-1 sm:mb-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+					 *  <div className="w-2 h-2 rounded-full bg-black/50 dark:bg-white/50" />
+					 *  <span>Blazingly Fast :)</span>
+					 *</div>
+					 */}
 
 					<h1 className="text-3xl sm:text-5xl xl:text-[3.5rem] font-bold tracking-tight text-black dark:text-white leading-tight">
 						The AI Toolkit for <span className="text-orange-500">Rust</span>
