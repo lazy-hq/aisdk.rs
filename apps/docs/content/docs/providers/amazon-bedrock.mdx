@@ -1,38 +1,38 @@
 ---
-title: Google
+title: AmazonBedrock
 ---
 
-AISDK provides first-class support for Google with fully typed model APIs.
+AISDK provides first-class support for AmazonBedrock with fully typed model APIs.
 Model capabilities are enforced at compile time using Rust's type system.
 This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
 
 
 ## Installation
 
-Enable the Google provider feature:
+Enable the AmazonBedrock provider feature:
 
 ```bash
-cargo add aisdk --features google
+cargo add aisdk --features amazon-bedrock
 ```
 
-This installs AISDK with the Google provider enabled. Once you have enabled the Google provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+This installs AISDK with the AmazonBedrock provider enabled. Once you have enabled the AmazonBedrock provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
 ## Create a Provider Instance
 
-To create a provider instance, call `Google::model_name()`, where **model_name** is the Google model you want to use.
+To create a provider instance, call `AmazonBedrock::model_name()`, where **model_name** is the AmazonBedrock model you want to use.
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::Google;
+use aisdk::providers::AmazonBedrock;
 
-let google = Google::gemini_2_5_flash();
+let amazon-bedrock = AmazonBedrock::anthropic_claude_3_5_haiku_20241022_v1_0();
 ```
 
 This initializes the provider with:
 
-* Model: `"gemini-2-5-flash"`
-* API key from environment (if set with `GOOGLE_API_KEY`)
-* Google's default base URL (https://generativelanguage.googleapis.com)
+* Model: `"anthropic.claude-3-5-haiku-20241022-v1:0"`
+* API key from environment (if set with `BEDROCK_API_KEY`)
+* AmazonBedrock's default base URL (https://bedrock-runtime.us-east-1.amazonaws.com/openai/)
 
 ## Basic Text Generation
 
@@ -41,16 +41,16 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::Google,
+    providers::AmazonBedrock,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let google = Google::gemini_2_5_flash();
+    let amazon-bedrock = AmazonBedrock::anthropic_claude_3_5_haiku_20241022_v1_0();
 
     let response = LanguageModelRequest::builder()
-        .model(google)
+        .model(amazon-bedrock)
         .prompt("Write a short poem about Rust.")
         .build()
         .generate_text()
@@ -63,25 +63,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Provider Settings
 
-You can customize provider configuration using `Google::builder()`
+You can customize provider configuration using `AmazonBedrock::builder()`
 
 ### API Key
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let amazon-bedrock = AmazonBedrock::<AnthropicClaude35Haiku20241022V10>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
 
-If not specified, AISDK uses the `GOOGLE_API_KEY` environment variable.
+If not specified, AISDK uses the `BEDROCK_API_KEY` environment variable.
 
 ### Base URL
 
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
-    .base_url("https://generativelanguage.googleapis.com")
+let amazon-bedrock = AmazonBedrock::<AnthropicClaude35Haiku20241022V10>::builder()
+    .base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/")
     .build()?;
 ```
 
@@ -90,18 +90,18 @@ let google = Google::<Gemini25Flash>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
-    .provider_name("Google")
+let amazon-bedrock = AmazonBedrock::<AnthropicClaude35Haiku20241022V10>::builder()
+    .provider_name("AmazonBedrock")
     .build()?;
 ```
 
 ### Full Custom Configuration Example
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let amazon-bedrock = AmazonBedrock::<AnthropicClaude35Haiku20241022V10>::builder()
     .api_key("your-api-key")
-    .base_url("https://generativelanguage.googleapis.com")
-    .provider_name("Google")
+    .base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/")
+    .provider_name("AmazonBedrock")
     .build()?;
 ```
 
@@ -112,10 +112,10 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 ### Using model_name() Method with Default Settings
 
 ```rust
-use aisdk::providers::Google;
+use aisdk::providers::AmazonBedrock;
 
 // Specify model as a string at runtime
-let google = Google::model_name("gemini-2-5-flash");
+let amazon-bedrock = AmazonBedrock::model_name("anthropic.claude-3-5-haiku-20241022-v1:0");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -123,20 +123,20 @@ let google = Google::model_name("gemini-2-5-flash");
 ```rust
 use aisdk::{
     core::DynamicModel,
-    providers::Google,
+    providers::AmazonBedrock,
 };
 
-let google = Google::<DynamicModel>::builder()
-    .model_name("gemini-2-5-flash")
+let amazon-bedrock = AmazonBedrock::<DynamicModel>::builder()
+    .model_name("anthropic.claude-3-5-haiku-20241022-v1:0")
     .api_key("your-api-key")
-		.base_url("https://generativelanguage.googleapis.com")
+		.base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/")
     .build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `Google::gemini_2_5_flash()`.
+For compile-time safety, use the typed methods like `AmazonBedrock::anthropic_claude_3_5_haiku_20241022_v1_0()`.
 </Callout>
 
 ## Next Steps

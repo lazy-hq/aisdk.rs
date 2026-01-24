@@ -3,7 +3,7 @@ title: OpenAI
 ---
 
 AISDK provides first-class support for OpenAI with fully typed model APIs.
-Model capabilities are enforced at compile time using Rust’s type system.
+Model capabilities are enforced at compile time using Rust's type system.
 This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
 
 
@@ -23,7 +23,7 @@ To create a provider instance, call `OpenAI::model_name()`, where **model_name**
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::openai::OpenAI;
+use aisdk::providers::OpenAI;
 
 let openai = OpenAI::gpt_5();
 ```
@@ -32,7 +32,7 @@ This initializes the provider with:
 
 * Model: `"gpt-5"`
 * API key from environment (if set with `OPENAI_API_KEY`)
-* OpenAI’s default base URL (https://api.openai.com)
+* OpenAI's default base URL (https://api.openai.com)
 
 ## Basic Text Generation
 
@@ -41,7 +41,7 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::openai::OpenAI,
+    providers::OpenAI,
 };
 
 #[tokio::main]
@@ -104,6 +104,40 @@ let openai = OpenAI::<Gpt5>::builder()
     .provider_name("OpenAI")
     .build()?;
 ```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::OpenAI;
+
+// Specify model as a string at runtime
+let openai = OpenAI::model_name("gpt-5");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::OpenAI,
+};
+
+let openai = OpenAI::<DynamicModel>::builder()
+    .model_name("gpt-5")
+    .api_key("your-api-key")
+		.base_url("https://api.openai.com")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `OpenAI::gpt_5()`.
+</Callout>
 
 ## Next Steps
 

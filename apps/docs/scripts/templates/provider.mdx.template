@@ -1,38 +1,38 @@
 ---
-title: Google
+title: {{PROVIDER_NAME}}
 ---
 
-AISDK provides first-class support for Google with fully typed model APIs.
+AISDK provides first-class support for {{PROVIDER_NAME}} with fully typed model APIs.
 Model capabilities are enforced at compile time using Rust's type system.
 This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
 
 
 ## Installation
 
-Enable the Google provider feature:
+Enable the {{PROVIDER_NAME}} provider feature:
 
 ```bash
-cargo add aisdk --features google
+cargo add aisdk --features {{PROVIDER_LOWERCASE}}
 ```
 
-This installs AISDK with the Google provider enabled. Once you have enabled the Google provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+This installs AISDK with the {{PROVIDER_NAME}} provider enabled. Once you have enabled the {{PROVIDER_NAME}} provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
 ## Create a Provider Instance
 
-To create a provider instance, call `Google::model_name()`, where **model_name** is the Google model you want to use.
+To create a provider instance, call `{{PROVIDER_NAME}}::model_name()`, where **model_name** is the {{PROVIDER_NAME}} model you want to use.
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::Google;
+use aisdk::providers::{{PROVIDER_NAME}};
 
-let google = Google::gemini_2_5_flash();
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::{{EXAMPLE_MODEL_METHOD}}();
 ```
 
 This initializes the provider with:
 
-* Model: `"gemini-2-5-flash"`
-* API key from environment (if set with `GOOGLE_API_KEY`)
-* Google's default base URL (https://generativelanguage.googleapis.com)
+* Model: `"{{EXAMPLE_MODEL_STRING}}"`
+* API key from environment (if set with `{{ENV_VAR_NAME}}`)
+* {{PROVIDER_NAME}}'s default base URL ({{DEFAULT_BASE_URL}})
 
 ## Basic Text Generation
 
@@ -41,16 +41,16 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::Google,
+    providers::{{PROVIDER_NAME}},
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let google = Google::gemini_2_5_flash();
+    let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::{{EXAMPLE_MODEL_METHOD}}();
 
     let response = LanguageModelRequest::builder()
-        .model(google)
+        .model({{PROVIDER_LOWERCASE}})
         .prompt("Write a short poem about Rust.")
         .build()
         .generate_text()
@@ -63,25 +63,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Provider Settings
 
-You can customize provider configuration using `Google::builder()`
+You can customize provider configuration using `{{PROVIDER_NAME}}::builder()`
 
 ### API Key
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
 
-If not specified, AISDK uses the `GOOGLE_API_KEY` environment variable.
+If not specified, AISDK uses the `{{ENV_VAR_NAME}}` environment variable.
 
 ### Base URL
 
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
-    .base_url("https://generativelanguage.googleapis.com")
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builder()
+    .base_url("{{DEFAULT_BASE_URL}}")
     .build()?;
 ```
 
@@ -90,18 +90,18 @@ let google = Google::<Gemini25Flash>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
-    .provider_name("Google")
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builder()
+    .provider_name("{{PROVIDER_NAME}}")
     .build()?;
 ```
 
 ### Full Custom Configuration Example
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builder()
     .api_key("your-api-key")
-    .base_url("https://generativelanguage.googleapis.com")
-    .provider_name("Google")
+    .base_url("{{DEFAULT_BASE_URL}}")
+    .provider_name("{{PROVIDER_NAME}}")
     .build()?;
 ```
 
@@ -112,10 +112,10 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 ### Using model_name() Method with Default Settings
 
 ```rust
-use aisdk::providers::Google;
+use aisdk::providers::{{PROVIDER_NAME}};
 
 // Specify model as a string at runtime
-let google = Google::model_name("gemini-2-5-flash");
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::model_name("{{EXAMPLE_MODEL_STRING}}");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -123,20 +123,20 @@ let google = Google::model_name("gemini-2-5-flash");
 ```rust
 use aisdk::{
     core::DynamicModel,
-    providers::Google,
+    providers::{{PROVIDER_NAME}},
 };
 
-let google = Google::<DynamicModel>::builder()
-    .model_name("gemini-2-5-flash")
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<DynamicModel>::builder()
+    .model_name("{{EXAMPLE_MODEL_STRING}}")
     .api_key("your-api-key")
-		.base_url("https://generativelanguage.googleapis.com")
+		.base_url("{{DEFAULT_BASE_URL}}")
     .build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `Google::gemini_2_5_flash()`.
+For compile-time safety, use the typed methods like `{{PROVIDER_NAME}}::{{EXAMPLE_MODEL_METHOD}}()`.
 </Callout>
 
 ## Next Steps

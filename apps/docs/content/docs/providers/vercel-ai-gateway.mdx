@@ -1,38 +1,38 @@
 ---
-title: Google
+title: Vercel AI Gateway
 ---
 
-AISDK provides first-class support for Google with fully typed model APIs.
+AISDK provides first-class support for Vercel AI Gateway with fully typed model APIs.
 Model capabilities are enforced at compile time using Rust's type system.
 This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
 
 
 ## Installation
 
-Enable the Google provider feature:
+Enable the Vercel AI Gateway provider feature:
 
 ```bash
-cargo add aisdk --features google
+cargo add aisdk --features vercel
 ```
 
-This installs AISDK with the Google provider enabled. Once you have enabled the Google provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+This installs AISDK with the Vercel AI Gateway provider enabled. Once you have enabled the Vercel AI Gateway provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
 ## Create a Provider Instance
 
-To create a provider instance, call `Google::model_name()`, where **model_name** is the Google model you want to use.
+To create a provider instance, call `Vercel::model_name()`, where **model_name** is the model you want to use from the Vercel AI Gateway.
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::Google;
+use aisdk::providers::Vercel;
 
-let google = Google::gemini_2_5_flash();
+let vercel = Vercel::openai_gpt_4o_mini();
 ```
 
 This initializes the provider with:
 
-* Model: `"gemini-2-5-flash"`
-* API key from environment (if set with `GOOGLE_API_KEY`)
-* Google's default base URL (https://generativelanguage.googleapis.com)
+* Model: `"openai/gpt-4o-mini"`
+* API key from environment (if set with `AI_GATEWAY_API_KEY`)
+* Vercel AI Gateway's default base URL (https://ai-gateway.vercel.sh/)
 
 ## Basic Text Generation
 
@@ -41,16 +41,16 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::Google,
+    providers::Vercel,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let google = Google::gemini_2_5_flash();
+    let vercel = Vercel::openai_gpt_4o_mini();
 
     let response = LanguageModelRequest::builder()
-        .model(google)
+        .model(vercel)
         .prompt("Write a short poem about Rust.")
         .build()
         .generate_text()
@@ -63,25 +63,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Provider Settings
 
-You can customize provider configuration using `Google::builder()`
+You can customize provider configuration using `Vercel::builder()`
 
 ### API Key
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let vercel = Vercel::<OpenaiGpt4oMini>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
 
-If not specified, AISDK uses the `GOOGLE_API_KEY` environment variable.
+If not specified, AISDK uses the `AI_GATEWAY_API_KEY` environment variable.
 
 ### Base URL
 
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
-    .base_url("https://generativelanguage.googleapis.com")
+let vercel = Vercel::<OpenaiGpt4oMini>::builder()
+    .base_url("https://ai-gateway.vercel.sh/")
     .build()?;
 ```
 
@@ -90,18 +90,18 @@ let google = Google::<Gemini25Flash>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
-    .provider_name("Google")
+let vercel = Vercel::<OpenaiGpt4oMini>::builder()
+    .provider_name("Vercel AI Gateway")
     .build()?;
 ```
 
 ### Full Custom Configuration Example
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let vercel = Vercel::<OpenaiGpt4oMini>::builder()
     .api_key("your-api-key")
-    .base_url("https://generativelanguage.googleapis.com")
-    .provider_name("Google")
+    .base_url("https://ai-gateway.vercel.sh/")
+    .provider_name("Vercel AI Gateway")
     .build()?;
 ```
 
@@ -112,10 +112,10 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 ### Using model_name() Method with Default Settings
 
 ```rust
-use aisdk::providers::Google;
+use aisdk::providers::Vercel;
 
 // Specify model as a string at runtime
-let google = Google::model_name("gemini-2-5-flash");
+let vercel = Vercel::model_name("openai/gpt-4o-mini");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -123,20 +123,20 @@ let google = Google::model_name("gemini-2-5-flash");
 ```rust
 use aisdk::{
     core::DynamicModel,
-    providers::Google,
+    providers::Vercel,
 };
 
-let google = Google::<DynamicModel>::builder()
-    .model_name("gemini-2-5-flash")
+let vercel = Vercel::<DynamicModel>::builder()
+    .model_name("openai/gpt-4o-mini")
     .api_key("your-api-key")
-		.base_url("https://generativelanguage.googleapis.com")
+		.base_url("https://ai-gateway.vercel.sh/")
     .build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `Google::gemini_2_5_flash()`.
+For compile-time safety, use the typed methods like `Vercel::openai_gpt_4o_mini()`.
 </Callout>
 
 ## Next Steps

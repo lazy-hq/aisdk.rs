@@ -1,38 +1,38 @@
 ---
-title: Google
+title: XAI
 ---
 
-AISDK provides first-class support for Google with fully typed model APIs.
+AISDK provides first-class support for XAI with fully typed model APIs.
 Model capabilities are enforced at compile time using Rust's type system.
 This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
 
 
 ## Installation
 
-Enable the Google provider feature:
+Enable the XAI provider feature:
 
 ```bash
-cargo add aisdk --features google
+cargo add aisdk --features xai
 ```
 
-This installs AISDK with the Google provider enabled. Once you have enabled the Google provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+This installs AISDK with the XAI provider enabled. Once you have enabled the XAI provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
 ## Create a Provider Instance
 
-To create a provider instance, call `Google::model_name()`, where **model_name** is the Google model you want to use.
+To create a provider instance, call `XAI::model_name()`, where **model_name** is the XAI model you want to use.
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::Google;
+use aisdk::providers::XAI;
 
-let google = Google::gemini_2_5_flash();
+let xai = XAI::grok_3();
 ```
 
 This initializes the provider with:
 
-* Model: `"gemini-2-5-flash"`
-* API key from environment (if set with `GOOGLE_API_KEY`)
-* Google's default base URL (https://generativelanguage.googleapis.com)
+* Model: `"grok-3"`
+* API key from environment (if set with `XAI_API_KEY`)
+* XAI's default base URL (https://api.x.ai/)
 
 ## Basic Text Generation
 
@@ -41,16 +41,16 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::Google,
+    providers::XAI,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let google = Google::gemini_2_5_flash();
+    let xai = XAI::grok_3();
 
     let response = LanguageModelRequest::builder()
-        .model(google)
+        .model(xai)
         .prompt("Write a short poem about Rust.")
         .build()
         .generate_text()
@@ -63,25 +63,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Provider Settings
 
-You can customize provider configuration using `Google::builder()`
+You can customize provider configuration using `XAI::builder()`
 
 ### API Key
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let xai = XAI::<Grok3>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
 
-If not specified, AISDK uses the `GOOGLE_API_KEY` environment variable.
+If not specified, AISDK uses the `XAI_API_KEY` environment variable.
 
 ### Base URL
 
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
-    .base_url("https://generativelanguage.googleapis.com")
+let xai = XAI::<Grok3>::builder()
+    .base_url("https://api.x.ai/")
     .build()?;
 ```
 
@@ -90,18 +90,18 @@ let google = Google::<Gemini25Flash>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
-    .provider_name("Google")
+let xai = XAI::<Grok3>::builder()
+    .provider_name("XAI")
     .build()?;
 ```
 
 ### Full Custom Configuration Example
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let xai = XAI::<Grok3>::builder()
     .api_key("your-api-key")
-    .base_url("https://generativelanguage.googleapis.com")
-    .provider_name("Google")
+    .base_url("https://api.x.ai/")
+    .provider_name("XAI")
     .build()?;
 ```
 
@@ -112,10 +112,10 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 ### Using model_name() Method with Default Settings
 
 ```rust
-use aisdk::providers::Google;
+use aisdk::providers::XAI;
 
 // Specify model as a string at runtime
-let google = Google::model_name("gemini-2-5-flash");
+let xai = XAI::model_name("grok-3");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -123,20 +123,20 @@ let google = Google::model_name("gemini-2-5-flash");
 ```rust
 use aisdk::{
     core::DynamicModel,
-    providers::Google,
+    providers::XAI,
 };
 
-let google = Google::<DynamicModel>::builder()
-    .model_name("gemini-2-5-flash")
+let xai = XAI::<DynamicModel>::builder()
+    .model_name("grok-3")
     .api_key("your-api-key")
-		.base_url("https://generativelanguage.googleapis.com")
+		.base_url("https://api.x.ai/")
     .build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `Google::gemini_2_5_flash()`.
+For compile-time safety, use the typed methods like `XAI::grok_3()`.
 </Callout>
 
 ## Next Steps

@@ -39,7 +39,7 @@ use aisdk::{
         axum::AxumSseResponse,
         vercel_aisdk_ui::VercelUIRequest,
     },
-    providers::openai::OpenAI,
+    providers::OpenAI,
 };
 
 // Example handler function
@@ -140,7 +140,7 @@ For more control over streaming behavior, use the builder API to configure which
 use aisdk::core::LanguageModelRequest;
 use aisdk::integrations::vercel_aisdk_ui::VercelUIRequest;
 use aisdk::integrations::axum::AxumSseResponse;
-use aisdk::providers::openai::OpenAI;
+use aisdk::providers::OpenAI;
 
 async fn chat_handler(
     Json(request): Json<VercelUIRequest>,
