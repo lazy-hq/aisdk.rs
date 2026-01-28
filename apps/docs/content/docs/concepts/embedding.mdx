@@ -47,7 +47,7 @@ Result will return a `Vec<Vec<f32>>` with the same length as the input vector. T
 The dimensions of the ouput embeddings can be configured with the `.dimensions(u32)` method. The default and the allowed maximum/minimum values depend on the provider so check the provider docs. in an event an unsupported value is used that causes the provider to throw an error, the sdk will propagate the error back to the user. 
 
 ```rust
-let openai = OpenAI::text_embedding_ada_002();
+let openai = OpenAI::text_embedding_3_small();
 
 let request = EmbeddingModelRequest::builder()
     .model(openai)
