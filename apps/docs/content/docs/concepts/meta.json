@@ -1,12 +1,12 @@
 {
-  "title": "Concepts",
-  "icon": "SquareLibrary",
-  "defaultOpen": true,
-  "pages": [
-    "language-model-request",
-    "structured-output",
-    "tools",
-    "embedding",
-    "agents"
-  ]
+	"title": "Concepts",
+	"icon": "SquareLibrary",
+	"defaultOpen": true,
+	"pages": [
+		"language-model-request",
+		"structured-output",
+		"tools",
+		"embedding",
+		"agents"
+	]
 }
