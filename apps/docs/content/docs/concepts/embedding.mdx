@@ -1,0 +1,60 @@
+---
+title: Embedding
+---
+
+The `EmbeddingModelRequest` is used to embed text into vector representations using supported providers.
+
+## Model Providers
+
+Check with the docs for the model provider of your choice to see if it supports embedding. For this example, we'll use OpenAI as our provider and the text-embedding-ada-002 model.
+
+```bash
+cargo add aisdk --features openai # anthropic, google or any other provider that supports embedding.
+```
+
+At its core is the `embed()` method, which takes a `<Vec<String>>` of text and returns a `Vec<Vec<f32>>` in which each index of the input vector corresponds to the output embeddings.
+
+```rust
+let openai = OpenAI::text_embedding_ada_002();
+
+let inputs = vec![
+    "Hello, world!".to_string(),
+    "This is a test".to_string(),
+    "Multiple embeddings".to_string(),
+];
+
+let request = EmbeddingModelRequest::builder()
+    .model(openai)
+    .input(inputs)
+    .build();
+    .embed()
+    .await
+    .expect("Embedding request failed");
+````
+
+Result will return a `Vec<Vec<f32>>` with the same length as the input vector. The output structure will be:
+
+```rust
+[
+    [0.0012, 0.0034, 0.0056, 0.078, ...],  // Example embedding for "Hello, world!" 
+    [0.01, 0.02, 0.03, 0.04, 0.05, ...],   // Example embedding for "This is a test"
+    [0.06, 0.07, 0.08, 0.09, 0.11, ...],   // Example embedding for "Multiple embeddings"
+]
+```
+
+# Dimensions
+
+The dimensions of the ouput embeddings can be configured with the `.dimensions(u32)` method. The default and the allowed maximum/minimum values depend on the provider so check the provider docs. in an event an unsupported value is used that causes the provider to throw an error, the sdk will propagate the error back to the user. 
+
+```rust
+let openai = OpenAI::text_embedding_ada_002();
+
+let request = EmbeddingModelRequest::builder()
+    .model(openai)
+    .input(vec!["Hello, world!".to_string()])
+    .dimensions(100)  // Enforces a dimension of 100
+    .build();
+    .embed()
+    .await
+    .expect("Embedding request failed");
+```
