@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let ollama-cloud = OllamaCloud::<DynamicModel>::builder()
-    .model_name("cogito-2.1:671b")
-    .api_key("your-api-key")
-		.base_url("https://ollama.com/v1")
-    .build()?;
+	.model_name("cogito-2.1:671b")
+	.api_key("your-api-key")
+	.base_url("https://ollama.com/v1")
+	.provider_name("OllamaCloud")
+	.build()?;
 ```
 
 <Callout type="warn">

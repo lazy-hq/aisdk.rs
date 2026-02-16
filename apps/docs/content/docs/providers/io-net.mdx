@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let io-net = IoNet::<DynamicModel>::builder()
-    .model_name("Intel/Qwen3-Coder-480B-A35B-Instruct-int4-mixed-ar")
-    .api_key("your-api-key")
-		.base_url("https://api.intelligence.io.solutions/api/v1")
-    .build()?;
+	.model_name("Intel/Qwen3-Coder-480B-A35B-Instruct-int4-mixed-ar")
+	.api_key("your-api-key")
+	.base_url("https://api.intelligence.io.solutions/api/v1")
+	.provider_name("IoNet")
+	.build()?;
 ```
 
 <Callout type="warn">

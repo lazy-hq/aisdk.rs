@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let poe = Poe::<DynamicModel>::builder()
-    .model_name("anthropic/claude-haiku-3")
-    .api_key("your-api-key")
-		.base_url("https://api.poe.com/v1")
-    .build()?;
+	.model_name("anthropic/claude-haiku-3")
+	.api_key("your-api-key")
+	.base_url("https://api.poe.com/v1")
+	.provider_name("Poe")
+	.build()?;
 ```
 
 <Callout type="warn">

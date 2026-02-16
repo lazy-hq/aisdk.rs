@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let bailing = Bailing::<DynamicModel>::builder()
-    .model_name("Ling-1T")
-    .api_key("your-api-key")
-		.base_url("https://api.tbox.cn/api/llm/v1/chat/completions")
-    .build()?;
+	.model_name("Ling-1T")
+	.api_key("your-api-key")
+	.base_url("https://api.tbox.cn/api/llm/v1/chat/completions")
+	.provider_name("Bailing")
+	.build()?;
 ```
 
 <Callout type="warn">

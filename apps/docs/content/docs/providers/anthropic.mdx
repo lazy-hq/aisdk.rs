@@ -1,38 +1,38 @@
 ---
-title: Vercel AI Gateway
+title: Anthropic
 ---
 
-AISDK provides first-class support for Vercel AI Gateway with fully typed model APIs.
+AISDK provides first-class support for Anthropic with fully typed model APIs.
 Model capabilities are enforced at compile time using Rust's type system.
 This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
 
 
 ## Installation
 
-Enable the Vercel AI Gateway provider feature:
+Enable the Anthropic provider feature:
 
 ```bash
-cargo add aisdk --features vercel
+cargo add aisdk --features anthropic
 ```
 
-This installs AISDK with the Vercel AI Gateway provider enabled. Once you have enabled the Vercel AI Gateway provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+This installs AISDK with the Anthropic provider enabled. Once you have enabled the Anthropic provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
 ## Create a Provider Instance
 
-To create a provider instance, call `Vercel::model_name()`, where **model_name** is the model you want to use from the Vercel AI Gateway.
+To create a provider instance, call `Anthropic::model_name()`, where **model_name** is the Anthropic model you want to use.
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::Vercel;
+use aisdk::providers::Anthropic;
 
-let vercel = Vercel::openai_gpt_4o_mini();
+let anthropic = Anthropic::claude_3_5_haiku_20241022();
 ```
 
 This initializes the provider with:
 
-* Model: `"openai/gpt-4o-mini"`
-* API key from environment (if set with `AI_GATEWAY_API_KEY`)
-* Vercel AI Gateway's default base URL (https://ai-gateway.vercel.sh/)
+* Model: `"claude-3-5-haiku-20241022"`
+* API key from environment (if set with `ANTHROPIC_API_KEY`)
+* Anthropic's default base URL (https://api.anthropic.com/v1/)
 
 ## Basic Text Generation
 
@@ -41,16 +41,16 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::Vercel,
+    providers::Anthropic,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let vercel = Vercel::openai_gpt_4o_mini();
+    let anthropic = Anthropic::claude_3_5_haiku_20241022();
 
     let response = LanguageModelRequest::builder()
-        .model(vercel)
+        .model(anthropic)
         .prompt("Write a short poem about Rust.")
         .build()
         .generate_text()
@@ -63,25 +63,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Provider Settings
 
-You can customize provider configuration using `Vercel::builder()`
+You can customize provider configuration using `Anthropic::builder()`
 
 ### API Key
 
 ```rust
-let vercel = Vercel::<OpenaiGpt4oMini>::builder()
+let anthropic = Anthropic::<Claude35Haiku20241022>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
 
-If not specified, AISDK uses the `AI_GATEWAY_API_KEY` environment variable.
+If not specified, AISDK uses the `ANTHROPIC_API_KEY` environment variable.
 
 ### Base URL
 
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let vercel = Vercel::<OpenaiGpt4oMini>::builder()
-    .base_url("https://ai-gateway.vercel.sh/")
+let anthropic = Anthropic::<Claude35Haiku20241022>::builder()
+    .base_url("https://api.anthropic.com/v1/")
     .build()?;
 ```
 
@@ -90,18 +90,18 @@ let vercel = Vercel::<OpenaiGpt4oMini>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let vercel = Vercel::<OpenaiGpt4oMini>::builder()
-    .provider_name("Vercel AI Gateway")
+let anthropic = Anthropic::<Claude35Haiku20241022>::builder()
+    .provider_name("Anthropic")
     .build()?;
 ```
 
 ### Full Custom Configuration Example
 
 ```rust
-let vercel = Vercel::<OpenaiGpt4oMini>::builder()
+let anthropic = Anthropic::<Claude35Haiku20241022>::builder()
     .api_key("your-api-key")
-    .base_url("https://ai-gateway.vercel.sh/")
-    .provider_name("Vercel AI Gateway")
+    .base_url("https://api.anthropic.com/v1/")
+    .provider_name("Anthropic")
     .build()?;
 ```
 
@@ -112,10 +112,10 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 ### Using model_name() Method with Default Settings
 
 ```rust
-use aisdk::providers::Vercel;
+use aisdk::providers::Anthropic;
 
 // Specify model as a string at runtime
-let vercel = Vercel::model_name("openai/gpt-4o-mini");
+let anthropic = Anthropic::model_name("claude-3-5-haiku-20241022");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -123,20 +123,21 @@ let vercel = Vercel::model_name("openai/gpt-4o-mini");
 ```rust
 use aisdk::{
     core::DynamicModel,
-    providers::Vercel,
+    providers::Anthropic,
 };
 
-let vercel = Vercel::<DynamicModel>::builder()
-    .model_name("openai/gpt-4o-mini")
-    .api_key("your-api-key")
-		.base_url("https://ai-gateway.vercel.sh/")
-    .build()?;
+let anthropic = Anthropic::<DynamicModel>::builder()
+	.model_name("claude-3-5-haiku-20241022")
+	.api_key("your-api-key")
+	.base_url("https://api.anthropic.com/v1/")
+	.provider_name("Anthropic")
+	.build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `Vercel::openai_gpt_4o_mini()`.
+For compile-time safety, use the typed methods like `Anthropic::claude_3_5_haiku_20241022()`.
 </Callout>
 
 ## Next Steps

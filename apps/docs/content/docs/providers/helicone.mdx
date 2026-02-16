@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let helicone = Helicone::<DynamicModel>::builder()
-    .model_name("chatgpt-4o-latest")
-    .api_key("your-api-key")
-		.base_url("https://ai-gateway.helicone.ai/v1")
-    .build()?;
+	.model_name("chatgpt-4o-latest")
+	.api_key("your-api-key")
+	.base_url("https://ai-gateway.helicone.ai/v1")
+	.provider_name("Helicone")
+	.build()?;
 ```
 
 <Callout type="warn">

@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let modelscope = Modelscope::<DynamicModel>::builder()
-    .model_name("Qwen/Qwen3-235B-A22B-Instruct-2507")
-    .api_key("your-api-key")
-		.base_url("https://api-inference.modelscope.cn/v1")
-    .build()?;
+	.model_name("Qwen/Qwen3-235B-A22B-Instruct-2507")
+	.api_key("your-api-key")
+	.base_url("https://api-inference.modelscope.cn/v1")
+	.provider_name("Modelscope")
+	.build()?;
 ```
 
 <Callout type="warn">

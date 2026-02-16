@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let aihubmix = Aihubmix::<DynamicModel>::builder()
-    .model_name("Kimi-K2-0905")
-    .api_key("your-api-key")
-		.base_url("https://aihubmix.com/v1")
-    .build()?;
+	.model_name("Kimi-K2-0905")
+	.api_key("your-api-key")
+	.base_url("https://aihubmix.com/v1")
+	.provider_name("Aihubmix")
+	.build()?;
 ```
 
 <Callout type="warn">

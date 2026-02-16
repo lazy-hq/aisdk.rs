@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let opencode = Opencode::<DynamicModel>::builder()
-    .model_name("big-pickle")
-    .api_key("your-api-key")
-		.base_url("https://opencode.ai/zen/v1")
-    .build()?;
+	.model_name("big-pickle")
+	.api_key("your-api-key")
+	.base_url("https://opencode.ai/zen/v1")
+	.provider_name("Opencode")
+	.build()?;
 ```
 
 <Callout type="warn">

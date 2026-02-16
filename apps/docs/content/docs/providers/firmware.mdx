@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let firmware = Firmware::<DynamicModel>::builder()
-    .model_name("claude-haiku-4-5")
-    .api_key("your-api-key")
-		.base_url("https://app.firmware.ai/api/v1")
-    .build()?;
+	.model_name("claude-haiku-4-5")
+	.api_key("your-api-key")
+	.base_url("https://app.firmware.ai/api/v1")
+	.provider_name("Firmware")
+	.build()?;
 ```
 
 <Callout type="warn">

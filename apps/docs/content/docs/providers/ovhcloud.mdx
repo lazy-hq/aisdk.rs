@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let ovhcloud = Ovhcloud::<DynamicModel>::builder()
-    .model_name("deepseek-r1-distill-llama-70b")
-    .api_key("your-api-key")
-		.base_url("https://oai.endpoints.kepler.ai.cloud.ovh.net/v1")
-    .build()?;
+	.model_name("deepseek-r1-distill-llama-70b")
+	.api_key("your-api-key")
+	.base_url("https://oai.endpoints.kepler.ai.cloud.ovh.net/v1")
+	.provider_name("Ovhcloud")
+	.build()?;
 ```
 
 <Callout type="warn">

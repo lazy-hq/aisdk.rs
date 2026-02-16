@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let 302ai = Ai302::<DynamicModel>::builder()
-    .model_name("MiniMax-M1")
-    .api_key("your-api-key")
-		.base_url("https://api.302.ai/v1")
-    .build()?;
+	.model_name("MiniMax-M1")
+	.api_key("your-api-key")
+	.base_url("https://api.302.ai/v1")
+	.provider_name("Ai302")
+	.build()?;
 ```
 
 <Callout type="warn">

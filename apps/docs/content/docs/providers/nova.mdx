@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let nova = Nova::<DynamicModel>::builder()
-    .model_name("nova-2-lite-v1")
-    .api_key("your-api-key")
-		.base_url("https://api.nova.amazon.com/v1")
-    .build()?;
+	.model_name("nova-2-lite-v1")
+	.api_key("your-api-key")
+	.base_url("https://api.nova.amazon.com/v1")
+	.provider_name("Nova")
+	.build()?;
 ```
 
 <Callout type="warn">

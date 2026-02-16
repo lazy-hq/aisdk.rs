@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let moark = Moark::<DynamicModel>::builder()
-    .model_name("GLM-4.7")
-    .api_key("your-api-key")
-		.base_url("https://moark.com/v1")
-    .build()?;
+	.model_name("GLM-4.7")
+	.api_key("your-api-key")
+	.base_url("https://moark.com/v1")
+	.provider_name("Moark")
+	.build()?;
 ```
 
 <Callout type="warn">

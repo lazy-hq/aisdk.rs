@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let zenmux = Zenmux::<DynamicModel>::builder()
-    .model_name("anthropic/claude-haiku-4.5")
-    .api_key("your-api-key")
-		.base_url("https://zenmux.ai/api/v1")
-    .build()?;
+	.model_name("anthropic/claude-haiku-4.5")
+	.api_key("your-api-key")
+	.base_url("https://zenmux.ai/api/v1")
+	.provider_name("Zenmux")
+	.build()?;
 ```
 
 <Callout type="warn">

@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let cloudflare-ai-gateway = CloudflareAiGateway::<DynamicModel>::builder()
-    .model_name("anthropic/claude-3-5-haiku")
-    .api_key("your-api-key")
-		.base_url("https://gateway.ai.cloudflare.com/v1/${CLOUDFLARE_ACCOUNT_ID}/${CLOUDFLARE_GATEWAY_ID}/compat/")
-    .build()?;
+	.model_name("anthropic/claude-3-5-haiku")
+	.api_key("your-api-key")
+	.base_url("https://gateway.ai.cloudflare.com/v1/${CLOUDFLARE_ACCOUNT_ID}/${CLOUDFLARE_GATEWAY_ID}/compat/")
+	.provider_name("CloudflareAiGateway")
+	.build()?;
 ```
 
 <Callout type="warn">

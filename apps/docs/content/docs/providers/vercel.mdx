@@ -1,38 +1,38 @@
 ---
-title: AlibabaCn
+title: Vercel
 ---
 
-AISDK provides first-class support for AlibabaCn with fully typed model APIs.
+AISDK provides first-class support for Vercel with fully typed model APIs.
 Model capabilities are enforced at compile time using Rust's type system.
 This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
 
 
 ## Installation
 
-Enable the AlibabaCn provider feature:
+Enable the Vercel provider feature:
 
 ```bash
-cargo add aisdk --features alibaba-cn
+cargo add aisdk --features vercel
 ```
 
-This installs AISDK with the AlibabaCn provider enabled. Once you have enabled the AlibabaCn provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+This installs AISDK with the Vercel provider enabled. Once you have enabled the Vercel provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
 ## Create a Provider Instance
 
-To create a provider instance, call `AlibabaCn::model_name()`, where **model_name** is the AlibabaCn model you want to use.
+To create a provider instance, call `Vercel::model_name()`, where **model_name** is the Vercel model you want to use.
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::AlibabaCn;
+use aisdk::providers::Vercel;
 
-let alibaba-cn = AlibabaCn::deepseek_r1();
+let vercel = Vercel::alibaba_qwen_3_14b();
 ```
 
 This initializes the provider with:
 
-* Model: `"deepseek-r1"`
-* API key from environment (if set with `DASHSCOPE_API_KEY`)
-* AlibabaCn's default base URL (https://dashscope.aliyuncs.com/compatible-mode/v1)
+* Model: `"alibaba/qwen-3-14b"`
+* API key from environment (if set with `VERCEL_API_KEY`)
+* Vercel's default base URL (https://ai-gateway.vercel.sh/v1/)
 
 ## Basic Text Generation
 
@@ -41,16 +41,16 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::AlibabaCn,
+    providers::Vercel,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let alibaba-cn = AlibabaCn::deepseek_r1();
+    let vercel = Vercel::alibaba_qwen_3_14b();
 
     let response = LanguageModelRequest::builder()
-        .model(alibaba-cn)
+        .model(vercel)
         .prompt("Write a short poem about Rust.")
         .build()
         .generate_text()
@@ -63,25 +63,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Provider Settings
 
-You can customize provider configuration using `AlibabaCn::builder()`
+You can customize provider configuration using `Vercel::builder()`
 
 ### API Key
 
 ```rust
-let alibaba-cn = AlibabaCn::<DeepseekR1>::builder()
+let vercel = Vercel::<AlibabaQwen314b>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
 
-If not specified, AISDK uses the `DASHSCOPE_API_KEY` environment variable.
+If not specified, AISDK uses the `VERCEL_API_KEY` environment variable.
 
 ### Base URL
 
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let alibaba-cn = AlibabaCn::<DeepseekR1>::builder()
-    .base_url("https://dashscope.aliyuncs.com/compatible-mode/v1")
+let vercel = Vercel::<AlibabaQwen314b>::builder()
+    .base_url("https://ai-gateway.vercel.sh/v1/")
     .build()?;
 ```
 
@@ -90,18 +90,18 @@ let alibaba-cn = AlibabaCn::<DeepseekR1>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let alibaba-cn = AlibabaCn::<DeepseekR1>::builder()
-    .provider_name("AlibabaCn")
+let vercel = Vercel::<AlibabaQwen314b>::builder()
+    .provider_name("Vercel")
     .build()?;
 ```
 
 ### Full Custom Configuration Example
 
 ```rust
-let alibaba-cn = AlibabaCn::<DeepseekR1>::builder()
+let vercel = Vercel::<AlibabaQwen314b>::builder()
     .api_key("your-api-key")
-    .base_url("https://dashscope.aliyuncs.com/compatible-mode/v1")
-    .provider_name("AlibabaCn")
+    .base_url("https://ai-gateway.vercel.sh/v1/")
+    .provider_name("Vercel")
     .build()?;
 ```
 
@@ -112,10 +112,10 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 ### Using model_name() Method with Default Settings
 
 ```rust
-use aisdk::providers::AlibabaCn;
+use aisdk::providers::Vercel;
 
 // Specify model as a string at runtime
-let alibaba-cn = AlibabaCn::model_name("deepseek-r1");
+let vercel = Vercel::model_name("alibaba/qwen-3-14b");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -123,21 +123,21 @@ let alibaba-cn = AlibabaCn::model_name("deepseek-r1");
 ```rust
 use aisdk::{
     core::DynamicModel,
-    providers::AlibabaCn,
+    providers::Vercel,
 };
 
-let alibaba-cn = AlibabaCn::<DynamicModel>::builder()
-	.model_name("deepseek-r1")
+let vercel = Vercel::<DynamicModel>::builder()
+	.model_name("alibaba/qwen-3-14b")
 	.api_key("your-api-key")
-	.base_url("https://dashscope.aliyuncs.com/compatible-mode/v1")
-	.provider_name("AlibabaCn")
+	.base_url("https://ai-gateway.vercel.sh/v1/")
+	.provider_name("Vercel")
 	.build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `AlibabaCn::deepseek_r1()`.
+For compile-time safety, use the typed methods like `Vercel::alibaba_qwen_3_14b()`.
 </Callout>
 
 ## Next Steps

@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let nano-gpt = NanoGpt::<DynamicModel>::builder()
-    .model_name("deepseek/deepseek-r1")
-    .api_key("your-api-key")
-		.base_url("https://nano-gpt.com/api/v1")
-    .build()?;
+	.model_name("deepseek/deepseek-r1")
+	.api_key("your-api-key")
+	.base_url("https://nano-gpt.com/api/v1")
+	.provider_name("NanoGpt")
+	.build()?;
 ```
 
 <Callout type="warn">

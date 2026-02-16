@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let friendli = Friendli::<DynamicModel>::builder()
-    .model_name("LGAI-EXAONE/EXAONE-4.0.1-32B")
-    .api_key("your-api-key")
-		.base_url("https://api.friendli.ai/serverless/v1")
-    .build()?;
+	.model_name("LGAI-EXAONE/EXAONE-4.0.1-32B")
+	.api_key("your-api-key")
+	.base_url("https://api.friendli.ai/serverless/v1")
+	.provider_name("Friendli")
+	.build()?;
 ```
 
 <Callout type="warn">

@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let xiaomi = Xiaomi::<DynamicModel>::builder()
-    .model_name("mimo-v2-flash")
-    .api_key("your-api-key")
-		.base_url("https://api.xiaomimimo.com/v1")
-    .build()?;
+	.model_name("mimo-v2-flash")
+	.api_key("your-api-key")
+	.base_url("https://api.xiaomimimo.com/v1")
+	.provider_name("Xiaomi")
+	.build()?;
 ```
 
 <Callout type="warn">

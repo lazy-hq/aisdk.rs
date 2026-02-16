@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let scaleway = Scaleway::<DynamicModel>::builder()
-    .model_name("bge-multilingual-gemma2")
-    .api_key("your-api-key")
-		.base_url("https://api.scaleway.ai/v1")
-    .build()?;
+	.model_name("bge-multilingual-gemma2")
+	.api_key("your-api-key")
+	.base_url("https://api.scaleway.ai/v1")
+	.provider_name("Scaleway")
+	.build()?;
 ```
 
 <Callout type="warn">

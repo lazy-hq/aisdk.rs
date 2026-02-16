@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let cloudflare-workers-ai = CloudflareWorkersAi::<DynamicModel>::builder()
-    .model_name("@cf/ai4bharat/indictrans2-en-indic-1B")
-    .api_key("your-api-key")
-		.base_url("https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/v1")
-    .build()?;
+	.model_name("@cf/ai4bharat/indictrans2-en-indic-1B")
+	.api_key("your-api-key")
+	.base_url("https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/v1")
+	.provider_name("CloudflareWorkersAi")
+	.build()?;
 ```
 
 <Callout type="warn">

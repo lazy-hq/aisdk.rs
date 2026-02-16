@@ -1,38 +1,38 @@
 ---
-title: OpenRouter
+title: Openrouter
 ---
 
-AISDK provides first-class support for OpenRouter with fully typed model APIs.
+AISDK provides first-class support for Openrouter with fully typed model APIs.
 Model capabilities are enforced at compile time using Rust's type system.
 This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
 
 
 ## Installation
 
-Enable the OpenRouter provider feature:
+Enable the Openrouter provider feature:
 
 ```bash
 cargo add aisdk --features openrouter
 ```
 
-This installs AISDK with the OpenRouter provider enabled. Once you have enabled the OpenRouter provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+This installs AISDK with the Openrouter provider enabled. Once you have enabled the Openrouter provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
 ## Create a Provider Instance
 
-To create a provider instance, call `OpenRouter::model_name()`, where **model_name** is the OpenRouter model you want to use.
+To create a provider instance, call `Openrouter::model_name()`, where **model_name** is the Openrouter model you want to use.
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::OpenRouter;
+use aisdk::providers::Openrouter;
 
-let openrouter = OpenRouter::openai_gpt_4o_mini();
+let openrouter = Openrouter::allenai_molmo_2_8b_free();
 ```
 
 This initializes the provider with:
 
-* Model: `"openai/gpt-4o-mini"`
+* Model: `"allenai/molmo-2-8b:free"`
 * API key from environment (if set with `OPENROUTER_API_KEY`)
-* OpenRouter's default base URL (https://openrouter.ai/api/)
+* Openrouter's default base URL (https://openrouter.ai/api/v1)
 
 ## Basic Text Generation
 
@@ -41,13 +41,13 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::OpenRouter,
+    providers::Openrouter,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let openrouter = OpenRouter::openai_gpt_4o_mini();
+    let openrouter = Openrouter::allenai_molmo_2_8b_free();
 
     let response = LanguageModelRequest::builder()
         .model(openrouter)
@@ -63,12 +63,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Provider Settings
 
-You can customize provider configuration using `OpenRouter::builder()`
+You can customize provider configuration using `Openrouter::builder()`
 
 ### API Key
 
 ```rust
-let openrouter = OpenRouter::<OpenaiGpt4oMini>::builder()
+let openrouter = Openrouter::<AllenaiMolmo28bFree>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
@@ -80,8 +80,8 @@ If not specified, AISDK uses the `OPENROUTER_API_KEY` environment variable.
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let openrouter = OpenRouter::<OpenaiGpt4oMini>::builder()
-    .base_url("https://openrouter.ai/api/")
+let openrouter = Openrouter::<AllenaiMolmo28bFree>::builder()
+    .base_url("https://openrouter.ai/api/v1")
     .build()?;
 ```
 
@@ -90,18 +90,18 @@ let openrouter = OpenRouter::<OpenaiGpt4oMini>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let openrouter = OpenRouter::<OpenaiGpt4oMini>::builder()
-    .provider_name("OpenRouter")
+let openrouter = Openrouter::<AllenaiMolmo28bFree>::builder()
+    .provider_name("Openrouter")
     .build()?;
 ```
 
 ### Full Custom Configuration Example
 
 ```rust
-let openrouter = OpenRouter::<OpenaiGpt4oMini>::builder()
+let openrouter = Openrouter::<AllenaiMolmo28bFree>::builder()
     .api_key("your-api-key")
-    .base_url("https://openrouter.ai/api/")
-    .provider_name("OpenRouter")
+    .base_url("https://openrouter.ai/api/v1")
+    .provider_name("Openrouter")
     .build()?;
 ```
 
@@ -112,10 +112,10 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 ### Using model_name() Method with Default Settings
 
 ```rust
-use aisdk::providers::OpenRouter;
+use aisdk::providers::Openrouter;
 
 // Specify model as a string at runtime
-let openrouter = OpenRouter::model_name("openai/gpt-4o-mini");
+let openrouter = Openrouter::model_name("allenai/molmo-2-8b:free");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -123,20 +123,21 @@ let openrouter = OpenRouter::model_name("openai/gpt-4o-mini");
 ```rust
 use aisdk::{
     core::DynamicModel,
-    providers::OpenRouter,
+    providers::Openrouter,
 };
 
-let openrouter = OpenRouter::<DynamicModel>::builder()
-    .model_name("openai/gpt-4o-mini")
-    .api_key("your-api-key")
-		.base_url("https://openrouter.ai/api/")
-    .build()?;
+let openrouter = Openrouter::<DynamicModel>::builder()
+	.model_name("allenai/molmo-2-8b:free")
+	.api_key("your-api-key")
+	.base_url("https://openrouter.ai/api/v1")
+	.provider_name("Openrouter")
+	.build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `OpenRouter::openai_gpt_4o_mini()`.
+For compile-time safety, use the typed methods like `Openrouter::allenai_molmo_2_8b_free()`.
 </Callout>
 
 ## Next Steps

@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<DynamicModel>::builder()
-    .model_name("{{EXAMPLE_MODEL_STRING}}")
-    .api_key("your-api-key")
-		.base_url("{{DEFAULT_BASE_URL}}")
-    .build()?;
+	.model_name("{{EXAMPLE_MODEL_STRING}}")
+	.api_key("your-api-key")
+	.base_url("{{DEFAULT_BASE_URL}}")
+	.provider_name("{{PROVIDER_NAME}}")
+	.build()?;
 ```
 
 <Callout type="warn">

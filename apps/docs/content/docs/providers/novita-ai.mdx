@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let novita-ai = NovitaAi::<DynamicModel>::builder()
-    .model_name("baichuan/baichuan-m2-32b")
-    .api_key("your-api-key")
-		.base_url("https://api.novita.ai/openai")
-    .build()?;
+	.model_name("baichuan/baichuan-m2-32b")
+	.api_key("your-api-key")
+	.base_url("https://api.novita.ai/openai")
+	.provider_name("NovitaAi")
+	.build()?;
 ```
 
 <Callout type="warn">

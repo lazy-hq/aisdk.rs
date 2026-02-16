@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let synthetic = Synthetic::<DynamicModel>::builder()
-    .model_name("hf:MiniMaxAI/MiniMax-M2")
-    .api_key("your-api-key")
-		.base_url("https://api.synthetic.new/v1")
-    .build()?;
+	.model_name("hf:MiniMaxAI/MiniMax-M2")
+	.api_key("your-api-key")
+	.base_url("https://api.synthetic.new/v1")
+	.provider_name("Synthetic")
+	.build()?;
 ```
 
 <Callout type="warn">

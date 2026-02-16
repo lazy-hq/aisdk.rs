@@ -25,14 +25,14 @@ Model names are exposed as snake-case methods.
 ```rust
 use aisdk::providers::XAI;
 
-let xai = XAI::grok_3();
+let xai = XAI::grok_2();
 ```
 
 This initializes the provider with:
 
-* Model: `"grok-3"`
+* Model: `"grok-2"`
 * API key from environment (if set with `XAI_API_KEY`)
-* XAI's default base URL (https://api.x.ai/)
+* XAI's default base URL (https://api.x.ai/v1/)
 
 ## Basic Text Generation
 
@@ -47,7 +47,7 @@ use aisdk::{
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let xai = XAI::grok_3();
+    let xai = XAI::grok_2();
 
     let response = LanguageModelRequest::builder()
         .model(xai)
@@ -68,7 +68,7 @@ You can customize provider configuration using `XAI::builder()`
 ### API Key
 
 ```rust
-let xai = XAI::<Grok3>::builder()
+let xai = XAI::<Grok2>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
@@ -80,8 +80,8 @@ If not specified, AISDK uses the `XAI_API_KEY` environment variable.
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let xai = XAI::<Grok3>::builder()
-    .base_url("https://api.x.ai/")
+let xai = XAI::<Grok2>::builder()
+    .base_url("https://api.x.ai/v1/")
     .build()?;
 ```
 
@@ -90,7 +90,7 @@ let xai = XAI::<Grok3>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let xai = XAI::<Grok3>::builder()
+let xai = XAI::<Grok2>::builder()
     .provider_name("XAI")
     .build()?;
 ```
@@ -98,9 +98,9 @@ let xai = XAI::<Grok3>::builder()
 ### Full Custom Configuration Example
 
 ```rust
-let xai = XAI::<Grok3>::builder()
+let xai = XAI::<Grok2>::builder()
     .api_key("your-api-key")
-    .base_url("https://api.x.ai/")
+    .base_url("https://api.x.ai/v1/")
     .provider_name("XAI")
     .build()?;
 ```
@@ -115,7 +115,7 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 use aisdk::providers::XAI;
 
 // Specify model as a string at runtime
-let xai = XAI::model_name("grok-3");
+let xai = XAI::model_name("grok-2");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -127,16 +127,17 @@ use aisdk::{
 };
 
 let xai = XAI::<DynamicModel>::builder()
-    .model_name("grok-3")
-    .api_key("your-api-key")
-		.base_url("https://api.x.ai/")
-    .build()?;
+	.model_name("grok-2")
+	.api_key("your-api-key")
+	.base_url("https://api.x.ai/v1/")
+	.provider_name("XAI")
+	.build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `XAI::grok_3()`.
+For compile-time safety, use the typed methods like `XAI::grok_2()`.
 </Callout>
 
 ## Next Steps

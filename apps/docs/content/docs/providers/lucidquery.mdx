@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let lucidquery = Lucidquery::<DynamicModel>::builder()
-    .model_name("lucidnova-rf1-100b")
-    .api_key("your-api-key")
-		.base_url("https://lucidquery.com/api/v1")
-    .build()?;
+	.model_name("lucidnova-rf1-100b")
+	.api_key("your-api-key")
+	.base_url("https://lucidquery.com/api/v1")
+	.provider_name("Lucidquery")
+	.build()?;
 ```
 
 <Callout type="warn">

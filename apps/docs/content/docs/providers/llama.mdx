@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let llama = Llama::<DynamicModel>::builder()
-    .model_name("cerebras-llama-4-maverick-17b-128e-instruct")
-    .api_key("your-api-key")
-		.base_url("https://api.llama.com/compat/v1/")
-    .build()?;
+	.model_name("cerebras-llama-4-maverick-17b-128e-instruct")
+	.api_key("your-api-key")
+	.base_url("https://api.llama.com/compat/v1/")
+	.provider_name("Llama")
+	.build()?;
 ```
 
 <Callout type="warn">

@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let requesty = Requesty::<DynamicModel>::builder()
-    .model_name("anthropic/claude-3-7-sonnet")
-    .api_key("your-api-key")
-		.base_url("https://router.requesty.ai/v1")
-    .build()?;
+	.model_name("anthropic/claude-3-7-sonnet")
+	.api_key("your-api-key")
+	.base_url("https://router.requesty.ai/v1")
+	.provider_name("Requesty")
+	.build()?;
 ```
 
 <Callout type="warn">

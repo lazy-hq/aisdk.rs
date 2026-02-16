@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let upstage = Upstage::<DynamicModel>::builder()
-    .model_name("solar-mini")
-    .api_key("your-api-key")
-		.base_url("https://api.upstage.ai/v1/solar")
-    .build()?;
+	.model_name("solar-mini")
+	.api_key("your-api-key")
+	.base_url("https://api.upstage.ai/v1/solar")
+	.provider_name("Upstage")
+	.build()?;
 ```
 
 <Callout type="warn">

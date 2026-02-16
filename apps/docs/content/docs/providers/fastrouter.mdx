@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let fastrouter = Fastrouter::<DynamicModel>::builder()
-    .model_name("anthropic/claude-opus-4.1")
-    .api_key("your-api-key")
-		.base_url("https://go.fastrouter.ai/api/v1")
-    .build()?;
+	.model_name("anthropic/claude-opus-4.1")
+	.api_key("your-api-key")
+	.base_url("https://go.fastrouter.ai/api/v1")
+	.provider_name("Fastrouter")
+	.build()?;
 ```
 
 <Callout type="warn">

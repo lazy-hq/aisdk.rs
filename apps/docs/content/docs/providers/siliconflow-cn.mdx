@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let siliconflow-cn = SiliconflowCn::<DynamicModel>::builder()
-    .model_name("ByteDance-Seed/Seed-OSS-36B-Instruct")
-    .api_key("your-api-key")
-		.base_url("https://api.siliconflow.cn/v1")
-    .build()?;
+	.model_name("ByteDance-Seed/Seed-OSS-36B-Instruct")
+	.api_key("your-api-key")
+	.base_url("https://api.siliconflow.cn/v1")
+	.provider_name("SiliconflowCn")
+	.build()?;
 ```
 
 <Callout type="warn">

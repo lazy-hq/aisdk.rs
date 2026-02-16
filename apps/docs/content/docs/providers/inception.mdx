@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let inception = Inception::<DynamicModel>::builder()
-    .model_name("mercury")
-    .api_key("your-api-key")
-		.base_url("https://api.inceptionlabs.ai/v1/")
-    .build()?;
+	.model_name("mercury")
+	.api_key("your-api-key")
+	.base_url("https://api.inceptionlabs.ai/v1/")
+	.provider_name("Inception")
+	.build()?;
 ```
 
 <Callout type="warn">

@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let baseten = Baseten::<DynamicModel>::builder()
-    .model_name("Qwen/Qwen3-Coder-480B-A35B-Instruct")
-    .api_key("your-api-key")
-		.base_url("https://inference.baseten.co/v1")
-    .build()?;
+	.model_name("Qwen/Qwen3-Coder-480B-A35B-Instruct")
+	.api_key("your-api-key")
+	.base_url("https://inference.baseten.co/v1")
+	.provider_name("Baseten")
+	.build()?;
 ```
 
 <Callout type="warn">

@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let github-copilot = GithubCopilot::<DynamicModel>::builder()
-    .model_name("claude-haiku-4.5")
-    .api_key("your-api-key")
-		.base_url("https://api.githubcopilot.com")
-    .build()?;
+	.model_name("claude-haiku-4.5")
+	.api_key("your-api-key")
+	.base_url("https://api.githubcopilot.com")
+	.provider_name("GithubCopilot")
+	.build()?;
 ```
 
 <Callout type="warn">

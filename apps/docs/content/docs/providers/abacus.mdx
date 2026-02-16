@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let abacus = Abacus::<DynamicModel>::builder()
-    .model_name("Qwen/QwQ-32B")
-    .api_key("your-api-key")
-		.base_url("https://routellm.abacus.ai/v1")
-    .build()?;
+	.model_name("Qwen/QwQ-32B")
+	.api_key("your-api-key")
+	.base_url("https://routellm.abacus.ai/v1")
+	.provider_name("Abacus")
+	.build()?;
 ```
 
 <Callout type="warn">

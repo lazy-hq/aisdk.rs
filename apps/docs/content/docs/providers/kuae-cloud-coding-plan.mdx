@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let kuae-cloud-coding-plan = KuaeCloudCodingPlan::<DynamicModel>::builder()
-    .model_name("GLM-4.7")
-    .api_key("your-api-key")
-		.base_url("https://coding-plan-endpoint.kuaecloud.net/v1")
-    .build()?;
+	.model_name("GLM-4.7")
+	.api_key("your-api-key")
+	.base_url("https://coding-plan-endpoint.kuaecloud.net/v1")
+	.provider_name("KuaeCloudCodingPlan")
+	.build()?;
 ```
 
 <Callout type="warn">

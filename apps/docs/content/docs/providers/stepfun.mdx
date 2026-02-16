@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let stepfun = Stepfun::<DynamicModel>::builder()
-    .model_name("step-1-32k")
-    .api_key("your-api-key")
-		.base_url("https://api.stepfun.com/v1")
-    .build()?;
+	.model_name("step-1-32k")
+	.api_key("your-api-key")
+	.base_url("https://api.stepfun.com/v1")
+	.provider_name("Stepfun")
+	.build()?;
 ```
 
 <Callout type="warn">

@@ -1,9 +1,28 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import * as readline from "node:readline";
 
-// Get the directory of this script file
 const scriptDir = path.join(process.cwd(), "scripts");
+const templatePath = path.join(scriptDir, "templates", "provider.mdx.template");
+const docsProvidersDir = path.join(
+	process.cwd(),
+	"content",
+	"docs",
+	"providers",
+);
+const docsMetaPath = path.join(docsProvidersDir, "meta.json");
+
+const IGNORED_FEATURES = new Set<string>([
+	"openaicompatible", // Generic public adapter; not a provider-specific docs page.
+]);
+const INTERNAL_MODULE_DIRS = new Set<string>(["openai_chat_completions"]);
+
+const NON_PROVIDER_FEATURES = new Set<string>([
+	"full",
+	"test-access",
+	"prompt",
+	"axum",
+	"openaichatcompletions",
+]);
 
 interface ProviderData {
 	PROVIDER_NAME: string;
@@ -16,305 +35,436 @@ interface ProviderData {
 	OUTPUT_FILENAME: string;
 }
 
-// Helper to create readline interface
-function createReadline(): readline.Interface {
-	return readline.createInterface({
-		input: process.stdin,
-		output: process.stdout,
-	});
+interface ProviderSettings {
+	displayName?: string;
+	baseUrl: string;
+	envVar: string;
 }
 
-// Helper to prompt user with optional default value
-function prompt(
-	rl: readline.Interface,
-	question: string,
-	defaultValue?: string,
-): Promise<string> {
-	return new Promise((resolve) => {
-		const promptText = defaultValue
-			? `${question} [${defaultValue}]: `
-			: `${question}: `;
-
-		rl.question(promptText, (answer) => {
-			resolve(answer.trim() || defaultValue || "");
-		});
-	});
+interface FirstModel {
+	typeName: string;
+	modelName: string;
+	constructorName: string;
 }
 
-// Helper functions to derive values
-function deriveProviderLowercase(providerName: string): string {
-	return providerName.toLowerCase();
+interface ProviderSource {
+	moduleDir: string;
+	featureName: string;
+	structName: string;
+	settings: ProviderSettings;
+	firstModel: FirstModel | null;
 }
 
-function deriveEnvVarName(providerName: string): string {
-	return `${providerName.toUpperCase()}_API_KEY`;
+interface CliOptions {
+	sourceRepoRoot?: string;
+	sourceProvidersDir?: string;
+	sourceCargoToml?: string;
+	overwrite: boolean;
+	dryRun: boolean;
 }
 
-function deriveModelString(modelMethod: string): string {
-	// Convert snake_case method to kebab-case string
-	// e.g., "command_r_plus" -> "command-r-plus"
-	return modelMethod.replace(/_/g, "-");
+interface ResolvedSourcePaths {
+	sourceProvidersDir: string;
+	sourceCargoToml: string;
 }
 
-function deriveOutputFilename(providerLowercase: string): string {
-	return `${providerLowercase}.mdx`;
-}
-
-// Parse command line arguments for non-interactive mode
-function parseArgs(): Partial<ProviderData> | null {
+function parseArgs(): CliOptions {
 	const args = process.argv.slice(2);
-	if (args.length === 0) return null;
 
-	const data: Record<string, string> = {};
-	let i = 0;
-	while (i < args.length) {
+	const options: CliOptions = {
+		overwrite: false,
+		dryRun: false,
+	};
+
+	for (let i = 0; i < args.length; i++) {
 		const arg = args[i];
-		if (arg.startsWith("--")) {
-			const key = arg.slice(2).toUpperCase().replace(/-/g, "_");
-			const value = args[i + 1];
-			if (value && !value.startsWith("--")) {
-				data[key] = value;
-				i += 2;
-			} else {
-				i++;
-			}
-		} else {
+		if (arg === "--source-repo-root" && args[i + 1]) {
+			options.sourceRepoRoot = args[i + 1];
 			i++;
+			continue;
+		}
+
+		if (arg === "--source-providers-dir" && args[i + 1]) {
+			options.sourceProvidersDir = args[i + 1];
+			i++;
+			continue;
+		}
+
+		if (arg === "--source-cargo-toml" && args[i + 1]) {
+			options.sourceCargoToml = args[i + 1];
+			i++;
+			continue;
+		}
+
+		if (arg === "--overwrite") {
+			options.overwrite = true;
+			continue;
+		}
+
+		if (arg === "--dry-run") {
+			options.dryRun = true;
 		}
 	}
 
-	// Map command line args to ProviderData fields
-	const result: Partial<ProviderData> = {};
-	if (data.PROVIDER_NAME) result.PROVIDER_NAME = data.PROVIDER_NAME;
-	if (data.PROVIDER_LOWERCASE)
-		result.PROVIDER_LOWERCASE = data.PROVIDER_LOWERCASE;
-	if (data.ENV_VAR_NAME) result.ENV_VAR_NAME = data.ENV_VAR_NAME;
-	if (data.EXAMPLE_MODEL_METHOD)
-		result.EXAMPLE_MODEL_METHOD = data.EXAMPLE_MODEL_METHOD;
-	if (data.EXAMPLE_MODEL_STRING)
-		result.EXAMPLE_MODEL_STRING = data.EXAMPLE_MODEL_STRING;
-	if (data.MODEL_TYPE_EXAMPLE)
-		result.MODEL_TYPE_EXAMPLE = data.MODEL_TYPE_EXAMPLE;
-	if (data.DEFAULT_BASE_URL) result.DEFAULT_BASE_URL = data.DEFAULT_BASE_URL;
-	if (data.OUTPUT_FILENAME) result.OUTPUT_FILENAME = data.OUTPUT_FILENAME;
-
-	return result;
+	return options;
 }
 
-// Check if all required fields are provided
-function hasAllRequiredFields(
-	data: Partial<ProviderData>,
-): data is ProviderData {
-	return !!(
-		data.PROVIDER_NAME &&
-		data.PROVIDER_LOWERCASE &&
-		data.ENV_VAR_NAME &&
-		data.EXAMPLE_MODEL_METHOD &&
-		data.MODEL_TYPE_EXAMPLE &&
-		data.DEFAULT_BASE_URL &&
-		data.OUTPUT_FILENAME
+function resolveSourcePaths(options: CliOptions): ResolvedSourcePaths {
+	const fromRootProviders = options.sourceRepoRoot
+		? path.join(options.sourceRepoRoot, "src", "providers")
+		: undefined;
+	const fromRootCargo = options.sourceRepoRoot
+		? path.join(options.sourceRepoRoot, "Cargo.toml")
+		: undefined;
+
+	const sourceProvidersDir = options.sourceProvidersDir ?? fromRootProviders;
+	const sourceCargoToml = options.sourceCargoToml ?? fromRootCargo;
+
+	if (!sourceProvidersDir || !sourceCargoToml) {
+		throw new Error(
+			[
+				"Missing source path arguments.",
+				"Provide either:",
+				"  --source-repo-root /path/to/ai-sdk-rs",
+				"or both:",
+				"  --source-providers-dir /path/to/ai-sdk-rs/src/providers --source-cargo-toml /path/to/ai-sdk-rs/Cargo.toml",
+			].join("\n"),
+		);
+	}
+
+	return { sourceProvidersDir, sourceCargoToml };
+}
+
+function normalizeIdentifier(value: string): string {
+	return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function parseProviderFeatures(cargoToml: string): Set<string> {
+	const start = cargoToml.indexOf("[features]");
+	if (start === -1) {
+		throw new Error("Could not find [features] section in Cargo.toml");
+	}
+
+	const rest = cargoToml.slice(start + "[features]".length);
+	const nextSectionMatch = rest.match(/\n\[[^\]]+\]/);
+	const section = nextSectionMatch
+		? rest.slice(0, nextSectionMatch.index)
+		: rest;
+
+	const featureSet = new Set<string>();
+	const featureLineRegex = /^\s*([a-zA-Z0-9_-]+)\s*=\s*\[/gm;
+
+	for (const match of section.matchAll(featureLineRegex)) {
+		const feature = match[1];
+		if (NON_PROVIDER_FEATURES.has(feature)) {
+			continue;
+		}
+		featureSet.add(feature);
+	}
+
+	return featureSet;
+}
+
+function parseStructName(modRs: string): string | null {
+	const macroMatch = modRs.match(/openai_compatible_provider!\(\s*(\w+)\s*,/m);
+	if (macroMatch) return macroMatch[1];
+
+	const structMatch = modRs.match(/pub\s+struct\s+(\w+)\s*(?:<|\{)/m);
+	if (structMatch) return structMatch[1];
+
+	return null;
+}
+
+function parseOpenAICompatibleSettings(modRs: string): ProviderSettings | null {
+	const match = modRs.match(
+		/openai_compatible_settings!\(\s*\w+\s*,\s*\w+\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*\)/m,
 	);
+	if (!match) return null;
+
+	return {
+		displayName: match[1],
+		baseUrl: match[2],
+		envVar: match[3],
+	};
 }
 
-// Fill in derived fields
-function fillDerivedFields(data: Partial<ProviderData>): ProviderData {
-	const fullData = data as ProviderData;
+function parseSettingsFromSettingsRs(
+	settingsRs: string,
+	structName: string,
+): ProviderSettings | null {
+	const baseUrlMatch = settingsRs.match(/base_url:\s*"([^"]+)"/m);
+	const envVarMatch = settingsRs.match(/std::env::var\("([^"]+)"\)/m);
 
-	if (!fullData.PROVIDER_LOWERCASE) {
-		fullData.PROVIDER_LOWERCASE = deriveProviderLowercase(
-			fullData.PROVIDER_NAME,
-		);
-	}
-	if (!fullData.ENV_VAR_NAME) {
-		fullData.ENV_VAR_NAME = deriveEnvVarName(fullData.PROVIDER_NAME);
-	}
-	if (!fullData.EXAMPLE_MODEL_STRING) {
-		fullData.EXAMPLE_MODEL_STRING = deriveModelString(
-			fullData.EXAMPLE_MODEL_METHOD,
-		);
-	}
-	if (!fullData.OUTPUT_FILENAME) {
-		fullData.OUTPUT_FILENAME = deriveOutputFilename(
-			fullData.PROVIDER_LOWERCASE,
-		);
-	}
+	if (!baseUrlMatch || !envVarMatch) return null;
 
-	return fullData;
+	return {
+		displayName: structName,
+		baseUrl: baseUrlMatch[1],
+		envVar: envVarMatch[1],
+	};
 }
 
-// Main function to gather provider data
-async function gatherProviderData(): Promise<ProviderData> {
-	// Check for non-interactive mode
-	const argsData = parseArgs();
-	if (argsData && hasAllRequiredFields(argsData)) {
-		console.log(
-			"\n🚀 Provider Documentation Generator (Non-Interactive Mode)\n",
-		);
-		return fillDerivedFields(argsData);
-	}
+function parseFirstModel(capabilitiesRs: string): FirstModel | null {
+	const match = capabilitiesRs.match(
+		/(\w+)\s*\{\s*model_name:\s*"([^"]+)"\s*,\s*constructor_name:\s*(\w+)\s*,/m,
+	);
+	if (!match) return null;
 
-	const rl = createReadline();
-	const data = {} as ProviderData;
-
-	try {
-		console.log("\n🚀 Provider Documentation Generator\n");
-		console.log("This will create a new provider documentation file.");
-		console.log("Press Enter to accept suggested values.\n");
-
-		// 1. Provider name (no default)
-		data.PROVIDER_NAME = await prompt(
-			rl,
-			"Provider name (e.g., Anthropic, Google, OpenAI)",
-		);
-		if (!data.PROVIDER_NAME) {
-			throw new Error("Provider name is required");
-		}
-
-		// 2. Provider lowercase (suggested)
-		const suggestedLowercase = deriveProviderLowercase(data.PROVIDER_NAME);
-		data.PROVIDER_LOWERCASE = await prompt(
-			rl,
-			"Provider lowercase",
-			suggestedLowercase,
-		);
-
-		// 3. Environment variable (suggested)
-		const suggestedEnvVar = deriveEnvVarName(data.PROVIDER_NAME);
-		data.ENV_VAR_NAME = await prompt(
-			rl,
-			"Environment variable name",
-			suggestedEnvVar,
-		);
-
-		// 4. Example model method (no default)
-		data.EXAMPLE_MODEL_METHOD = await prompt(
-			rl,
-			"Example model method (e.g., gpt_5, claude_3_5_sonnet)",
-		);
-		if (!data.EXAMPLE_MODEL_METHOD) {
-			throw new Error("Example model method is required");
-		}
-
-		// 5. Model string (suggested from method)
-		const suggestedModelString = deriveModelString(data.EXAMPLE_MODEL_METHOD);
-		data.EXAMPLE_MODEL_STRING = await prompt(
-			rl,
-			"Model string (kebab-case)",
-			suggestedModelString,
-		);
-
-		// 6. Model type example (no default)
-		data.MODEL_TYPE_EXAMPLE = await prompt(
-			rl,
-			"Model type example (PascalCase, e.g., Gpt5, Claude35Sonnet)",
-		);
-		if (!data.MODEL_TYPE_EXAMPLE) {
-			throw new Error("Model type example is required");
-		}
-
-		// 7. Base URL (no default)
-		data.DEFAULT_BASE_URL = await prompt(
-			rl,
-			"Default base URL (e.g., https://api.openai.com)",
-		);
-		if (!data.DEFAULT_BASE_URL) {
-			throw new Error("Default base URL is required");
-		}
-
-		// 8. Output filename (suggested)
-		const suggestedFilename = deriveOutputFilename(data.PROVIDER_LOWERCASE);
-		data.OUTPUT_FILENAME = await prompt(
-			rl,
-			"Output filename",
-			suggestedFilename,
-		);
-
-		return data;
-	} finally {
-		rl.close();
-	}
+	return {
+		typeName: match[1],
+		modelName: match[2],
+		constructorName: match[3],
+	};
 }
 
-// Replace placeholders in template
+function inferFeatureName(
+	moduleDir: string,
+	structName: string,
+	features: Set<string>,
+): string | null {
+	const candidates = new Set<string>([
+		moduleDir,
+		moduleDir.replace(/_/g, "-"),
+		moduleDir.replace(/[-_]/g, ""),
+		structName.toLowerCase(),
+		structName
+			.replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+			.toLowerCase()
+			.replace(/_/g, "-"),
+	]);
+
+	for (const candidate of candidates) {
+		if (features.has(candidate)) {
+			return candidate;
+		}
+	}
+
+	const normalizedStruct = normalizeIdentifier(structName);
+	const normalizedMatches = [...features].filter(
+		(feature) => normalizeIdentifier(feature) === normalizedStruct,
+	);
+
+	if (normalizedMatches.length === 1) {
+		return normalizedMatches[0];
+	}
+
+	return null;
+}
+
+function buildProviderData(source: ProviderSource): ProviderData {
+	const firstModel = source.firstModel;
+	return {
+		PROVIDER_NAME: source.structName,
+		PROVIDER_LOWERCASE: source.featureName,
+		ENV_VAR_NAME: source.settings.envVar,
+		EXAMPLE_MODEL_METHOD: firstModel?.constructorName ?? "model_name",
+		EXAMPLE_MODEL_STRING: firstModel?.modelName ?? "your-model-name",
+		MODEL_TYPE_EXAMPLE: firstModel?.typeName ?? "DynamicModel",
+		DEFAULT_BASE_URL: source.settings.baseUrl,
+		OUTPUT_FILENAME: `${source.featureName}.mdx`,
+	};
+}
+
 function replaceTemplate(template: string, data: ProviderData): string {
 	let result = template;
 
 	for (const [key, value] of Object.entries(data)) {
-		if (key === "OUTPUT_FILENAME") continue; // Don't replace this in content
-		const placeholder = `{{${key}}}`;
-		result = result.split(placeholder).join(value);
+		if (key === "OUTPUT_FILENAME") continue;
+		result = result.split(`{{${key}}}`).join(value);
 	}
 
 	return result;
 }
 
-// Check if file exists and confirm overwrite
-async function confirmOverwrite(filePath: string): Promise<boolean> {
-	if (!fs.existsSync(filePath)) {
-		return true;
+function updateMetaJson(newSlugs: string[], dryRun: boolean): void {
+	if (newSlugs.length === 0) return;
+	if (!fs.existsSync(docsMetaPath)) return;
+
+	const meta = JSON.parse(fs.readFileSync(docsMetaPath, "utf-8"));
+	const pages: string[] = Array.isArray(meta.pages) ? meta.pages : [];
+
+	for (const slug of newSlugs) {
+		if (!pages.includes(slug)) {
+			pages.push(slug);
+		}
 	}
 
-	const rl = createReadline();
-	try {
-		console.log(`\n⚠️  File already exists: ${filePath}`);
-		const answer = await prompt(rl, "Overwrite? (y/N)", "N");
-		return answer.toLowerCase() === "y" || answer.toLowerCase() === "yes";
-	} finally {
-		rl.close();
+	const hasIndex = pages.includes("index");
+	const rest = pages.filter((entry) => entry !== "index").sort();
+	meta.pages = hasIndex ? ["index", ...rest] : rest;
+
+	if (!dryRun) {
+		fs.writeFileSync(docsMetaPath, `${JSON.stringify(meta, null, "\t")}\n`);
 	}
 }
 
-// Main execution
+function discoverProviders(
+	sourcePaths: ResolvedSourcePaths,
+): {
+	providers: ProviderSource[];
+	ignored: string[];
+	failed: string[];
+} {
+	const providers: ProviderSource[] = [];
+	const ignored: string[] = [];
+	const failed: string[] = [];
+
+	if (!fs.existsSync(sourcePaths.sourceProvidersDir)) {
+		throw new Error(
+			`Providers directory not found: ${sourcePaths.sourceProvidersDir}`,
+		);
+	}
+	if (!fs.existsSync(sourcePaths.sourceCargoToml)) {
+		throw new Error(`Cargo.toml not found: ${sourcePaths.sourceCargoToml}`);
+	}
+
+	const cargoToml = fs.readFileSync(sourcePaths.sourceCargoToml, "utf-8");
+	const providerFeatures = parseProviderFeatures(cargoToml);
+
+	const dirs = fs
+		.readdirSync(sourcePaths.sourceProvidersDir, { withFileTypes: true })
+		.filter((entry) => entry.isDirectory())
+		.map((entry) => entry.name)
+		.sort((a, b) => a.localeCompare(b));
+
+	for (const moduleDir of dirs) {
+		if (INTERNAL_MODULE_DIRS.has(moduleDir)) {
+			continue;
+		}
+
+		const modulePath = path.join(sourcePaths.sourceProvidersDir, moduleDir);
+		const modPath = path.join(modulePath, "mod.rs");
+		if (!fs.existsSync(modPath)) {
+			failed.push(`${moduleDir} (missing mod.rs)`);
+			continue;
+		}
+
+		const modRs = fs.readFileSync(modPath, "utf-8");
+		const structName = parseStructName(modRs);
+		if (!structName) {
+			failed.push(`${moduleDir} (could not parse provider struct name)`);
+			continue;
+		}
+
+		const featureName = inferFeatureName(moduleDir, structName, providerFeatures);
+		if (!featureName) {
+			failed.push(`${moduleDir} (could not infer provider feature name)`);
+			continue;
+		}
+
+		if (IGNORED_FEATURES.has(featureName)) {
+			ignored.push(`${featureName} (${structName})`);
+			continue;
+		}
+
+		const settingsFromMacro = parseOpenAICompatibleSettings(modRs);
+		let settings = settingsFromMacro;
+
+		if (!settings) {
+			const settingsPath = path.join(modulePath, "settings.rs");
+			if (fs.existsSync(settingsPath)) {
+				const settingsRs = fs.readFileSync(settingsPath, "utf-8");
+				settings = parseSettingsFromSettingsRs(settingsRs, structName);
+			}
+		}
+
+		if (!settings) {
+			failed.push(`${featureName} (could not parse provider settings)`);
+			continue;
+		}
+
+		let firstModel: FirstModel | null = null;
+		const capabilitiesPath = path.join(modulePath, "capabilities.rs");
+		if (fs.existsSync(capabilitiesPath)) {
+			const capabilitiesRs = fs.readFileSync(capabilitiesPath, "utf-8");
+			firstModel = parseFirstModel(capabilitiesRs);
+		}
+
+		providers.push({
+			moduleDir,
+			featureName,
+			structName,
+			settings,
+			firstModel,
+		});
+	}
+
+	return { providers, ignored, failed };
+}
+
 async function main() {
 	try {
-		// Gather data from user
-		const data = await gatherProviderData();
+		const options = parseArgs();
+		const sourcePaths = resolveSourcePaths(options);
 
-		// Read template
-		const templatePath = path.join(
-			scriptDir,
-			"templates",
-			"provider.mdx.template",
-		);
 		if (!fs.existsSync(templatePath)) {
-			throw new Error(`Template file not found: ${templatePath}`);
+			throw new Error(`Template not found: ${templatePath}`);
 		}
+
 		const template = fs.readFileSync(templatePath, "utf-8");
+		const { providers, ignored, failed } = discoverProviders(sourcePaths);
 
-		// Replace placeholders
-		const content = replaceTemplate(template, data);
+		console.log("\n🚀 Provider Documentation Generator (Core Extract Mode)\n");
+		console.log(`Source providers dir: ${sourcePaths.sourceProvidersDir}`);
+		console.log(`Source Cargo.toml:    ${sourcePaths.sourceCargoToml}`);
+		console.log(`Overwrite existing:   ${options.overwrite ? "yes" : "no"}`);
+		console.log(`Dry run:              ${options.dryRun ? "yes" : "no"}\n`);
+		console.log(`Discovered providers: ${providers.length}`);
 
-		// Determine output path
-		const outputPath = path.join(
-			scriptDir,
-			"..",
-			"content",
-			"docs",
-			"providers",
-			data.OUTPUT_FILENAME,
-		);
+		const created: string[] = [];
+		const skipped: string[] = [];
 
-		// Check for existing file
-		const shouldWrite = await confirmOverwrite(outputPath);
-		if (!shouldWrite) {
-			console.log("\n❌ Cancelled. No file was created.");
-			process.exit(0);
+		for (const provider of providers) {
+			const data = buildProviderData(provider);
+			const outputPath = path.join(docsProvidersDir, data.OUTPUT_FILENAME);
+
+			if (fs.existsSync(outputPath) && !options.overwrite) {
+				skipped.push(data.PROVIDER_LOWERCASE);
+				continue;
+			}
+
+			const content = replaceTemplate(template, data);
+			if (!options.dryRun) {
+				fs.writeFileSync(outputPath, content, "utf-8");
+			}
+			created.push(data.PROVIDER_LOWERCASE);
 		}
 
-		// Write file
-		fs.writeFileSync(outputPath, content, "utf-8");
+		updateMetaJson(created, options.dryRun);
 
-		console.log(`\n✅ Successfully created: ${outputPath}`);
-		console.log("\n📋 Next steps:");
-		console.log("  1. Review the generated file");
-		console.log("  2. Customize if needed");
-		console.log(
-			`  3. Add "${data.PROVIDER_LOWERCASE}" to apps/docs/content/docs/providers/meta.json (alphabetical order)`,
-		);
-		console.log(
-			`  4. Add link to apps/docs/content/docs/(get-started)/index.mdx (alphabetical order)`,
-		);
-		console.log("\n💡 See scripts/README.md for detailed instructions\n");
+		console.log("\n--- Summary ---");
+		console.log(`Created: ${created.length}`);
+		console.log(`Skipped (already exists): ${skipped.length}`);
+		console.log(`Ignored: ${ignored.length}`);
+		console.log(`Failed: ${failed.length}`);
+		if (skipped.length > 0 && !options.overwrite) {
+			console.log(
+				"Tip: use --overwrite to refresh existing docs from source values.",
+			);
+		}
+
+		if (ignored.length > 0) {
+			console.log("\nIgnored list:");
+			for (const item of ignored) {
+				console.log(`  - ${item}`);
+			}
+		}
+
+		if (failed.length > 0) {
+			console.log("\nFailed list:");
+			for (const item of failed) {
+				console.log(`  - ${item}`);
+			}
+		}
+
+		if (created.length > 0) {
+			console.log("\nGenerated provider docs:");
+			for (const slug of created) {
+				console.log(`  - ${slug}.mdx`);
+			}
+		}
+
+		console.log("");
 	} catch (error) {
 		console.error(
 			"\n❌ Error:",

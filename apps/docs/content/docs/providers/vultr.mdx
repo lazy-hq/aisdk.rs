@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let vultr = Vultr::<DynamicModel>::builder()
-    .model_name("deepseek-r1-distill-llama-70b")
-    .api_key("your-api-key")
-		.base_url("https://api.vultrinference.com/v1")
-    .build()?;
+	.model_name("deepseek-r1-distill-llama-70b")
+	.api_key("your-api-key")
+	.base_url("https://api.vultrinference.com/v1")
+	.provider_name("Vultr")
+	.build()?;
 ```
 
 <Callout type="warn">

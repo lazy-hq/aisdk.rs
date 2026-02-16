@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let jiekou = Jiekou::<DynamicModel>::builder()
-    .model_name("baidu/ernie-4.5-300b-a47b-paddle")
-    .api_key("your-api-key")
-		.base_url("https://api.jiekou.ai/openai")
-    .build()?;
+	.model_name("baidu/ernie-4.5-300b-a47b-paddle")
+	.api_key("your-api-key")
+	.base_url("https://api.jiekou.ai/openai")
+	.provider_name("Jiekou")
+	.build()?;
 ```
 
 <Callout type="warn">

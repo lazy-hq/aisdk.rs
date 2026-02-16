@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let chutes = Chutes::<DynamicModel>::builder()
-    .model_name("MiniMaxAI/MiniMax-M2.1-TEE")
-    .api_key("your-api-key")
-		.base_url("https://llm.chutes.ai/v1")
-    .build()?;
+	.model_name("MiniMaxAI/MiniMax-M2.1-TEE")
+	.api_key("your-api-key")
+	.base_url("https://llm.chutes.ai/v1")
+	.provider_name("Chutes")
+	.build()?;
 ```
 
 <Callout type="warn">

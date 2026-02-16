@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let stackit = Stackit::<DynamicModel>::builder()
-    .model_name("Qwen/Qwen3-VL-235B-A22B-Instruct-FP8")
-    .api_key("your-api-key")
-		.base_url("https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1")
-    .build()?;
+	.model_name("Qwen/Qwen3-VL-235B-A22B-Instruct-FP8")
+	.api_key("your-api-key")
+	.base_url("https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1")
+	.provider_name("Stackit")
+	.build()?;
 ```
 
 <Callout type="warn">

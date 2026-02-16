@@ -25,12 +25,12 @@ Model names are exposed as snake-case methods.
 ```rust
 use aisdk::providers::Google;
 
-let google = Google::gemini_2_5_flash();
+let google = Google::gemini_1_5_flash();
 ```
 
 This initializes the provider with:
 
-* Model: `"gemini-2-5-flash"`
+* Model: `"gemini-1.5-flash"`
 * API key from environment (if set with `GOOGLE_API_KEY`)
 * Google's default base URL (https://generativelanguage.googleapis.com)
 
@@ -47,7 +47,7 @@ use aisdk::{
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let google = Google::gemini_2_5_flash();
+    let google = Google::gemini_1_5_flash();
 
     let response = LanguageModelRequest::builder()
         .model(google)
@@ -68,7 +68,7 @@ You can customize provider configuration using `Google::builder()`
 ### API Key
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let google = Google::<Gemini15Flash>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
@@ -80,7 +80,7 @@ If not specified, AISDK uses the `GOOGLE_API_KEY` environment variable.
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let google = Google::<Gemini15Flash>::builder()
     .base_url("https://generativelanguage.googleapis.com")
     .build()?;
 ```
@@ -90,7 +90,7 @@ let google = Google::<Gemini25Flash>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let google = Google::<Gemini15Flash>::builder()
     .provider_name("Google")
     .build()?;
 ```
@@ -98,7 +98,7 @@ let google = Google::<Gemini25Flash>::builder()
 ### Full Custom Configuration Example
 
 ```rust
-let google = Google::<Gemini25Flash>::builder()
+let google = Google::<Gemini15Flash>::builder()
     .api_key("your-api-key")
     .base_url("https://generativelanguage.googleapis.com")
     .provider_name("Google")
@@ -115,7 +115,7 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 use aisdk::providers::Google;
 
 // Specify model as a string at runtime
-let google = Google::model_name("gemini-2-5-flash");
+let google = Google::model_name("gemini-1.5-flash");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -127,16 +127,17 @@ use aisdk::{
 };
 
 let google = Google::<DynamicModel>::builder()
-    .model_name("gemini-2-5-flash")
-    .api_key("your-api-key")
-		.base_url("https://generativelanguage.googleapis.com")
-    .build()?;
+	.model_name("gemini-1.5-flash")
+	.api_key("your-api-key")
+	.base_url("https://generativelanguage.googleapis.com")
+	.provider_name("Google")
+	.build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `Google::gemini_2_5_flash()`.
+For compile-time safety, use the typed methods like `Google::gemini_1_5_flash()`.
 </Callout>
 
 ## Next Steps

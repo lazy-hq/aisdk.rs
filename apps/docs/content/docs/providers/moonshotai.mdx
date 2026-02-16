@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let moonshotai = Moonshotai::<DynamicModel>::builder()
-    .model_name("kimi-k2-0711-preview")
-    .api_key("your-api-key")
-		.base_url("https://api.moonshot.ai/v1")
-    .build()?;
+	.model_name("kimi-k2-0711-preview")
+	.api_key("your-api-key")
+	.base_url("https://api.moonshot.ai/v1")
+	.provider_name("Moonshotai")
+	.build()?;
 ```
 
 <Callout type="warn">

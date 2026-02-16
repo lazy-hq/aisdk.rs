@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let inference = Inference::<DynamicModel>::builder()
-    .model_name("google/gemma-3")
-    .api_key("your-api-key")
-		.base_url("https://inference.net/v1")
-    .build()?;
+	.model_name("google/gemma-3")
+	.api_key("your-api-key")
+	.base_url("https://inference.net/v1")
+	.provider_name("Inference")
+	.build()?;
 ```
 
 <Callout type="warn">

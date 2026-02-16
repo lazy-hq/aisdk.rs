@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let berget = Berget::<DynamicModel>::builder()
-    .model_name("BAAI/bge-reranker-v2-m3")
-    .api_key("your-api-key")
-		.base_url("https://api.berget.ai/v1")
-    .build()?;
+	.model_name("BAAI/bge-reranker-v2-m3")
+	.api_key("your-api-key")
+	.base_url("https://api.berget.ai/v1")
+	.provider_name("Berget")
+	.build()?;
 ```
 
 <Callout type="warn">

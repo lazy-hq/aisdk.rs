@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let zai-coding-plan = ZaiCodingPlan::<DynamicModel>::builder()
-    .model_name("glm-4.5")
-    .api_key("your-api-key")
-		.base_url("https://api.z.ai/api/coding/paas/v4")
-    .build()?;
+	.model_name("glm-4.5")
+	.api_key("your-api-key")
+	.base_url("https://api.z.ai/api/coding/paas/v4")
+	.provider_name("ZaiCodingPlan")
+	.build()?;
 ```
 
 <Callout type="warn">

@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let cortecs = Cortecs::<DynamicModel>::builder()
-    .model_name("claude-4-5-sonnet")
-    .api_key("your-api-key")
-		.base_url("https://api.cortecs.ai/v1")
-    .build()?;
+	.model_name("claude-4-5-sonnet")
+	.api_key("your-api-key")
+	.base_url("https://api.cortecs.ai/v1")
+	.provider_name("Cortecs")
+	.build()?;
 ```
 
 <Callout type="warn">

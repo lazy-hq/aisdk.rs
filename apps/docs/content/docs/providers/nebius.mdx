@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let nebius = Nebius::<DynamicModel>::builder()
-    .model_name("BAAI/bge-en-icl")
-    .api_key("your-api-key")
-		.base_url("https://api.tokenfactory.nebius.com/v1")
-    .build()?;
+	.model_name("BAAI/bge-en-icl")
+	.api_key("your-api-key")
+	.base_url("https://api.tokenfactory.nebius.com/v1")
+	.provider_name("Nebius")
+	.build()?;
 ```
 
 <Callout type="warn">

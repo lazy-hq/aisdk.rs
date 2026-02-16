@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let fireworks-ai = FireworksAi::<DynamicModel>::builder()
-    .model_name("accounts/fireworks/models/deepseek-r1-0528")
-    .api_key("your-api-key")
-		.base_url("https://api.fireworks.ai/inference/v1/")
-    .build()?;
+	.model_name("accounts/fireworks/models/deepseek-r1-0528")
+	.api_key("your-api-key")
+	.base_url("https://api.fireworks.ai/inference/v1/")
+	.provider_name("FireworksAi")
+	.build()?;
 ```
 
 <Callout type="warn">

@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let huggingface = Huggingface::<DynamicModel>::builder()
-    .model_name("MiniMaxAI/MiniMax-M2.1")
-    .api_key("your-api-key")
-		.base_url("https://router.huggingface.co/v1")
-    .build()?;
+	.model_name("MiniMaxAI/MiniMax-M2.1")
+	.api_key("your-api-key")
+	.base_url("https://router.huggingface.co/v1")
+	.provider_name("Huggingface")
+	.build()?;
 ```
 
 <Callout type="warn">

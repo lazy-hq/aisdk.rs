@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let iflowcn = Iflowcn::<DynamicModel>::builder()
-    .model_name("deepseek-r1")
-    .api_key("your-api-key")
-		.base_url("https://apis.iflow.cn/v1")
-    .build()?;
+	.model_name("deepseek-r1")
+	.api_key("your-api-key")
+	.base_url("https://apis.iflow.cn/v1")
+	.provider_name("Iflowcn")
+	.build()?;
 ```
 
 <Callout type="warn">

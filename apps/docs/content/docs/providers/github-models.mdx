@@ -127,10 +127,11 @@ use aisdk::{
 };
 
 let github-models = GithubModels::<DynamicModel>::builder()
-    .model_name("ai21-labs/ai21-jamba-1.5-large")
-    .api_key("your-api-key")
-		.base_url("https://models.github.ai/inference")
-    .build()?;
+	.model_name("ai21-labs/ai21-jamba-1.5-large")
+	.api_key("your-api-key")
+	.base_url("https://models.github.ai/inference")
+	.provider_name("GithubModels")
+	.build()?;
 ```
 
 <Callout type="warn">
