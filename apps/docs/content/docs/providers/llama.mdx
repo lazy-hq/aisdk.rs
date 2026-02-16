@@ -1,0 +1,147 @@
+---
+title: Llama
+---
+
+AISDK provides first-class support for Llama with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Llama provider feature:
+
+```bash
+cargo add aisdk --features llama
+```
+
+This installs AISDK with the Llama provider enabled. Once you have enabled the Llama provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Llama::model_name()`, where **model_name** is the Llama model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::Llama;
+
+let llama = Llama::cerebras_llama_4_maverick_17b_128e_instruct();
+```
+
+This initializes the provider with:
+
+* Model: `"cerebras-llama-4-maverick-17b-128e-instruct"`
+* API key from environment (if set with `LLAMA_API_KEY`)
+* Llama's default base URL (https://api.llama.com/compat/v1/)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::Llama,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let llama = Llama::cerebras_llama_4_maverick_17b_128e_instruct();
+
+    let response = LanguageModelRequest::builder()
+        .model(llama)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Llama::builder()`
+
+### API Key
+
+```rust
+let llama = Llama::<CerebrasLlama4Maverick17b128eInstruct>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `LLAMA_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let llama = Llama::<CerebrasLlama4Maverick17b128eInstruct>::builder()
+    .base_url("https://api.llama.com/compat/v1/")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let llama = Llama::<CerebrasLlama4Maverick17b128eInstruct>::builder()
+    .provider_name("Llama")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let llama = Llama::<CerebrasLlama4Maverick17b128eInstruct>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.llama.com/compat/v1/")
+    .provider_name("Llama")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::Llama;
+
+// Specify model as a string at runtime
+let llama = Llama::model_name("cerebras-llama-4-maverick-17b-128e-instruct");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Llama,
+};
+
+let llama = Llama::<DynamicModel>::builder()
+    .model_name("cerebras-llama-4-maverick-17b-128e-instruct")
+    .api_key("your-api-key")
+		.base_url("https://api.llama.com/compat/v1/")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Llama::cerebras_llama_4_maverick_17b_128e_instruct()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

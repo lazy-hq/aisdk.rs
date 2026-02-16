@@ -1,0 +1,147 @@
+---
+title: KuaeCloudCodingPlan
+---
+
+AISDK provides first-class support for KuaeCloudCodingPlan with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the KuaeCloudCodingPlan provider feature:
+
+```bash
+cargo add aisdk --features kuae-cloud-coding-plan
+```
+
+This installs AISDK with the KuaeCloudCodingPlan provider enabled. Once you have enabled the KuaeCloudCodingPlan provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `KuaeCloudCodingPlan::model_name()`, where **model_name** is the KuaeCloudCodingPlan model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::KuaeCloudCodingPlan;
+
+let kuae-cloud-coding-plan = KuaeCloudCodingPlan::glm_4_7();
+```
+
+This initializes the provider with:
+
+* Model: `"GLM-4.7"`
+* API key from environment (if set with `KUAE_API_KEY`)
+* KuaeCloudCodingPlan's default base URL (https://coding-plan-endpoint.kuaecloud.net/v1)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::KuaeCloudCodingPlan,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let kuae-cloud-coding-plan = KuaeCloudCodingPlan::glm_4_7();
+
+    let response = LanguageModelRequest::builder()
+        .model(kuae-cloud-coding-plan)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `KuaeCloudCodingPlan::builder()`
+
+### API Key
+
+```rust
+let kuae-cloud-coding-plan = KuaeCloudCodingPlan::<Glm47>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `KUAE_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let kuae-cloud-coding-plan = KuaeCloudCodingPlan::<Glm47>::builder()
+    .base_url("https://coding-plan-endpoint.kuaecloud.net/v1")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let kuae-cloud-coding-plan = KuaeCloudCodingPlan::<Glm47>::builder()
+    .provider_name("KuaeCloudCodingPlan")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let kuae-cloud-coding-plan = KuaeCloudCodingPlan::<Glm47>::builder()
+    .api_key("your-api-key")
+    .base_url("https://coding-plan-endpoint.kuaecloud.net/v1")
+    .provider_name("KuaeCloudCodingPlan")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::KuaeCloudCodingPlan;
+
+// Specify model as a string at runtime
+let kuae-cloud-coding-plan = KuaeCloudCodingPlan::model_name("GLM-4.7");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::KuaeCloudCodingPlan,
+};
+
+let kuae-cloud-coding-plan = KuaeCloudCodingPlan::<DynamicModel>::builder()
+    .model_name("GLM-4.7")
+    .api_key("your-api-key")
+		.base_url("https://coding-plan-endpoint.kuaecloud.net/v1")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `KuaeCloudCodingPlan::glm_4_7()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

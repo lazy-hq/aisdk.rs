@@ -1,0 +1,147 @@
+---
+title: Huggingface
+---
+
+AISDK provides first-class support for Huggingface with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Huggingface provider feature:
+
+```bash
+cargo add aisdk --features huggingface
+```
+
+This installs AISDK with the Huggingface provider enabled. Once you have enabled the Huggingface provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Huggingface::model_name()`, where **model_name** is the Huggingface model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::Huggingface;
+
+let huggingface = Huggingface::minimaxai_minimax_m2_1();
+```
+
+This initializes the provider with:
+
+* Model: `"MiniMaxAI/MiniMax-M2.1"`
+* API key from environment (if set with `HF_TOKEN`)
+* Huggingface's default base URL (https://router.huggingface.co/v1)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::Huggingface,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let huggingface = Huggingface::minimaxai_minimax_m2_1();
+
+    let response = LanguageModelRequest::builder()
+        .model(huggingface)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Huggingface::builder()`
+
+### API Key
+
+```rust
+let huggingface = Huggingface::<MinimaxaiMinimaxM21>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `HF_TOKEN` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let huggingface = Huggingface::<MinimaxaiMinimaxM21>::builder()
+    .base_url("https://router.huggingface.co/v1")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let huggingface = Huggingface::<MinimaxaiMinimaxM21>::builder()
+    .provider_name("Huggingface")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let huggingface = Huggingface::<MinimaxaiMinimaxM21>::builder()
+    .api_key("your-api-key")
+    .base_url("https://router.huggingface.co/v1")
+    .provider_name("Huggingface")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::Huggingface;
+
+// Specify model as a string at runtime
+let huggingface = Huggingface::model_name("MiniMaxAI/MiniMax-M2.1");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Huggingface,
+};
+
+let huggingface = Huggingface::<DynamicModel>::builder()
+    .model_name("MiniMaxAI/MiniMax-M2.1")
+    .api_key("your-api-key")
+		.base_url("https://router.huggingface.co/v1")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Huggingface::minimaxai_minimax_m2_1()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

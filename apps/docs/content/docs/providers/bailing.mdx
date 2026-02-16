@@ -1,0 +1,147 @@
+---
+title: Bailing
+---
+
+AISDK provides first-class support for Bailing with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Bailing provider feature:
+
+```bash
+cargo add aisdk --features bailing
+```
+
+This installs AISDK with the Bailing provider enabled. Once you have enabled the Bailing provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Bailing::model_name()`, where **model_name** is the Bailing model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::Bailing;
+
+let bailing = Bailing::ling_1t();
+```
+
+This initializes the provider with:
+
+* Model: `"Ling-1T"`
+* API key from environment (if set with `BAILING_API_TOKEN`)
+* Bailing's default base URL (https://api.tbox.cn/api/llm/v1/chat/completions)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::Bailing,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let bailing = Bailing::ling_1t();
+
+    let response = LanguageModelRequest::builder()
+        .model(bailing)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Bailing::builder()`
+
+### API Key
+
+```rust
+let bailing = Bailing::<Ling1t>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `BAILING_API_TOKEN` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let bailing = Bailing::<Ling1t>::builder()
+    .base_url("https://api.tbox.cn/api/llm/v1/chat/completions")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let bailing = Bailing::<Ling1t>::builder()
+    .provider_name("Bailing")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let bailing = Bailing::<Ling1t>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.tbox.cn/api/llm/v1/chat/completions")
+    .provider_name("Bailing")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::Bailing;
+
+// Specify model as a string at runtime
+let bailing = Bailing::model_name("Ling-1T");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Bailing,
+};
+
+let bailing = Bailing::<DynamicModel>::builder()
+    .model_name("Ling-1T")
+    .api_key("your-api-key")
+		.base_url("https://api.tbox.cn/api/llm/v1/chat/completions")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Bailing::ling_1t()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

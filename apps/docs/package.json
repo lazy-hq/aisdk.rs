@@ -8,7 +8,8 @@
 		"dev": "next dev --turbo",
 		"start": "next start",
 		"postinstall": "fumadocs-mdx",
-		"gen:provider": "tsx scripts/generate-provider-doc.ts"
+		"gen:provider": "tsx scripts/generate-provider-doc.ts",
+		"gen:provider-sync": "tsx scripts/sync-provider-docs.ts"
 	},
 	"dependencies": {
 		"@lobehub/icons": "^2.43.1",

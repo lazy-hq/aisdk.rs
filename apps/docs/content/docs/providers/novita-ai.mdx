@@ -1,0 +1,147 @@
+---
+title: NovitaAi
+---
+
+AISDK provides first-class support for NovitaAi with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the NovitaAi provider feature:
+
+```bash
+cargo add aisdk --features novita-ai
+```
+
+This installs AISDK with the NovitaAi provider enabled. Once you have enabled the NovitaAi provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `NovitaAi::model_name()`, where **model_name** is the NovitaAi model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::NovitaAi;
+
+let novita-ai = NovitaAi::baichuan_baichuan_m2_32b();
+```
+
+This initializes the provider with:
+
+* Model: `"baichuan/baichuan-m2-32b"`
+* API key from environment (if set with `NOVITA_API_KEY`)
+* NovitaAi's default base URL (https://api.novita.ai/openai)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::NovitaAi,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let novita-ai = NovitaAi::baichuan_baichuan_m2_32b();
+
+    let response = LanguageModelRequest::builder()
+        .model(novita-ai)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `NovitaAi::builder()`
+
+### API Key
+
+```rust
+let novita-ai = NovitaAi::<BaichuanBaichuanM232b>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `NOVITA_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let novita-ai = NovitaAi::<BaichuanBaichuanM232b>::builder()
+    .base_url("https://api.novita.ai/openai")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let novita-ai = NovitaAi::<BaichuanBaichuanM232b>::builder()
+    .provider_name("NovitaAi")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let novita-ai = NovitaAi::<BaichuanBaichuanM232b>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.novita.ai/openai")
+    .provider_name("NovitaAi")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::NovitaAi;
+
+// Specify model as a string at runtime
+let novita-ai = NovitaAi::model_name("baichuan/baichuan-m2-32b");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::NovitaAi,
+};
+
+let novita-ai = NovitaAi::<DynamicModel>::builder()
+    .model_name("baichuan/baichuan-m2-32b")
+    .api_key("your-api-key")
+		.base_url("https://api.novita.ai/openai")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `NovitaAi::baichuan_baichuan_m2_32b()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

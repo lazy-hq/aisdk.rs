@@ -1,0 +1,147 @@
+---
+title: Wandb
+---
+
+AISDK provides first-class support for Wandb with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Wandb provider feature:
+
+```bash
+cargo add aisdk --features wandb
+```
+
+This installs AISDK with the Wandb provider enabled. Once you have enabled the Wandb provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Wandb::model_name()`, where **model_name** is the Wandb model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::Wandb;
+
+let wandb = Wandb::qwen_qwen3_235b_a22b_instruct_2507();
+```
+
+This initializes the provider with:
+
+* Model: `"Qwen/Qwen3-235B-A22B-Instruct-2507"`
+* API key from environment (if set with `WANDB_API_KEY`)
+* Wandb's default base URL (https://api.inference.wandb.ai/v1)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::Wandb,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let wandb = Wandb::qwen_qwen3_235b_a22b_instruct_2507();
+
+    let response = LanguageModelRequest::builder()
+        .model(wandb)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Wandb::builder()`
+
+### API Key
+
+```rust
+let wandb = Wandb::<QwenQwen3235bA22bInstruct2507>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `WANDB_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let wandb = Wandb::<QwenQwen3235bA22bInstruct2507>::builder()
+    .base_url("https://api.inference.wandb.ai/v1")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let wandb = Wandb::<QwenQwen3235bA22bInstruct2507>::builder()
+    .provider_name("Wandb")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let wandb = Wandb::<QwenQwen3235bA22bInstruct2507>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.inference.wandb.ai/v1")
+    .provider_name("Wandb")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::Wandb;
+
+// Specify model as a string at runtime
+let wandb = Wandb::model_name("Qwen/Qwen3-235B-A22B-Instruct-2507");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Wandb,
+};
+
+let wandb = Wandb::<DynamicModel>::builder()
+    .model_name("Qwen/Qwen3-235B-A22B-Instruct-2507")
+    .api_key("your-api-key")
+		.base_url("https://api.inference.wandb.ai/v1")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Wandb::qwen_qwen3_235b_a22b_instruct_2507()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

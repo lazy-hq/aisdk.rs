@@ -1,0 +1,147 @@
+---
+title: Helicone
+---
+
+AISDK provides first-class support for Helicone with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Helicone provider feature:
+
+```bash
+cargo add aisdk --features helicone
+```
+
+This installs AISDK with the Helicone provider enabled. Once you have enabled the Helicone provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Helicone::model_name()`, where **model_name** is the Helicone model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::Helicone;
+
+let helicone = Helicone::chatgpt_4o_latest();
+```
+
+This initializes the provider with:
+
+* Model: `"chatgpt-4o-latest"`
+* API key from environment (if set with `HELICONE_API_KEY`)
+* Helicone's default base URL (https://ai-gateway.helicone.ai/v1)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::Helicone,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let helicone = Helicone::chatgpt_4o_latest();
+
+    let response = LanguageModelRequest::builder()
+        .model(helicone)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Helicone::builder()`
+
+### API Key
+
+```rust
+let helicone = Helicone::<Chatgpt4oLatest>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `HELICONE_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let helicone = Helicone::<Chatgpt4oLatest>::builder()
+    .base_url("https://ai-gateway.helicone.ai/v1")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let helicone = Helicone::<Chatgpt4oLatest>::builder()
+    .provider_name("Helicone")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let helicone = Helicone::<Chatgpt4oLatest>::builder()
+    .api_key("your-api-key")
+    .base_url("https://ai-gateway.helicone.ai/v1")
+    .provider_name("Helicone")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::Helicone;
+
+// Specify model as a string at runtime
+let helicone = Helicone::model_name("chatgpt-4o-latest");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Helicone,
+};
+
+let helicone = Helicone::<DynamicModel>::builder()
+    .model_name("chatgpt-4o-latest")
+    .api_key("your-api-key")
+		.base_url("https://ai-gateway.helicone.ai/v1")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Helicone::chatgpt_4o_latest()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

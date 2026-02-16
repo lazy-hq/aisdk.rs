@@ -1,0 +1,147 @@
+---
+title: Jiekou
+---
+
+AISDK provides first-class support for Jiekou with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Jiekou provider feature:
+
+```bash
+cargo add aisdk --features jiekou
+```
+
+This installs AISDK with the Jiekou provider enabled. Once you have enabled the Jiekou provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Jiekou::model_name()`, where **model_name** is the Jiekou model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::Jiekou;
+
+let jiekou = Jiekou::baidu_ernie_4_5_300b_a47b_paddle();
+```
+
+This initializes the provider with:
+
+* Model: `"baidu/ernie-4.5-300b-a47b-paddle"`
+* API key from environment (if set with `JIEKOU_API_KEY`)
+* Jiekou's default base URL (https://api.jiekou.ai/openai)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::Jiekou,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let jiekou = Jiekou::baidu_ernie_4_5_300b_a47b_paddle();
+
+    let response = LanguageModelRequest::builder()
+        .model(jiekou)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Jiekou::builder()`
+
+### API Key
+
+```rust
+let jiekou = Jiekou::<BaiduErnie45300bA47bPaddle>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `JIEKOU_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let jiekou = Jiekou::<BaiduErnie45300bA47bPaddle>::builder()
+    .base_url("https://api.jiekou.ai/openai")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let jiekou = Jiekou::<BaiduErnie45300bA47bPaddle>::builder()
+    .provider_name("Jiekou")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let jiekou = Jiekou::<BaiduErnie45300bA47bPaddle>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.jiekou.ai/openai")
+    .provider_name("Jiekou")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::Jiekou;
+
+// Specify model as a string at runtime
+let jiekou = Jiekou::model_name("baidu/ernie-4.5-300b-a47b-paddle");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Jiekou,
+};
+
+let jiekou = Jiekou::<DynamicModel>::builder()
+    .model_name("baidu/ernie-4.5-300b-a47b-paddle")
+    .api_key("your-api-key")
+		.base_url("https://api.jiekou.ai/openai")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Jiekou::baidu_ernie_4_5_300b_a47b_paddle()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).
