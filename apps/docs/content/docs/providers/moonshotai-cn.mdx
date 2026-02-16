@@ -85,6 +85,16 @@ let moonshotai-cn = MoonshotaiCn::<KimiK20711Preview>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let moonshotai-cn = MoonshotaiCn::<KimiK20711Preview>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let moonshotai-cn = MoonshotaiCn::<KimiK20711Preview>::builder()
 let moonshotai-cn = MoonshotaiCn::<KimiK20711Preview>::builder()
     .api_key("your-api-key")
     .base_url("https://api.moonshot.cn/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("MoonshotaiCn")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let moonshotai-cn = MoonshotaiCn::<DynamicModel>::builder()
 	.model_name("kimi-k2-0711-preview")
 	.api_key("your-api-key")
 	.base_url("https://api.moonshot.cn/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("MoonshotaiCn")
 	.build()?;
 ```

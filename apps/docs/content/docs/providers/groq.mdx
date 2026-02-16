@@ -85,6 +85,16 @@ let groq = Groq::<Llama318bInstant>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let groq = Groq::<Llama318bInstant>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let groq = Groq::<Llama318bInstant>::builder()
 let groq = Groq::<Llama318bInstant>::builder()
     .api_key("your-api-key")
     .base_url("https://api.groq.com/openai/v1/")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Groq")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let groq = Groq::<DynamicModel>::builder()
 	.model_name("llama-3.1-8b-instant")
 	.api_key("your-api-key")
 	.base_url("https://api.groq.com/openai/v1/")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Groq")
 	.build()?;
 ```

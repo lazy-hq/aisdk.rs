@@ -85,6 +85,16 @@ let google = Google::<Gemini15Flash>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let google = Google::<Gemini15Flash>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let google = Google::<Gemini15Flash>::builder()
 let google = Google::<Gemini15Flash>::builder()
     .api_key("your-api-key")
     .base_url("https://generativelanguage.googleapis.com")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Google")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let google = Google::<DynamicModel>::builder()
 	.model_name("gemini-1.5-flash")
 	.api_key("your-api-key")
 	.base_url("https://generativelanguage.googleapis.com")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Google")
 	.build()?;
 ```

@@ -85,6 +85,16 @@ let mistral = Mistral::<CodestralLatest>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let mistral = Mistral::<CodestralLatest>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let mistral = Mistral::<CodestralLatest>::builder()
 let mistral = Mistral::<CodestralLatest>::builder()
     .api_key("your-api-key")
     .base_url("https://api.mistral.ai/v1/")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Mistral")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let mistral = Mistral::<DynamicModel>::builder()
 	.model_name("codestral-latest")
 	.api_key("your-api-key")
 	.base_url("https://api.mistral.ai/v1/")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Mistral")
 	.build()?;
 ```

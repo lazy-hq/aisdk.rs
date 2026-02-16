@@ -85,6 +85,16 @@ let alibaba = Alibaba::<QvqMax>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let alibaba = Alibaba::<QvqMax>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let alibaba = Alibaba::<QvqMax>::builder()
 let alibaba = Alibaba::<QvqMax>::builder()
     .api_key("your-api-key")
     .base_url("https://dashscope-intl.aliyuncs.com/compatible-mode/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Alibaba")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let alibaba = Alibaba::<DynamicModel>::builder()
 	.model_name("qvq-max")
 	.api_key("your-api-key")
 	.base_url("https://dashscope-intl.aliyuncs.com/compatible-mode/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Alibaba")
 	.build()?;
 ```

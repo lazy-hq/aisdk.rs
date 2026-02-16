@@ -85,6 +85,16 @@ let fastrouter = Fastrouter::<AnthropicClaudeOpus41>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let fastrouter = Fastrouter::<AnthropicClaudeOpus41>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let fastrouter = Fastrouter::<AnthropicClaudeOpus41>::builder()
 let fastrouter = Fastrouter::<AnthropicClaudeOpus41>::builder()
     .api_key("your-api-key")
     .base_url("https://go.fastrouter.ai/api/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Fastrouter")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let fastrouter = Fastrouter::<DynamicModel>::builder()
 	.model_name("anthropic/claude-opus-4.1")
 	.api_key("your-api-key")
 	.base_url("https://go.fastrouter.ai/api/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Fastrouter")
 	.build()?;
 ```

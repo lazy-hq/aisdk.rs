@@ -85,6 +85,16 @@ let openrouter = Openrouter::<AllenaiMolmo28bFree>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let openrouter = Openrouter::<AllenaiMolmo28bFree>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let openrouter = Openrouter::<AllenaiMolmo28bFree>::builder()
 let openrouter = Openrouter::<AllenaiMolmo28bFree>::builder()
     .api_key("your-api-key")
     .base_url("https://openrouter.ai/api/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Openrouter")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let openrouter = Openrouter::<DynamicModel>::builder()
 	.model_name("allenai/molmo-2-8b:free")
 	.api_key("your-api-key")
 	.base_url("https://openrouter.ai/api/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Openrouter")
 	.build()?;
 ```

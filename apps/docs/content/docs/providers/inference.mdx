@@ -85,6 +85,16 @@ let inference = Inference::<GoogleGemma3>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let inference = Inference::<GoogleGemma3>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let inference = Inference::<GoogleGemma3>::builder()
 let inference = Inference::<GoogleGemma3>::builder()
     .api_key("your-api-key")
     .base_url("https://inference.net/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Inference")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let inference = Inference::<DynamicModel>::builder()
 	.model_name("google/gemma-3")
 	.api_key("your-api-key")
 	.base_url("https://inference.net/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Inference")
 	.build()?;
 ```

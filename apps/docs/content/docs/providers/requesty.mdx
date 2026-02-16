@@ -85,6 +85,16 @@ let requesty = Requesty::<AnthropicClaude37Sonnet>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let requesty = Requesty::<AnthropicClaude37Sonnet>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let requesty = Requesty::<AnthropicClaude37Sonnet>::builder()
 let requesty = Requesty::<AnthropicClaude37Sonnet>::builder()
     .api_key("your-api-key")
     .base_url("https://router.requesty.ai/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Requesty")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let requesty = Requesty::<DynamicModel>::builder()
 	.model_name("anthropic/claude-3-7-sonnet")
 	.api_key("your-api-key")
 	.base_url("https://router.requesty.ai/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Requesty")
 	.build()?;
 ```

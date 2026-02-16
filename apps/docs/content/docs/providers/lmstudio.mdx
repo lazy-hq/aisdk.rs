@@ -85,6 +85,16 @@ let lmstudio = Lmstudio::<OpenaiGptOss20b>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let lmstudio = Lmstudio::<OpenaiGptOss20b>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let lmstudio = Lmstudio::<OpenaiGptOss20b>::builder()
 let lmstudio = Lmstudio::<OpenaiGptOss20b>::builder()
     .api_key("your-api-key")
     .base_url("http://127.0.0.1:1234/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Lmstudio")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let lmstudio = Lmstudio::<DynamicModel>::builder()
 	.model_name("openai/gpt-oss-20b")
 	.api_key("your-api-key")
 	.base_url("http://127.0.0.1:1234/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Lmstudio")
 	.build()?;
 ```

@@ -85,6 +85,16 @@ let cloudflare-workers-ai = CloudflareWorkersAi::<Ai4bharatIndictrans2EnIndic1b>
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let cloudflare-workers-ai = CloudflareWorkersAi::<Ai4bharatIndictrans2EnIndic1b>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let cloudflare-workers-ai = CloudflareWorkersAi::<Ai4bharatIndictrans2EnIndic1b>
 let cloudflare-workers-ai = CloudflareWorkersAi::<Ai4bharatIndictrans2EnIndic1b>::builder()
     .api_key("your-api-key")
     .base_url("https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("CloudflareWorkersAi")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let cloudflare-workers-ai = CloudflareWorkersAi::<DynamicModel>::builder()
 	.model_name("@cf/ai4bharat/indictrans2-en-indic-1B")
 	.api_key("your-api-key")
 	.base_url("https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("CloudflareWorkersAi")
 	.build()?;
 ```

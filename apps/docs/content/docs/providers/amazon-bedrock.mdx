@@ -85,6 +85,16 @@ let amazon-bedrock = AmazonBedrock::<Ai21Jamba15LargeV10>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let amazon-bedrock = AmazonBedrock::<Ai21Jamba15LargeV10>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let amazon-bedrock = AmazonBedrock::<Ai21Jamba15LargeV10>::builder()
 let amazon-bedrock = AmazonBedrock::<Ai21Jamba15LargeV10>::builder()
     .api_key("your-api-key")
     .base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1/")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("AmazonBedrock")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let amazon-bedrock = AmazonBedrock::<DynamicModel>::builder()
 	.model_name("ai21.jamba-1-5-large-v1:0")
 	.api_key("your-api-key")
 	.base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1/")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("AmazonBedrock")
 	.build()?;
 ```

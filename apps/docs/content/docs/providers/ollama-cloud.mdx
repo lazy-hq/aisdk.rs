@@ -85,6 +85,16 @@ let ollama-cloud = OllamaCloud::<Cogito21671b>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let ollama-cloud = OllamaCloud::<Cogito21671b>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let ollama-cloud = OllamaCloud::<Cogito21671b>::builder()
 let ollama-cloud = OllamaCloud::<Cogito21671b>::builder()
     .api_key("your-api-key")
     .base_url("https://ollama.com/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("OllamaCloud")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let ollama-cloud = OllamaCloud::<DynamicModel>::builder()
 	.model_name("cogito-2.1:671b")
 	.api_key("your-api-key")
 	.base_url("https://ollama.com/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("OllamaCloud")
 	.build()?;
 ```

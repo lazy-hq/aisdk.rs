@@ -85,6 +85,16 @@ let github-models = GithubModels::<Ai21LabsAi21Jamba15Large>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let github-models = GithubModels::<Ai21LabsAi21Jamba15Large>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let github-models = GithubModels::<Ai21LabsAi21Jamba15Large>::builder()
 let github-models = GithubModels::<Ai21LabsAi21Jamba15Large>::builder()
     .api_key("your-api-key")
     .base_url("https://models.github.ai/inference")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("GithubModels")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let github-models = GithubModels::<DynamicModel>::builder()
 	.model_name("ai21-labs/ai21-jamba-1.5-large")
 	.api_key("your-api-key")
 	.base_url("https://models.github.ai/inference")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("GithubModels")
 	.build()?;
 ```

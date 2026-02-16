@@ -85,6 +85,16 @@ let firmware = Firmware::<ClaudeHaiku45>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let firmware = Firmware::<ClaudeHaiku45>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let firmware = Firmware::<ClaudeHaiku45>::builder()
 let firmware = Firmware::<ClaudeHaiku45>::builder()
     .api_key("your-api-key")
     .base_url("https://app.firmware.ai/api/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Firmware")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let firmware = Firmware::<DynamicModel>::builder()
 	.model_name("claude-haiku-4-5")
 	.api_key("your-api-key")
 	.base_url("https://app.firmware.ai/api/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Firmware")
 	.build()?;
 ```

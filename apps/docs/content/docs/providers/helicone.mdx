@@ -85,6 +85,16 @@ let helicone = Helicone::<Chatgpt4oLatest>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let helicone = Helicone::<Chatgpt4oLatest>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let helicone = Helicone::<Chatgpt4oLatest>::builder()
 let helicone = Helicone::<Chatgpt4oLatest>::builder()
     .api_key("your-api-key")
     .base_url("https://ai-gateway.helicone.ai/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Helicone")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let helicone = Helicone::<DynamicModel>::builder()
 	.model_name("chatgpt-4o-latest")
 	.api_key("your-api-key")
 	.base_url("https://ai-gateway.helicone.ai/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Helicone")
 	.build()?;
 ```

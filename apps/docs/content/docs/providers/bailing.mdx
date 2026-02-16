@@ -85,6 +85,16 @@ let bailing = Bailing::<Ling1t>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let bailing = Bailing::<Ling1t>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let bailing = Bailing::<Ling1t>::builder()
 let bailing = Bailing::<Ling1t>::builder()
     .api_key("your-api-key")
     .base_url("https://api.tbox.cn/api/llm/v1/chat/completions")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Bailing")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let bailing = Bailing::<DynamicModel>::builder()
 	.model_name("Ling-1T")
 	.api_key("your-api-key")
 	.base_url("https://api.tbox.cn/api/llm/v1/chat/completions")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Bailing")
 	.build()?;
 ```

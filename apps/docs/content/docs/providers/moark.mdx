@@ -85,6 +85,16 @@ let moark = Moark::<Glm47>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let moark = Moark::<Glm47>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let moark = Moark::<Glm47>::builder()
 let moark = Moark::<Glm47>::builder()
     .api_key("your-api-key")
     .base_url("https://moark.com/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Moark")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let moark = Moark::<DynamicModel>::builder()
 	.model_name("GLM-4.7")
 	.api_key("your-api-key")
 	.base_url("https://moark.com/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Moark")
 	.build()?;
 ```

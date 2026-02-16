@@ -85,6 +85,16 @@ let baseten = Baseten::<QwenQwen3Coder480bA35bInstruct>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let baseten = Baseten::<QwenQwen3Coder480bA35bInstruct>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let baseten = Baseten::<QwenQwen3Coder480bA35bInstruct>::builder()
 let baseten = Baseten::<QwenQwen3Coder480bA35bInstruct>::builder()
     .api_key("your-api-key")
     .base_url("https://inference.baseten.co/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Baseten")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let baseten = Baseten::<DynamicModel>::builder()
 	.model_name("Qwen/Qwen3-Coder-480B-A35B-Instruct")
 	.api_key("your-api-key")
 	.base_url("https://inference.baseten.co/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Baseten")
 	.build()?;
 ```

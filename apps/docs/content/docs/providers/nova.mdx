@@ -85,6 +85,16 @@ let nova = Nova::<Nova2LiteV1>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let nova = Nova::<Nova2LiteV1>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let nova = Nova::<Nova2LiteV1>::builder()
 let nova = Nova::<Nova2LiteV1>::builder()
     .api_key("your-api-key")
     .base_url("https://api.nova.amazon.com/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Nova")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let nova = Nova::<DynamicModel>::builder()
 	.model_name("nova-2-lite-v1")
 	.api_key("your-api-key")
 	.base_url("https://api.nova.amazon.com/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Nova")
 	.build()?;
 ```

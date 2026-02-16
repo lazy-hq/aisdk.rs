@@ -85,6 +85,16 @@ let opencode = Opencode::<BigPickle>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let opencode = Opencode::<BigPickle>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let opencode = Opencode::<BigPickle>::builder()
 let opencode = Opencode::<BigPickle>::builder()
     .api_key("your-api-key")
     .base_url("https://opencode.ai/zen/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Opencode")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let opencode = Opencode::<DynamicModel>::builder()
 	.model_name("big-pickle")
 	.api_key("your-api-key")
 	.base_url("https://opencode.ai/zen/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("Opencode")
 	.build()?;
 ```

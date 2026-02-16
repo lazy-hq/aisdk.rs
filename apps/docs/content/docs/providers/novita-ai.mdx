@@ -85,6 +85,16 @@ let novita-ai = NovitaAi::<BaichuanBaichuanM232b>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let novita-ai = NovitaAi::<BaichuanBaichuanM232b>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let novita-ai = NovitaAi::<BaichuanBaichuanM232b>::builder()
 let novita-ai = NovitaAi::<BaichuanBaichuanM232b>::builder()
     .api_key("your-api-key")
     .base_url("https://api.novita.ai/openai")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("NovitaAi")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let novita-ai = NovitaAi::<DynamicModel>::builder()
 	.model_name("baichuan/baichuan-m2-32b")
 	.api_key("your-api-key")
 	.base_url("https://api.novita.ai/openai")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("NovitaAi")
 	.build()?;
 ```

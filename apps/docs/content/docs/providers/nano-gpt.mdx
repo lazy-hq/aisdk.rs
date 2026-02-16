@@ -85,6 +85,16 @@ let nano-gpt = NanoGpt::<DeepseekDeepseekR1>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let nano-gpt = NanoGpt::<DeepseekDeepseekR1>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let nano-gpt = NanoGpt::<DeepseekDeepseekR1>::builder()
 let nano-gpt = NanoGpt::<DeepseekDeepseekR1>::builder()
     .api_key("your-api-key")
     .base_url("https://nano-gpt.com/api/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("NanoGpt")
     .build()?;
 ```
@@ -130,6 +141,7 @@ let nano-gpt = NanoGpt::<DynamicModel>::builder()
 	.model_name("deepseek/deepseek-r1")
 	.api_key("your-api-key")
 	.base_url("https://nano-gpt.com/api/v1")
+	.path("https://full-url.example/v1/chat/completions")
 	.provider_name("NanoGpt")
 	.build()?;
 ```
