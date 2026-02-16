@@ -1,6 +1,6 @@
+import { execSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { execSync } from "node:child_process";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -11,12 +11,7 @@ const DEFAULT_REF = "feat/macro-based-openai-compatablity";
 const RAW_BASE = `https://raw.githubusercontent.com/${REPO}`;
 
 const scriptDir = path.join(process.cwd(), "scripts");
-const providersDir = path.join(
-	process.cwd(),
-	"content",
-	"docs",
-	"providers",
-);
+const providersDir = path.join(process.cwd(), "content", "docs", "providers");
 const templatePath = path.join(scriptDir, "templates", "provider.mdx.template");
 const metaJsonPath = path.join(providersDir, "meta.json");
 
@@ -230,7 +225,11 @@ function updateMetaJson(newSlugs: string[]): void {
 	const rest = pages.filter((p: string) => p !== "index").sort();
 	meta.pages = hasIndex ? ["index", ...rest] : rest;
 
-	fs.writeFileSync(metaJsonPath, `${JSON.stringify(meta, null, "\t")}\n`, "utf-8");
+	fs.writeFileSync(
+		metaJsonPath,
+		`${JSON.stringify(meta, null, "\t")}\n`,
+		"utf-8",
+	);
 }
 
 // ---------------------------------------------------------------------------
@@ -239,7 +238,9 @@ function updateMetaJson(newSlugs: string[]): void {
 
 async function main() {
 	const ref = resolveRef(process.argv[2]);
-	console.log(`\nSyncing OpenAI-compatible provider docs from ${REPO}@${ref}\n`);
+	console.log(
+		`\nSyncing OpenAI-compatible provider docs from ${REPO}@${ref}\n`,
+	);
 
 	// 1. Read template
 	if (!fs.existsSync(templatePath)) {
@@ -251,7 +252,9 @@ async function main() {
 	console.log("Fetching src/providers/mod.rs...");
 	const modRs = await fetchFile(ref, "src/providers/mod.rs");
 	const entries = parseCodegenBlock(modRs);
-	console.log(`Found ${entries.length} OpenAI-compatible providers in codegen block\n`);
+	console.log(
+		`Found ${entries.length} OpenAI-compatible providers in codegen block\n`,
+	);
 
 	if (entries.length === 0) {
 		console.log("No providers found. Nothing to do.");
@@ -308,11 +311,8 @@ async function main() {
 				EXAMPLE_MODEL_METHOD:
 					firstModel?.constructorName ??
 					`${entry.moduleName.toLowerCase()}_default`,
-				EXAMPLE_MODEL_STRING:
-					firstModel?.modelName ??
-					entry.featureName,
-				MODEL_TYPE_EXAMPLE:
-					firstModel?.typeName ?? entry.structName,
+				EXAMPLE_MODEL_STRING: firstModel?.modelName ?? entry.featureName,
+				MODEL_TYPE_EXAMPLE: firstModel?.typeName ?? entry.structName,
 				DEFAULT_BASE_URL: settings.baseUrl,
 				OUTPUT_FILENAME: outputFilename,
 			};
@@ -355,9 +355,6 @@ async function main() {
 }
 
 main().catch((err) => {
-	console.error(
-		"\nError:",
-		err instanceof Error ? err.message : String(err),
-	);
+	console.error("\nError:", err instanceof Error ? err.message : String(err));
 	process.exit(1);
 });
