@@ -312,9 +312,7 @@ function syncMetaJsonFromDocs(dryRun: boolean): {
 	return { changed, pageCount: nextPages.length };
 }
 
-function discoverProviders(
-	sourcePaths: ResolvedSourcePaths,
-): {
+function discoverProviders(sourcePaths: ResolvedSourcePaths): {
 	providers: ProviderSource[];
 	ignored: string[];
 	failed: string[];
@@ -360,7 +358,11 @@ function discoverProviders(
 			continue;
 		}
 
-		const featureName = inferFeatureName(moduleDir, structName, providerFeatures);
+		const featureName = inferFeatureName(
+			moduleDir,
+			structName,
+			providerFeatures,
+		);
 		if (!featureName) {
 			failed.push(`${moduleDir} (could not infer provider feature name)`);
 			continue;

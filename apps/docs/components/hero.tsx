@@ -370,10 +370,11 @@ let ${streaming ? "stream" : "response"} = LanguageModelRequest::builder()
 								key={cat}
 								type="button"
 								onClick={() => setActiveCategory(cat)}
-								className={`px-2 py-1.5 text-xs lg:text-[10px] xl:text-xs sm:px-4 font-medium rounded-xs transition-all cursor-pointer ${activeCategory === cat
+								className={`px-2 py-1.5 text-xs lg:text-[10px] xl:text-xs sm:px-4 font-medium rounded-xs transition-all cursor-pointer ${
+									activeCategory === cat
 										? "bg-white dark:bg-zinc-800 text-black dark:text-white shadow-sm"
 										: "text-gray-500 hover:text-black dark:hover:text-white"
-									}`}
+								}`}
 							>
 								{cat === "tool"
 									? "Tools"
@@ -395,12 +396,14 @@ let ${streaming ? "stream" : "response"} = LanguageModelRequest::builder()
 					<button
 						type="button"
 						onClick={() => setIsStreaming((s) => !s)}
-						className={`relative w-8 h-4.5 rounded-xs transition-colors cursor-pointer ${isStreaming ? "bg-orange-500" : "bg-gray-300 dark:bg-zinc-700"
-							}`}
+						className={`relative w-8 h-4.5 rounded-xs transition-colors cursor-pointer ${
+							isStreaming ? "bg-orange-500" : "bg-gray-300 dark:bg-zinc-700"
+						}`}
 					>
 						<div
-							className={`absolute top-0.75 left-0.75 w-3 h-3 bg-white rounded-xs transition-transform ${isStreaming ? "translate-x-3.5" : ""
-								}`}
+							className={`absolute top-0.75 left-0.75 w-3 h-3 bg-white rounded-xs transition-transform ${
+								isStreaming ? "translate-x-3.5" : ""
+							}`}
 						/>
 					</button>
 				</div>
@@ -428,10 +431,11 @@ let ${streaming ? "stream" : "response"} = LanguageModelRequest::builder()
 								[true, false].map((stream) => (
 									<div
 										key={`${key}-${cat}-${stream}`}
-										className={`custom-code-block rounded-xs ${activeCategory === cat && isStreaming === stream
+										className={`custom-code-block rounded-xs ${
+											activeCategory === cat && isStreaming === stream
 												? "block"
 												: "hidden"
-											}`}
+										}`}
 									>
 										<DynamicCodeBlock
 											lang="rust"

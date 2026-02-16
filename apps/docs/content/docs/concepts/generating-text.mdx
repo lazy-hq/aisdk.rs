@@ -45,16 +45,16 @@ This applies to:
 - Multimodal input/output
 
 ```rust
-// Works: model supports tool calls
+// ✅ WORKS: GPT-5 supports tool calls
 let request = LanguageModelRequest::builder()
     .model(OpenAI::gpt_5())
-    .with_tool(my_tool())
+    .with_tool(my_tool) // Valid!
     .build();
 
-// Does not compile: model lacks tool-call support
+// ❌ FAILS TO COMPILE: Because O1 Mini doesn't support tool calls
 let request = LanguageModelRequest::builder()
     .model(OpenAI::o1_mini())
-    .with_tool(my_tool())
+    .with_tool(my_tool) // ERROR: The trait `ToolCallSupport` is not implemented..
     .build();
 ```
 
