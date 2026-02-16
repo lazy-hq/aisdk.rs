@@ -1,0 +1,147 @@
+---
+title: IoNet
+---
+
+AISDK provides first-class support for IoNet with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the IoNet provider feature:
+
+```bash
+cargo add aisdk --features io-net
+```
+
+This installs AISDK with the IoNet provider enabled. Once you have enabled the IoNet provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `IoNet::model_name()`, where **model_name** is the IoNet model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::IoNet;
+
+let io-net = IoNet::intel_qwen3_coder_480b_a35b_instruct_int4_mixed_ar();
+```
+
+This initializes the provider with:
+
+* Model: `"Intel/Qwen3-Coder-480B-A35B-Instruct-int4-mixed-ar"`
+* API key from environment (if set with `IOINTELLIGENCE_API_KEY`)
+* IoNet's default base URL (https://api.intelligence.io.solutions/api/v1)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::IoNet,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let io-net = IoNet::intel_qwen3_coder_480b_a35b_instruct_int4_mixed_ar();
+
+    let response = LanguageModelRequest::builder()
+        .model(io-net)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `IoNet::builder()`
+
+### API Key
+
+```rust
+let io-net = IoNet::<IntelQwen3Coder480bA35bInstructInt4MixedAr>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `IOINTELLIGENCE_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let io-net = IoNet::<IntelQwen3Coder480bA35bInstructInt4MixedAr>::builder()
+    .base_url("https://api.intelligence.io.solutions/api/v1")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let io-net = IoNet::<IntelQwen3Coder480bA35bInstructInt4MixedAr>::builder()
+    .provider_name("IoNet")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let io-net = IoNet::<IntelQwen3Coder480bA35bInstructInt4MixedAr>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.intelligence.io.solutions/api/v1")
+    .provider_name("IoNet")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::IoNet;
+
+// Specify model as a string at runtime
+let io-net = IoNet::model_name("Intel/Qwen3-Coder-480B-A35B-Instruct-int4-mixed-ar");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::IoNet,
+};
+
+let io-net = IoNet::<DynamicModel>::builder()
+    .model_name("Intel/Qwen3-Coder-480B-A35B-Instruct-int4-mixed-ar")
+    .api_key("your-api-key")
+		.base_url("https://api.intelligence.io.solutions/api/v1")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `IoNet::intel_qwen3_coder_480b_a35b_instruct_int4_mixed_ar()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

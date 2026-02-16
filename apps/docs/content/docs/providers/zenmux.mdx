@@ -1,0 +1,147 @@
+---
+title: Zenmux
+---
+
+AISDK provides first-class support for Zenmux with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Zenmux provider feature:
+
+```bash
+cargo add aisdk --features zenmux
+```
+
+This installs AISDK with the Zenmux provider enabled. Once you have enabled the Zenmux provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Zenmux::model_name()`, where **model_name** is the Zenmux model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::Zenmux;
+
+let zenmux = Zenmux::anthropic_claude_haiku_4_5();
+```
+
+This initializes the provider with:
+
+* Model: `"anthropic/claude-haiku-4.5"`
+* API key from environment (if set with `ZENMUX_API_KEY`)
+* Zenmux's default base URL (https://zenmux.ai/api/v1)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::Zenmux,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let zenmux = Zenmux::anthropic_claude_haiku_4_5();
+
+    let response = LanguageModelRequest::builder()
+        .model(zenmux)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Zenmux::builder()`
+
+### API Key
+
+```rust
+let zenmux = Zenmux::<AnthropicClaudeHaiku45>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `ZENMUX_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let zenmux = Zenmux::<AnthropicClaudeHaiku45>::builder()
+    .base_url("https://zenmux.ai/api/v1")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let zenmux = Zenmux::<AnthropicClaudeHaiku45>::builder()
+    .provider_name("Zenmux")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let zenmux = Zenmux::<AnthropicClaudeHaiku45>::builder()
+    .api_key("your-api-key")
+    .base_url("https://zenmux.ai/api/v1")
+    .provider_name("Zenmux")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::Zenmux;
+
+// Specify model as a string at runtime
+let zenmux = Zenmux::model_name("anthropic/claude-haiku-4.5");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Zenmux,
+};
+
+let zenmux = Zenmux::<DynamicModel>::builder()
+    .model_name("anthropic/claude-haiku-4.5")
+    .api_key("your-api-key")
+		.base_url("https://zenmux.ai/api/v1")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Zenmux::anthropic_claude_haiku_4_5()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

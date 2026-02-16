@@ -1,0 +1,147 @@
+---
+title: MoonshotaiCn
+---
+
+AISDK provides first-class support for MoonshotaiCn with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the MoonshotaiCn provider feature:
+
+```bash
+cargo add aisdk --features moonshotai-cn
+```
+
+This installs AISDK with the MoonshotaiCn provider enabled. Once you have enabled the MoonshotaiCn provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `MoonshotaiCn::model_name()`, where **model_name** is the MoonshotaiCn model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::MoonshotaiCn;
+
+let moonshotai-cn = MoonshotaiCn::kimi_k2_0711_preview();
+```
+
+This initializes the provider with:
+
+* Model: `"kimi-k2-0711-preview"`
+* API key from environment (if set with `MOONSHOT_API_KEY`)
+* MoonshotaiCn's default base URL (https://api.moonshot.cn/v1)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::MoonshotaiCn,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let moonshotai-cn = MoonshotaiCn::kimi_k2_0711_preview();
+
+    let response = LanguageModelRequest::builder()
+        .model(moonshotai-cn)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `MoonshotaiCn::builder()`
+
+### API Key
+
+```rust
+let moonshotai-cn = MoonshotaiCn::<KimiK20711Preview>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `MOONSHOT_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let moonshotai-cn = MoonshotaiCn::<KimiK20711Preview>::builder()
+    .base_url("https://api.moonshot.cn/v1")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let moonshotai-cn = MoonshotaiCn::<KimiK20711Preview>::builder()
+    .provider_name("MoonshotaiCn")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let moonshotai-cn = MoonshotaiCn::<KimiK20711Preview>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.moonshot.cn/v1")
+    .provider_name("MoonshotaiCn")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::MoonshotaiCn;
+
+// Specify model as a string at runtime
+let moonshotai-cn = MoonshotaiCn::model_name("kimi-k2-0711-preview");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::MoonshotaiCn,
+};
+
+let moonshotai-cn = MoonshotaiCn::<DynamicModel>::builder()
+    .model_name("kimi-k2-0711-preview")
+    .api_key("your-api-key")
+		.base_url("https://api.moonshot.cn/v1")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `MoonshotaiCn::kimi_k2_0711_preview()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

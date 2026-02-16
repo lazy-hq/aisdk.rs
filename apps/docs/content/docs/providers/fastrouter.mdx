@@ -1,0 +1,147 @@
+---
+title: Fastrouter
+---
+
+AISDK provides first-class support for Fastrouter with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Fastrouter provider feature:
+
+```bash
+cargo add aisdk --features fastrouter
+```
+
+This installs AISDK with the Fastrouter provider enabled. Once you have enabled the Fastrouter provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Fastrouter::model_name()`, where **model_name** is the Fastrouter model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::Fastrouter;
+
+let fastrouter = Fastrouter::anthropic_claude_opus_4_1();
+```
+
+This initializes the provider with:
+
+* Model: `"anthropic/claude-opus-4.1"`
+* API key from environment (if set with `FASTROUTER_API_KEY`)
+* Fastrouter's default base URL (https://go.fastrouter.ai/api/v1)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::Fastrouter,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let fastrouter = Fastrouter::anthropic_claude_opus_4_1();
+
+    let response = LanguageModelRequest::builder()
+        .model(fastrouter)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Fastrouter::builder()`
+
+### API Key
+
+```rust
+let fastrouter = Fastrouter::<AnthropicClaudeOpus41>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `FASTROUTER_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let fastrouter = Fastrouter::<AnthropicClaudeOpus41>::builder()
+    .base_url("https://go.fastrouter.ai/api/v1")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let fastrouter = Fastrouter::<AnthropicClaudeOpus41>::builder()
+    .provider_name("Fastrouter")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let fastrouter = Fastrouter::<AnthropicClaudeOpus41>::builder()
+    .api_key("your-api-key")
+    .base_url("https://go.fastrouter.ai/api/v1")
+    .provider_name("Fastrouter")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::Fastrouter;
+
+// Specify model as a string at runtime
+let fastrouter = Fastrouter::model_name("anthropic/claude-opus-4.1");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Fastrouter,
+};
+
+let fastrouter = Fastrouter::<DynamicModel>::builder()
+    .model_name("anthropic/claude-opus-4.1")
+    .api_key("your-api-key")
+		.base_url("https://go.fastrouter.ai/api/v1")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Fastrouter::anthropic_claude_opus_4_1()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

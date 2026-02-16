@@ -1,0 +1,147 @@
+---
+title: Nebius
+---
+
+AISDK provides first-class support for Nebius with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Nebius provider feature:
+
+```bash
+cargo add aisdk --features nebius
+```
+
+This installs AISDK with the Nebius provider enabled. Once you have enabled the Nebius provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Nebius::model_name()`, where **model_name** is the Nebius model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::Nebius;
+
+let nebius = Nebius::baai_bge_en_icl();
+```
+
+This initializes the provider with:
+
+* Model: `"BAAI/bge-en-icl"`
+* API key from environment (if set with `NEBIUS_API_KEY`)
+* Nebius's default base URL (https://api.tokenfactory.nebius.com/v1)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::Nebius,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let nebius = Nebius::baai_bge_en_icl();
+
+    let response = LanguageModelRequest::builder()
+        .model(nebius)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Nebius::builder()`
+
+### API Key
+
+```rust
+let nebius = Nebius::<BaaiBgeEnIcl>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `NEBIUS_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let nebius = Nebius::<BaaiBgeEnIcl>::builder()
+    .base_url("https://api.tokenfactory.nebius.com/v1")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let nebius = Nebius::<BaaiBgeEnIcl>::builder()
+    .provider_name("Nebius")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let nebius = Nebius::<BaaiBgeEnIcl>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.tokenfactory.nebius.com/v1")
+    .provider_name("Nebius")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::Nebius;
+
+// Specify model as a string at runtime
+let nebius = Nebius::model_name("BAAI/bge-en-icl");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Nebius,
+};
+
+let nebius = Nebius::<DynamicModel>::builder()
+    .model_name("BAAI/bge-en-icl")
+    .api_key("your-api-key")
+		.base_url("https://api.tokenfactory.nebius.com/v1")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Nebius::baai_bge_en_icl()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

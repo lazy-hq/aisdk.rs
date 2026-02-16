@@ -1,0 +1,147 @@
+---
+title: CloudflareAiGateway
+---
+
+AISDK provides first-class support for CloudflareAiGateway with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the CloudflareAiGateway provider feature:
+
+```bash
+cargo add aisdk --features cloudflare-ai-gateway
+```
+
+This installs AISDK with the CloudflareAiGateway provider enabled. Once you have enabled the CloudflareAiGateway provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `CloudflareAiGateway::model_name()`, where **model_name** is the CloudflareAiGateway model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::CloudflareAiGateway;
+
+let cloudflare-ai-gateway = CloudflareAiGateway::anthropic_claude_3_5_haiku();
+```
+
+This initializes the provider with:
+
+* Model: `"anthropic/claude-3-5-haiku"`
+* API key from environment (if set with `CLOUDFLARE_API_TOKEN`)
+* CloudflareAiGateway's default base URL (https://gateway.ai.cloudflare.com/v1/${CLOUDFLARE_ACCOUNT_ID}/${CLOUDFLARE_GATEWAY_ID}/compat/)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::CloudflareAiGateway,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let cloudflare-ai-gateway = CloudflareAiGateway::anthropic_claude_3_5_haiku();
+
+    let response = LanguageModelRequest::builder()
+        .model(cloudflare-ai-gateway)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `CloudflareAiGateway::builder()`
+
+### API Key
+
+```rust
+let cloudflare-ai-gateway = CloudflareAiGateway::<AnthropicClaude35Haiku>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `CLOUDFLARE_API_TOKEN` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let cloudflare-ai-gateway = CloudflareAiGateway::<AnthropicClaude35Haiku>::builder()
+    .base_url("https://gateway.ai.cloudflare.com/v1/${CLOUDFLARE_ACCOUNT_ID}/${CLOUDFLARE_GATEWAY_ID}/compat/")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let cloudflare-ai-gateway = CloudflareAiGateway::<AnthropicClaude35Haiku>::builder()
+    .provider_name("CloudflareAiGateway")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let cloudflare-ai-gateway = CloudflareAiGateway::<AnthropicClaude35Haiku>::builder()
+    .api_key("your-api-key")
+    .base_url("https://gateway.ai.cloudflare.com/v1/${CLOUDFLARE_ACCOUNT_ID}/${CLOUDFLARE_GATEWAY_ID}/compat/")
+    .provider_name("CloudflareAiGateway")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::CloudflareAiGateway;
+
+// Specify model as a string at runtime
+let cloudflare-ai-gateway = CloudflareAiGateway::model_name("anthropic/claude-3-5-haiku");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::CloudflareAiGateway,
+};
+
+let cloudflare-ai-gateway = CloudflareAiGateway::<DynamicModel>::builder()
+    .model_name("anthropic/claude-3-5-haiku")
+    .api_key("your-api-key")
+		.base_url("https://gateway.ai.cloudflare.com/v1/${CLOUDFLARE_ACCOUNT_ID}/${CLOUDFLARE_GATEWAY_ID}/compat/")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `CloudflareAiGateway::anthropic_claude_3_5_haiku()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).

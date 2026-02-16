@@ -1,0 +1,147 @@
+---
+title: Morph
+---
+
+AISDK provides first-class support for Morph with fully typed model APIs.
+Model capabilities are enforced at compile time using Rust's type system.
+This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
+
+
+## Installation
+
+Enable the Morph provider feature:
+
+```bash
+cargo add aisdk --features morph
+```
+
+This installs AISDK with the Morph provider enabled. Once you have enabled the Morph provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+
+## Create a Provider Instance
+
+To create a provider instance, call `Morph::model_name()`, where **model_name** is the Morph model you want to use.
+Model names are exposed as snake-case methods.
+
+```rust
+use aisdk::providers::Morph;
+
+let morph = Morph::auto();
+```
+
+This initializes the provider with:
+
+* Model: `"auto"`
+* API key from environment (if set with `MORPH_API_KEY`)
+* Morph's default base URL (https://api.morphllm.com/v1)
+
+## Basic Text Generation
+
+Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/struct.LanguageModelRequest.html) for text generation.
+
+```rust
+use aisdk::{
+    core::LanguageModelRequest,
+    providers::Morph,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let morph = Morph::auto();
+
+    let response = LanguageModelRequest::builder()
+        .model(morph)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `Morph::builder()`
+
+### API Key
+
+```rust
+let morph = Morph::<Auto>::builder()
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses the `MORPH_API_KEY` environment variable.
+
+### Base URL
+
+Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
+
+```rust
+let morph = Morph::<Auto>::builder()
+    .base_url("https://api.morphllm.com/v1")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let morph = Morph::<Auto>::builder()
+    .provider_name("Morph")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let morph = Morph::<Auto>::builder()
+    .api_key("your-api-key")
+    .base_url("https://api.morphllm.com/v1")
+    .provider_name("Morph")
+    .build()?;
+```
+
+## Dynamic Model Selection
+
+For runtime model selection (e.g., loading models from config files), use `DynamicModel`:
+
+### Using model_name() Method with Default Settings
+
+```rust
+use aisdk::providers::Morph;
+
+// Specify model as a string at runtime
+let morph = Morph::model_name("auto");
+```
+
+### Using Builder Pattern with Custom Settings
+
+```rust
+use aisdk::{
+    core::DynamicModel,
+    providers::Morph,
+};
+
+let morph = Morph::<DynamicModel>::builder()
+    .model_name("auto")
+    .api_key("your-api-key")
+		.base_url("https://api.morphllm.com/v1")
+    .build()?;
+```
+
+<Callout type="warn">
+**Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
+This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
+For compile-time safety, use the typed methods like `Morph::auto()`.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).
