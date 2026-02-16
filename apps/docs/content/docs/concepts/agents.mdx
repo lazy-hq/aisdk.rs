@@ -13,7 +13,7 @@ In AISDK, these components work together:
 
 ## The Agentic Loop
 
-When you provide tools to a [LanguageModelRequest](/docs/concepts/language-model-request), AISDK automatically manages the **Agentic Loop**. 
+When you provide tools to a [LanguageModelRequest](/docs/concepts/generating-text), AISDK automatically manages the **Agentic Loop**. 
 
 Every interaction between the model and the environment (including tool calls and intermediate reasoning) is recorded as a **Step**. A single complex request might result in multiple steps, each containing full context.
 
@@ -273,4 +273,4 @@ println!("Final Structured Report: {:?}", summary);
 ## Next Steps
 - Learn how to create [Custom Tools](/docs/concepts/tools).
 - Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
-- See how [Capabilities](/docs/concepts/language-model-request#capability-system) protect your agent logic.
+- See how [Capabilities](/docs/concepts/generating-text#capability-system) protect your agent logic.

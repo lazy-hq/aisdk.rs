@@ -1,0 +1,172 @@
+---
+title: Generating Text
+---
+
+`LanguageModelRequest` is the main AISDK interface for building and executing LLM requests. It gives you a type-safe builder, compile-time capability checks, and one consistent API across providers.
+
+## Quick Start
+
+Pick a provider feature first (OpenAI used here):
+
+```bash
+cargo add aisdk --features openai
+```
+
+Then build and run a request:
+
+```rust
+use aisdk::{core::LanguageModelRequest, providers::OpenAI};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let response = LanguageModelRequest::builder()
+        .model(OpenAI::gpt_5())
+        .system("You are a concise assistant.")
+        .prompt("Explain ownership in Rust in one paragraph.")
+        .temperature(30)
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("{}", response.text());
+    Ok(())
+}
+```
+
+<a id="capability-system"></a>
+## The Capability System
+
+AISDK uses Rust traits to enforce model capabilities at compile time. If a model does not support a feature, the request does not compile.
+
+This applies to:
+- Tool calling
+- Structured output
+- Reasoning features
+- Multimodal input/output
+
+```rust
+// Works: model supports tool calls
+let request = LanguageModelRequest::builder()
+    .model(OpenAI::gpt_5())
+    .with_tool(my_tool())
+    .build();
+
+// Does not compile: model lacks tool-call support
+let request = LanguageModelRequest::builder()
+    .model(OpenAI::o1_mini())
+    .with_tool(my_tool())
+    .build();
+```
+
+## Type-State Builder Flow
+
+`LanguageModelRequest::builder()` follows a strict build sequence. Each stage only exposes valid methods for that stage.
+
+1. Choose a model: `.model(M)`
+2. Optional system instruction: `.system(...)`
+3. Choose one input style: `.prompt(...)` or `.messages(...)`
+4. Optional options and orchestration features
+5. Finalize with `.build()`
+
+### Request Inputs
+
+Use one of these:
+- `prompt(impl Into<String>)` for a single user prompt
+- `messages(Messages)` for multi-turn history
+
+`prompt(...)` and `messages(...)` are mutually exclusive by design.
+
+```rust
+// Single-turn
+let request = LanguageModelRequest::builder()
+    .model(OpenAI::gpt_5())
+    .prompt("What is the capital of France?")
+    .build();
+
+// Multi-turn
+let request = LanguageModelRequest::builder()
+    .model(OpenAI::gpt_5())
+    .messages(messages)
+    .build();
+```
+
+### Model Options
+
+Common tuning methods:
+- `temperature(u32)`: randomness (0-100)
+- `top_p(u32)`: nucleus sampling (0-100)
+- `top_k(u32)`: limit token candidates
+- `seed(u32)`: deterministic sampling seed
+- `max_retries(u32)`: retry count on failures
+- `frequency_penalty(f32)`: repetition penalty
+- `stop_sequences(Vec<String>)`: early stop tokens
+- `reasoning_effort(ReasoningEffort)`: reasoning level (supported models only)
+
+For `u32` percentage-style options, AISDK scales values to each provider's native format.
+
+### Orchestration Features
+
+Use these to move from plain generation to agent workflows:
+- `with_tool(Tool)`: register tools (see [Tools](/docs/concepts/tools))
+- `schema<T: JsonSchema>()`: enforce structured output (see [Structured Output](/docs/concepts/structured-output))
+- `on_step_start(...)`, `on_step_finish(...)`, `stop_when(...)`: lifecycle hooks and loop control (see [Agents](/docs/concepts/agents#lifecycle-hooks))
+
+## Execution
+
+Build first, then execute.
+
+### `generate_text()`
+
+Non-streaming execution. Returns when generation is complete.
+
+```rust
+let response = request.generate_text().await?;
+println!("{}", response.text());
+```
+
+### `stream_text()`
+
+Streaming execution. Emits incremental chunks as tokens arrive.
+
+`LanguageModelStreamChunkType` can include:
+- `Start`
+- `Text(String)`
+- `Reasoning(String)`
+- `End(AssistantMessage)`
+
+```rust
+let response = request.stream_text().await?;
+let mut stream = response.stream;
+
+while let Some(chunk) = stream.next().await {
+    if let LanguageModelStreamChunkType::Text(text) = chunk {
+        print!("{}", text);
+    }
+}
+```
+
+## Response Types Reference
+
+Both `GenerateTextResponse` and `StreamTextResponse` expose helpers for final output and execution metadata.
+
+> [!NOTE]
+> On `StreamTextResponse`, metadata accessors are async and should be called after stream consumption.
+
+| Method | Description |
+| :--- | :--- |
+| `text()` | Text from the final assistant message |
+| `content()` | Final assistant content (excluding reasoning) |
+| `usage()` | Aggregated token usage across all steps |
+| `messages()` | Full conversation message history |
+| `stop_reason()` | Why generation ended (`Finish`, `Hook`, `Error`, etc.) |
+| `steps()` | All recorded steps in chronological order |
+| `last_step()` | Most recent step |
+| `step(id)` | Step lookup by ID |
+| `tool_calls()` | All tool calls issued during execution |
+| `tool_results()` | All tool results collected during execution |
+
+## Next Steps
+
+- Learn how to create [Custom Tools](/docs/concepts/tools)
+- Use [Structured Output](/docs/concepts/structured-output) for reliable typed data
+- Build multi-step workflows with [Agents](/docs/concepts/agents)

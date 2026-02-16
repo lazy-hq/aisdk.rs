@@ -18,7 +18,7 @@ cargo add aisdk --features openai # anthropic, google or any other provider
 
 To generate text, you can use the `LanguageModelRequest` builder and call the `generate_text()` method. This method returns a `GenerateTextResponse` which contains the generated text and other information such as token usage statistics, stop reason, and tool call results
 
-you can find more info about generating text [here](/docs/concepts/language-model-request#generate_text).
+you can find more info about generating text [here](/docs/concepts/generating-text#generate_text).
 
 <CustomCodeTabs tabsData={[
 	{
@@ -45,7 +45,7 @@ you can find more info about generating text [here](/docs/concepts/language-mode
 
 To stream text, you can use the `LanguageModelRequest` builder and call the `stream_text()` method. This method returns a `StreamTextResponse` which contains the generated text and other information such as token usage statistics, stop reason, and tool call results.
 
-You can find more info about streaming text [here](/docs/concepts/language-model-request#stream_text).
+You can find more info about streaming text [here](/docs/concepts/generating-text#stream_text).
 
 <CustomCodeTabs tabsData={[
 	{
@@ -71,7 +71,7 @@ You can find more info about streaming text [here](/docs/concepts/language-model
 
 ## Next Steps
 
-* Take a deeper look at [`LanguageModelRequest`](/docs/concepts/language-model-request)
+* Take a deeper look at [`LanguageModelRequest`](/docs/concepts/generating-text)
 * Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).

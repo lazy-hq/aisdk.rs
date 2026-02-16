@@ -6,7 +6,7 @@ Structured Output allows you to force a model to output valid JSON that matches 
 
 ## Introduction & Capability Safety
 
-AISDK utilizes the [**Capability System**](/docs/concepts/language-model-request#the-capability-system) to ensure that **structured output** is only requested from models that officially support it. This check happens at **compile time**, preventing runtime errors and ensuring your code is robust.
+AISDK utilizes the [**Capability System**](/docs/concepts/generating-text#the-capability-system) to ensure that **structured output** is only requested from models that officially support it. This check happens at **compile time**, preventing runtime errors and ensuring your code is robust.
 
 Here is how the type system protects you:
 
@@ -135,4 +135,4 @@ struct Ingredient {
 ## Next Steps
 - Explore creating [Custom Tools](/docs/concepts/tools).
 - Learn how [Agents](/docs/concepts/agents) use Structured Output for routing.
-- See the full [Language Model Request](/docs/concepts/language-model-request) documentation.
+- See the full [Language Model Request](/docs/concepts/generating-text) documentation.

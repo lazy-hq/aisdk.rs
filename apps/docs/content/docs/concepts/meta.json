@@ -3,7 +3,7 @@
 	"icon": "SquareLibrary",
 	"defaultOpen": true,
 	"pages": [
-		"language-model-request",
+		"generating-text",
 		"structured-output",
 		"tools",
 		"embedding",
