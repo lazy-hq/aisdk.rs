@@ -7,27 +7,7 @@ they struggle with discrete tasks (e.g. mathematics) and interacting with the ou
 
 A 'Tool' is a general term for a function or logic that can be executed by an AI model. They can be user defined or pre-defined by the provider. Tools are provided to the AI model's context as per the developer's needs.The AI model can then use the provided tools to perform specific queries to aid in text generation or actions to be taken externally.
 
-## Introduction & Capability Safety
-
-Not all models support tool calls. AISDK's **Capability System** ensures you only provides tools to models that explicitly support them. This check happens at **compile time**, preventing you from shipping broken agent logic.
-
-Here is how the type system protects you:
-
-```rust
-// ✅ THIS WORKS: GPT-5 supports tool calls
-let request = LanguageModelRequest::builder()
-    .model(OpenAI::gpt_5())
-    .with_tool(my_tool()) // Valid!
-    .build();
-```
-
-```rust
-// ❌ THIS FAILS TO COMPILE: Because O1 Mini doesn't support tool calls
-let request = LanguageModelRequest::builder()
-    .model(OpenAI::o1_mini())
-    .with_tool(my_tool()) // ERROR: The trait `ToolCallSupport` is not implemented
-    .build();
-```
+Tool usage is capability-guarded at compile time when you pick models via typed model methods (for example `OpenAI::gpt_5()`). See [Capability Safety](/docs/concepts/generating-text#the-capability-system) in the Generating Text docs.
 
 ## Defining Tools with `#[tool]`
 

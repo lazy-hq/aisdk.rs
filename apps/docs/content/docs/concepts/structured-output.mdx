@@ -4,33 +4,7 @@ title: Structured Output
 
 Structured Output allows you to force a model to output valid JSON that matches a specific schema. This is essential for building reliable applications where the model's response is consumed directly by application logic.
 
-## Introduction & Capability Safety
-
-AISDK utilizes the [**Capability System**](/docs/concepts/generating-text#the-capability-system) to ensure that **structured output** is only requested from models that officially support it. This check happens at **compile time**, preventing runtime errors and ensuring your code is robust.
-
-Here is how the type system protects you:
-
-```rust
-// ✅ Supported Model (GPT-4o)
-let result = LanguageModelRequest::builder()
-    .model(OpenAI::gpt_4o())
-    .prompt("Extract user info")
-    .schema::<User>() // Works!
-    .build()
-    .generate_text()
-    .await?;
-```
-
-```rust
-// ❌ THIS FAILS TO COMPILE: Because gpt-4o-turbo doesn't support structured output
-let result = LanguageModelRequest::builder()
-    .model(OpenAI::gpt_4_turbo()) 
-    .prompt("Extract user info")
-    .schema::<User>() // ERROR: The trait `StructuredOutputSupport` is not implemented..
-    .build()
-    .generate_text()
-    .await?;
-```
+Structured output is capability-guarded at compile time when you pick models via typed model methods (for example `OpenAI::gpt_5()`). See [Capability Safety](/docs/concepts/generating-text#the-capability-system) in the Generating Text docs.
 
 ## Getting Started
 
