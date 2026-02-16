@@ -1,0 +1,157 @@
+---
+title: OpenAICompatible
+---
+
+`OpenAICompatible` is a generic provider for services that implement the OpenAI Chat Completions format.
+Use it when you want to connect to an OpenAI-compatible endpoint that does not have a dedicated AISDK provider.
+The target provider should be compatible with the [OpenAI Chat Completions API](https://developers.openai.com/api/reference/resources/chat/).
+
+Unlike typed providers (for example `OpenAI::gpt_5()`), `OpenAICompatible` does not expose model methods.
+Models are selected dynamically with strings.
+
+## Installation
+
+Enable the OpenAICompatible feature:
+
+```bash
+cargo add aisdk --features openaicompatible
+```
+
+## Create a Provider Instance
+
+### Quick Dynamic Instance
+
+```rust
+use aisdk::providers::OpenAICompatible;
+
+let provider = OpenAICompatible::model_name("gpt-4o");
+```
+
+This uses default settings:
+
+- Model: `"gpt-4o"` (dynamic string)
+- API key from `OPENAI_API_KEY`
+- Base URL: `https://api.openai.com/v1`
+- Default path behavior for chat completions
+
+### Configure for a Compatible Endpoint
+
+```rust
+use aisdk::{core::DynamicModel, providers::OpenAICompatible};
+
+let provider = OpenAICompatible::<DynamicModel>::builder()
+    .model_name("glm-4.5")
+    .base_url("https://api.z.ai/api/coding/paas/v4")
+    .api_key("your-api-key")
+    .provider_name("z-ai")
+    .build()?;
+```
+
+## Basic Text Generation
+
+```rust
+use aisdk::{
+    core::{DynamicModel, LanguageModelRequest},
+    providers::OpenAICompatible,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let provider = OpenAICompatible::<DynamicModel>::builder()
+        .model_name("gpt-4o")
+        .base_url("https://api.openai.com/v1")
+        .api_key("your-api-key")
+        .build()?;
+
+    let response = LanguageModelRequest::builder()
+        .model(provider)
+        .prompt("Write a short poem about Rust.")
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response text: {:?}", response.text());
+    Ok(())
+}
+```
+
+## Provider Settings
+
+You can customize provider configuration using `OpenAICompatible::<DynamicModel>::builder()`.
+
+### API Key
+
+```rust
+let provider = OpenAICompatible::<DynamicModel>::builder()
+    .model_name("gpt-4o")
+    .api_key("your-api-key")
+    .build()?;
+```
+
+If not specified, AISDK uses `OPENAI_API_KEY`.
+
+### Base URL
+
+Use `base_url(...)` for provider-level routing, proxying, or hosted compatible services.
+
+```rust
+let provider = OpenAICompatible::<DynamicModel>::builder()
+    .model_name("gpt-4o")
+    .base_url("https://api.openai.com/v1")
+    .build()?;
+```
+
+### Path (Full URL Override)
+
+Use `.path(...)` when you need to override the full request URL.
+
+```rust
+let provider = OpenAICompatible::<DynamicModel>::builder()
+    .model_name("gpt-4o")
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
+### Provider Name
+
+For logging, analytics, and observability.
+
+```rust
+let provider = OpenAICompatible::<DynamicModel>::builder()
+    .model_name("gpt-4o")
+    .provider_name("custom-openai-compatible")
+    .build()?;
+```
+
+### Full Custom Configuration Example
+
+```rust
+let provider = OpenAICompatible::<DynamicModel>::builder()
+    .model_name("gpt-4o")
+    .api_key("your-api-key")
+    .base_url("https://api.openai.com/v1")
+    .path("https://full-url.example/v1/chat/completions")
+    .provider_name("custom-openai-compatible")
+    .build()?;
+```
+
+## Model Selection
+
+`OpenAICompatible` is designed for runtime model selection:
+
+- `OpenAICompatible::model_name("...")`
+- `OpenAICompatible::<DynamicModel>::builder().model_name("...")`
+
+It does not provide typed static model methods.
+
+<Callout type="warn">
+**Warning**: `OpenAICompatible` uses dynamic model strings, so model capabilities are not validated at compile time.
+Validate model support (tools, structured output, reasoning, etc.) at runtime for your target endpoint.
+</Callout>
+
+## Next Steps
+
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/generating-text#generate_text) / [Streaming Text](/docs/concepts/generating-text#stream_text)
+* Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
+* Learn how to create [Custom Tools](/docs/concepts/tools).
+* Learn more about [Agents](/docs/concepts/agents).
