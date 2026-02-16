@@ -114,7 +114,7 @@ export default function Page() {
 
 ## Backend Framework Supports
 
-AISDK.rs provides seamless integration for receiving requests from Vercel's AI SDK UI frontend hooks, processing them with the [`LanguageModelRequest`](/docs/concepts/language-model-request) API, and streaming responses back in the Vercel-compatible format. This integration handles all of the low-level details of SSE streaming and message format conversion.
+AISDK.rs provides seamless integration for receiving requests from Vercel's AI SDK UI frontend hooks, processing them with the [`LanguageModelRequest`](/docs/concepts/generating-text) API, and streaming responses back in the Vercel-compatible format. This integration handles all of the low-level details of SSE streaming and message format conversion.
 
 Currently supported frameworks:
 
@@ -170,6 +170,6 @@ async fn chat_handler(request: impl Into<VercelUIRequest>) -> impl Stream<Item =
 ## Next Steps
 
 * Read the [Vercel AI SDK UI docs](https://ai-sdk.dev/docs/ai-sdk-ui/overview) for frontend details
-* Take a deeper look at [`LanguageModelRequest`](/docs/concepts/language-model-request)
+* Take a deeper look at [`LanguageModelRequest`](/docs/concepts/generating-text)
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).

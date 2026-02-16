@@ -85,6 +85,16 @@ let stackit = Stackit::<QwenQwen3Vl235bA22bInstructFp8>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let stackit = Stackit::<QwenQwen3Vl235bA22bInstructFp8>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let stackit = Stackit::<QwenQwen3Vl235bA22bInstructFp8>::builder()
 let stackit = Stackit::<QwenQwen3Vl235bA22bInstructFp8>::builder()
     .api_key("your-api-key")
     .base_url("https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Stackit")
     .build()?;
 ```
@@ -127,10 +138,12 @@ use aisdk::{
 };
 
 let stackit = Stackit::<DynamicModel>::builder()
-    .model_name("Qwen/Qwen3-VL-235B-A22B-Instruct-FP8")
-    .api_key("your-api-key")
-		.base_url("https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1")
-    .build()?;
+	.model_name("Qwen/Qwen3-VL-235B-A22B-Instruct-FP8")
+	.api_key("your-api-key")
+	.base_url("https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1")
+	.path("https://full-url.example/v1/chat/completions")
+	.provider_name("Stackit")
+	.build()?;
 ```
 
 <Callout type="warn">
@@ -141,7 +154,7 @@ For compile-time safety, use the typed methods like `Stackit::qwen_qwen3_vl_235b
 
 ## Next Steps
 
-* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/generating-text#generate_text) / [Streaming Text](/docs/concepts/generating-text#stream_text)
 * Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).

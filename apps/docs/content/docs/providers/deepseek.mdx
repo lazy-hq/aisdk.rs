@@ -1,38 +1,38 @@
 ---
-title: DeepSeek
+title: Deepseek
 ---
 
-AISDK provides first-class support for DeepSeek with fully typed model APIs.
+AISDK provides first-class support for Deepseek with fully typed model APIs.
 Model capabilities are enforced at compile time using Rust's type system.
 This prevents model capability mismatches and guarantees the selected model is valid for the task (e.g. tool calling).
 
 
 ## Installation
 
-Enable the DeepSeek provider feature:
+Enable the Deepseek provider feature:
 
 ```bash
 cargo add aisdk --features deepseek
 ```
 
-This installs AISDK with the DeepSeek provider enabled. Once you have enabled the DeepSeek provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
+This installs AISDK with the Deepseek provider enabled. Once you have enabled the Deepseek provider, you can use all aisdk <Link href="/docs#core-features">features</Link> with it.
 
 ## Create a Provider Instance
 
-To create a provider instance, call `DeepSeek::model_name()`, where **model_name** is the DeepSeek model you want to use.
+To create a provider instance, call `Deepseek::model_name()`, where **model_name** is the Deepseek model you want to use.
 Model names are exposed as snake-case methods.
 
 ```rust
-use aisdk::providers::DeepSeek;
+use aisdk::providers::Deepseek;
 
-let deepseek = DeepSeek::deepseek_chat();
+let deepseek = Deepseek::deepseek_chat();
 ```
 
 This initializes the provider with:
 
 * Model: `"deepseek-chat"`
 * API key from environment (if set with `DEEPSEEK_API_KEY`)
-* DeepSeek's default base URL (https://api.deepseek.com/)
+* Deepseek's default base URL (https://api.deepseek.com)
 
 ## Basic Text Generation
 
@@ -41,13 +41,13 @@ Example using [LanguageModelRequest](https://docs.rs/aisdk/latest/aisdk/core/str
 ```rust
 use aisdk::{
     core::LanguageModelRequest,
-    providers::DeepSeek,
+    providers::Deepseek,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let deepseek = DeepSeek::deepseek_chat();
+    let deepseek = Deepseek::deepseek_chat();
 
     let response = LanguageModelRequest::builder()
         .model(deepseek)
@@ -63,12 +63,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Provider Settings
 
-You can customize provider configuration using `DeepSeek::builder()`
+You can customize provider configuration using `Deepseek::builder()`
 
 ### API Key
 
 ```rust
-let deepseek = DeepSeek::<DeepseekChat>::builder()
+let deepseek = Deepseek::<DeepseekChat>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
@@ -80,8 +80,18 @@ If not specified, AISDK uses the `DEEPSEEK_API_KEY` environment variable.
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let deepseek = DeepSeek::<DeepseekChat>::builder()
-    .base_url("https://api.deepseek.com/")
+let deepseek = Deepseek::<DeepseekChat>::builder()
+    .base_url("https://api.deepseek.com")
+    .build()?;
+```
+
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let deepseek = Deepseek::<DeepseekChat>::builder()
+    .path("https://full-url.example/v1/chat/completions")
     .build()?;
 ```
 
@@ -90,18 +100,19 @@ let deepseek = DeepSeek::<DeepseekChat>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let deepseek = DeepSeek::<DeepseekChat>::builder()
-    .provider_name("DeepSeek")
+let deepseek = Deepseek::<DeepseekChat>::builder()
+    .provider_name("Deepseek")
     .build()?;
 ```
 
 ### Full Custom Configuration Example
 
 ```rust
-let deepseek = DeepSeek::<DeepseekChat>::builder()
+let deepseek = Deepseek::<DeepseekChat>::builder()
     .api_key("your-api-key")
-    .base_url("https://api.deepseek.com/")
-    .provider_name("DeepSeek")
+    .base_url("https://api.deepseek.com")
+    .path("https://full-url.example/v1/chat/completions")
+    .provider_name("Deepseek")
     .build()?;
 ```
 
@@ -112,10 +123,10 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 ### Using model_name() Method with Default Settings
 
 ```rust
-use aisdk::providers::DeepSeek;
+use aisdk::providers::Deepseek;
 
 // Specify model as a string at runtime
-let deepseek = DeepSeek::model_name("deepseek-chat");
+let deepseek = Deepseek::model_name("deepseek-chat");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -123,25 +134,27 @@ let deepseek = DeepSeek::model_name("deepseek-chat");
 ```rust
 use aisdk::{
     core::DynamicModel,
-    providers::DeepSeek,
+    providers::Deepseek,
 };
 
-let deepseek = DeepSeek::<DynamicModel>::builder()
-    .model_name("deepseek-chat")
-    .api_key("your-api-key")
-		.base_url("https://api.deepseek.com/")
-    .build()?;
+let deepseek = Deepseek::<DynamicModel>::builder()
+	.model_name("deepseek-chat")
+	.api_key("your-api-key")
+	.base_url("https://api.deepseek.com")
+	.path("https://full-url.example/v1/chat/completions")
+	.provider_name("Deepseek")
+	.build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `DeepSeek::deepseek_chat()`.
+For compile-time safety, use the typed methods like `Deepseek::deepseek_chat()`.
 </Callout>
 
 ## Next Steps
 
-* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/generating-text#generate_text) / [Streaming Text](/docs/concepts/generating-text#stream_text)
 * Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).

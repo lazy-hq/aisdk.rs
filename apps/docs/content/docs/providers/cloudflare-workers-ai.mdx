@@ -85,6 +85,16 @@ let cloudflare-workers-ai = CloudflareWorkersAi::<Ai4bharatIndictrans2EnIndic1b>
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let cloudflare-workers-ai = CloudflareWorkersAi::<Ai4bharatIndictrans2EnIndic1b>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let cloudflare-workers-ai = CloudflareWorkersAi::<Ai4bharatIndictrans2EnIndic1b>
 let cloudflare-workers-ai = CloudflareWorkersAi::<Ai4bharatIndictrans2EnIndic1b>::builder()
     .api_key("your-api-key")
     .base_url("https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("CloudflareWorkersAi")
     .build()?;
 ```
@@ -127,10 +138,12 @@ use aisdk::{
 };
 
 let cloudflare-workers-ai = CloudflareWorkersAi::<DynamicModel>::builder()
-    .model_name("@cf/ai4bharat/indictrans2-en-indic-1B")
-    .api_key("your-api-key")
-		.base_url("https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/v1")
-    .build()?;
+	.model_name("@cf/ai4bharat/indictrans2-en-indic-1B")
+	.api_key("your-api-key")
+	.base_url("https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/v1")
+	.path("https://full-url.example/v1/chat/completions")
+	.provider_name("CloudflareWorkersAi")
+	.build()?;
 ```
 
 <Callout type="warn">
@@ -141,7 +154,7 @@ For compile-time safety, use the typed methods like `CloudflareWorkersAi::ai4bha
 
 ## Next Steps
 
-* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/generating-text#generate_text) / [Streaming Text](/docs/concepts/generating-text#stream_text)
 * Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).

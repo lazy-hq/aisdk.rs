@@ -85,6 +85,16 @@ let ovhcloud = Ovhcloud::<DeepseekR1DistillLlama70b>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let ovhcloud = Ovhcloud::<DeepseekR1DistillLlama70b>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let ovhcloud = Ovhcloud::<DeepseekR1DistillLlama70b>::builder()
 let ovhcloud = Ovhcloud::<DeepseekR1DistillLlama70b>::builder()
     .api_key("your-api-key")
     .base_url("https://oai.endpoints.kepler.ai.cloud.ovh.net/v1")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Ovhcloud")
     .build()?;
 ```
@@ -127,10 +138,12 @@ use aisdk::{
 };
 
 let ovhcloud = Ovhcloud::<DynamicModel>::builder()
-    .model_name("deepseek-r1-distill-llama-70b")
-    .api_key("your-api-key")
-		.base_url("https://oai.endpoints.kepler.ai.cloud.ovh.net/v1")
-    .build()?;
+	.model_name("deepseek-r1-distill-llama-70b")
+	.api_key("your-api-key")
+	.base_url("https://oai.endpoints.kepler.ai.cloud.ovh.net/v1")
+	.path("https://full-url.example/v1/chat/completions")
+	.provider_name("Ovhcloud")
+	.build()?;
 ```
 
 <Callout type="warn">
@@ -141,7 +154,7 @@ For compile-time safety, use the typed methods like `Ovhcloud::deepseek_r1_disti
 
 ## Next Steps
 
-* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/generating-text#generate_text) / [Streaming Text](/docs/concepts/generating-text#stream_text)
 * Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).

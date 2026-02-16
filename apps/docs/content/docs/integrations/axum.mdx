@@ -26,7 +26,7 @@ AISDK.rs Axum integration includes built-in support for [Vercel's AI SDK UI](htt
 ### How It Works
 
 1. **Request**: Frontend sends `VercelUIRequest` using Vercel's AI SDK UI hooks such as `useChat` via SSE
-2. **Processing**: AISDK.rs processes the request with [`LanguageModelRequest`](/docs/concepts/language-model-request) Streaming API
+2. **Processing**: AISDK.rs processes the request with [`LanguageModelRequest`](/docs/concepts/generating-text) Streaming API
 3. **Conversion**: Response is automatically converted to Vercel UI stream chunks
 4. **Response**: Axum streams the chunks back to the frontend
 
@@ -177,6 +177,6 @@ async fn chat_handler(
 ## Next Steps
 
 * Read the [Vercel AI SDK UI docs](https://ai-sdk.dev/docs/ai-sdk-ui/overview) for frontend details
-* Take a deeper look at [`LanguageModelRequest`](/docs/concepts/language-model-request)
+* Take a deeper look at [`LanguageModelRequest`](/docs/concepts/generating-text)
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).

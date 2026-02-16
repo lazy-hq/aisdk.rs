@@ -25,14 +25,14 @@ Model names are exposed as snake-case methods.
 ```rust
 use aisdk::providers::AmazonBedrock;
 
-let amazon-bedrock = AmazonBedrock::anthropic_claude_3_5_haiku_20241022_v1_0();
+let amazon-bedrock = AmazonBedrock::ai21_jamba_1_5_large_v1_0();
 ```
 
 This initializes the provider with:
 
-* Model: `"anthropic.claude-3-5-haiku-20241022-v1:0"`
+* Model: `"ai21.jamba-1-5-large-v1:0"`
 * API key from environment (if set with `BEDROCK_API_KEY`)
-* AmazonBedrock's default base URL (https://bedrock-runtime.us-east-1.amazonaws.com/openai/)
+* AmazonBedrock's default base URL (https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1/)
 
 ## Basic Text Generation
 
@@ -47,7 +47,7 @@ use aisdk::{
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let amazon-bedrock = AmazonBedrock::anthropic_claude_3_5_haiku_20241022_v1_0();
+    let amazon-bedrock = AmazonBedrock::ai21_jamba_1_5_large_v1_0();
 
     let response = LanguageModelRequest::builder()
         .model(amazon-bedrock)
@@ -68,7 +68,7 @@ You can customize provider configuration using `AmazonBedrock::builder()`
 ### API Key
 
 ```rust
-let amazon-bedrock = AmazonBedrock::<AnthropicClaude35Haiku20241022V10>::builder()
+let amazon-bedrock = AmazonBedrock::<Ai21Jamba15LargeV10>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
@@ -80,8 +80,18 @@ If not specified, AISDK uses the `BEDROCK_API_KEY` environment variable.
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let amazon-bedrock = AmazonBedrock::<AnthropicClaude35Haiku20241022V10>::builder()
-    .base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/")
+let amazon-bedrock = AmazonBedrock::<Ai21Jamba15LargeV10>::builder()
+    .base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1/")
+    .build()?;
+```
+
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let amazon-bedrock = AmazonBedrock::<Ai21Jamba15LargeV10>::builder()
+    .path("https://full-url.example/v1/chat/completions")
     .build()?;
 ```
 
@@ -90,7 +100,7 @@ let amazon-bedrock = AmazonBedrock::<AnthropicClaude35Haiku20241022V10>::builder
 For logging, analytics, and observability.
 
 ```rust
-let amazon-bedrock = AmazonBedrock::<AnthropicClaude35Haiku20241022V10>::builder()
+let amazon-bedrock = AmazonBedrock::<Ai21Jamba15LargeV10>::builder()
     .provider_name("AmazonBedrock")
     .build()?;
 ```
@@ -98,9 +108,10 @@ let amazon-bedrock = AmazonBedrock::<AnthropicClaude35Haiku20241022V10>::builder
 ### Full Custom Configuration Example
 
 ```rust
-let amazon-bedrock = AmazonBedrock::<AnthropicClaude35Haiku20241022V10>::builder()
+let amazon-bedrock = AmazonBedrock::<Ai21Jamba15LargeV10>::builder()
     .api_key("your-api-key")
-    .base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/")
+    .base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1/")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("AmazonBedrock")
     .build()?;
 ```
@@ -115,7 +126,7 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 use aisdk::providers::AmazonBedrock;
 
 // Specify model as a string at runtime
-let amazon-bedrock = AmazonBedrock::model_name("anthropic.claude-3-5-haiku-20241022-v1:0");
+let amazon-bedrock = AmazonBedrock::model_name("ai21.jamba-1-5-large-v1:0");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -127,21 +138,23 @@ use aisdk::{
 };
 
 let amazon-bedrock = AmazonBedrock::<DynamicModel>::builder()
-    .model_name("anthropic.claude-3-5-haiku-20241022-v1:0")
-    .api_key("your-api-key")
-		.base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/")
-    .build()?;
+	.model_name("ai21.jamba-1-5-large-v1:0")
+	.api_key("your-api-key")
+	.base_url("https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1/")
+	.path("https://full-url.example/v1/chat/completions")
+	.provider_name("AmazonBedrock")
+	.build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `AmazonBedrock::anthropic_claude_3_5_haiku_20241022_v1_0()`.
+For compile-time safety, use the typed methods like `AmazonBedrock::ai21_jamba_1_5_large_v1_0()`.
 </Callout>
 
 ## Next Steps
 
-* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/generating-text#generate_text) / [Streaming Text](/docs/concepts/generating-text#stream_text)
 * Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).

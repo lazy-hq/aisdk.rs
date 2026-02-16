@@ -85,6 +85,16 @@ let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builde
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builde
 let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<{{MODEL_TYPE_EXAMPLE}}>::builder()
     .api_key("your-api-key")
     .base_url("{{DEFAULT_BASE_URL}}")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("{{PROVIDER_NAME}}")
     .build()?;
 ```
@@ -127,10 +138,12 @@ use aisdk::{
 };
 
 let {{PROVIDER_LOWERCASE}} = {{PROVIDER_NAME}}::<DynamicModel>::builder()
-    .model_name("{{EXAMPLE_MODEL_STRING}}")
-    .api_key("your-api-key")
-		.base_url("{{DEFAULT_BASE_URL}}")
-    .build()?;
+	.model_name("{{EXAMPLE_MODEL_STRING}}")
+	.api_key("your-api-key")
+	.base_url("{{DEFAULT_BASE_URL}}")
+	.path("https://full-url.example/v1/chat/completions")
+	.provider_name("{{PROVIDER_NAME}}")
+	.build()?;
 ```
 
 <Callout type="warn">
@@ -141,7 +154,7 @@ For compile-time safety, use the typed methods like `{{PROVIDER_NAME}}::{{EXAMPL
 
 ## Next Steps
 
-* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/generating-text#generate_text) / [Streaming Text](/docs/concepts/generating-text#stream_text)
 * Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).

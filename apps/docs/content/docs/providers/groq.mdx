@@ -25,14 +25,14 @@ Model names are exposed as snake-case methods.
 ```rust
 use aisdk::providers::Groq;
 
-let groq = Groq::llama_3_1_8b_instruct();
+let groq = Groq::llama_3_1_8b_instant();
 ```
 
 This initializes the provider with:
 
-* Model: `"llama-3.1-8b-instruct"`
+* Model: `"llama-3.1-8b-instant"`
 * API key from environment (if set with `GROQ_API_KEY`)
-* Groq's default base URL (https://api.groq.com/openai/)
+* Groq's default base URL (https://api.groq.com/openai/v1/)
 
 ## Basic Text Generation
 
@@ -47,7 +47,7 @@ use aisdk::{
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let groq = Groq::llama_3_1_8b_instruct();
+    let groq = Groq::llama_3_1_8b_instant();
 
     let response = LanguageModelRequest::builder()
         .model(groq)
@@ -68,7 +68,7 @@ You can customize provider configuration using `Groq::builder()`
 ### API Key
 
 ```rust
-let groq = Groq::<MetaLlamaLlama318bInstructV10>::builder()
+let groq = Groq::<Llama318bInstant>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
@@ -80,8 +80,18 @@ If not specified, AISDK uses the `GROQ_API_KEY` environment variable.
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let groq = Groq::<MetaLlamaLlama318bInstructV10>::builder()
-    .base_url("https://api.groq.com/openai/")
+let groq = Groq::<Llama318bInstant>::builder()
+    .base_url("https://api.groq.com/openai/v1/")
+    .build()?;
+```
+
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let groq = Groq::<Llama318bInstant>::builder()
+    .path("https://full-url.example/v1/chat/completions")
     .build()?;
 ```
 
@@ -90,7 +100,7 @@ let groq = Groq::<MetaLlamaLlama318bInstructV10>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let groq = Groq::<MetaLlamaLlama318bInstructV10>::builder()
+let groq = Groq::<Llama318bInstant>::builder()
     .provider_name("Groq")
     .build()?;
 ```
@@ -98,9 +108,10 @@ let groq = Groq::<MetaLlamaLlama318bInstructV10>::builder()
 ### Full Custom Configuration Example
 
 ```rust
-let groq = Groq::<MetaLlamaLlama318bInstructV10>::builder()
+let groq = Groq::<Llama318bInstant>::builder()
     .api_key("your-api-key")
-    .base_url("https://api.groq.com/openai/")
+    .base_url("https://api.groq.com/openai/v1/")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Groq")
     .build()?;
 ```
@@ -115,7 +126,7 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 use aisdk::providers::Groq;
 
 // Specify model as a string at runtime
-let groq = Groq::model_name("llama-3.1-8b-instruct");
+let groq = Groq::model_name("llama-3.1-8b-instant");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -127,21 +138,23 @@ use aisdk::{
 };
 
 let groq = Groq::<DynamicModel>::builder()
-    .model_name("llama-3.1-8b-instruct")
-    .api_key("your-api-key")
-		.base_url("https://api.groq.com/openai/")
-    .build()?;
+	.model_name("llama-3.1-8b-instant")
+	.api_key("your-api-key")
+	.base_url("https://api.groq.com/openai/v1/")
+	.path("https://full-url.example/v1/chat/completions")
+	.provider_name("Groq")
+	.build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `Groq::llama_3_1_8b_instruct()`.
+For compile-time safety, use the typed methods like `Groq::llama_3_1_8b_instant()`.
 </Callout>
 
 ## Next Steps
 
-* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/generating-text#generate_text) / [Streaming Text](/docs/concepts/generating-text#stream_text)
 * Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).

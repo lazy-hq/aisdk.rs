@@ -85,6 +85,16 @@ let bailing = Bailing::<Ling1t>::builder()
     .build()?;
 ```
 
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let bailing = Bailing::<Ling1t>::builder()
+    .path("https://full-url.example/v1/chat/completions")
+    .build()?;
+```
+
 ### Provider Name
 
 For logging, analytics, and observability.
@@ -101,6 +111,7 @@ let bailing = Bailing::<Ling1t>::builder()
 let bailing = Bailing::<Ling1t>::builder()
     .api_key("your-api-key")
     .base_url("https://api.tbox.cn/api/llm/v1/chat/completions")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Bailing")
     .build()?;
 ```
@@ -127,10 +138,12 @@ use aisdk::{
 };
 
 let bailing = Bailing::<DynamicModel>::builder()
-    .model_name("Ling-1T")
-    .api_key("your-api-key")
-		.base_url("https://api.tbox.cn/api/llm/v1/chat/completions")
-    .build()?;
+	.model_name("Ling-1T")
+	.api_key("your-api-key")
+	.base_url("https://api.tbox.cn/api/llm/v1/chat/completions")
+	.path("https://full-url.example/v1/chat/completions")
+	.provider_name("Bailing")
+	.build()?;
 ```
 
 <Callout type="warn">
@@ -141,7 +154,7 @@ For compile-time safety, use the typed methods like `Bailing::ling_1t()`.
 
 ## Next Steps
 
-* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/generating-text#generate_text) / [Streaming Text](/docs/concepts/generating-text#stream_text)
 * Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).

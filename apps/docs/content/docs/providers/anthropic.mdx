@@ -25,14 +25,14 @@ Model names are exposed as snake-case methods.
 ```rust
 use aisdk::providers::Anthropic;
 
-let anthropic = Anthropic::claude_3_5_sonnet();
+let anthropic = Anthropic::claude_3_5_haiku_20241022();
 ```
 
 This initializes the provider with:
 
-* Model: `"claude-3-5-sonnet"`
+* Model: `"claude-3-5-haiku-20241022"`
 * API key from environment (if set with `ANTHROPIC_API_KEY`)
-* Anthropic's default base URL (https://api.anthropic.com)
+* Anthropic's default base URL (https://api.anthropic.com/v1/)
 
 ## Basic Text Generation
 
@@ -47,7 +47,7 @@ use aisdk::{
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let anthropic = Anthropic::claude_3_5_sonnet();
+    let anthropic = Anthropic::claude_3_5_haiku_20241022();
 
     let response = LanguageModelRequest::builder()
         .model(anthropic)
@@ -68,7 +68,7 @@ You can customize provider configuration using `Anthropic::builder()`
 ### API Key
 
 ```rust
-let anthropic = Anthropic::<Claude35Sonnet>::builder()
+let anthropic = Anthropic::<Claude35Haiku20241022>::builder()
     .api_key("your-api-key")
     .build()?;
 ```
@@ -80,8 +80,18 @@ If not specified, AISDK uses the `ANTHROPIC_API_KEY` environment variable.
 Useful when routing through a proxy, gateway, or self-hosted compatible endpoint.
 
 ```rust
-let anthropic = Anthropic::<Claude35Sonnet>::builder()
-    .base_url("https://api.anthropic.com")
+let anthropic = Anthropic::<Claude35Haiku20241022>::builder()
+    .base_url("https://api.anthropic.com/v1/")
+    .build()?;
+```
+
+### Path (Full URL Override)
+
+Use `.path(...)` to override the full request URL instead of only the base URL.
+
+```rust
+let anthropic = Anthropic::<Claude35Haiku20241022>::builder()
+    .path("https://full-url.example/v1/chat/completions")
     .build()?;
 ```
 
@@ -90,7 +100,7 @@ let anthropic = Anthropic::<Claude35Sonnet>::builder()
 For logging, analytics, and observability.
 
 ```rust
-let anthropic = Anthropic::<Claude35Sonnet>::builder()
+let anthropic = Anthropic::<Claude35Haiku20241022>::builder()
     .provider_name("Anthropic")
     .build()?;
 ```
@@ -98,9 +108,10 @@ let anthropic = Anthropic::<Claude35Sonnet>::builder()
 ### Full Custom Configuration Example
 
 ```rust
-let anthropic = Anthropic::<Claude35Sonnet>::builder()
+let anthropic = Anthropic::<Claude35Haiku20241022>::builder()
     .api_key("your-api-key")
-    .base_url("https://api.anthropic.com")
+    .base_url("https://api.anthropic.com/v1/")
+    .path("https://full-url.example/v1/chat/completions")
     .provider_name("Anthropic")
     .build()?;
 ```
@@ -115,7 +126,7 @@ For runtime model selection (e.g., loading models from config files), use `Dynam
 use aisdk::providers::Anthropic;
 
 // Specify model as a string at runtime
-let anthropic = Anthropic::model_name("claude-3-5-sonnet");
+let anthropic = Anthropic::model_name("claude-3-5-haiku-20241022");
 ```
 
 ### Using Builder Pattern with Custom Settings
@@ -127,21 +138,23 @@ use aisdk::{
 };
 
 let anthropic = Anthropic::<DynamicModel>::builder()
-    .model_name("claude-3-5-sonnet")
-    .api_key("your-api-key")
-		.base_url("https://api.anthropic.com")
-    .build()?;
+	.model_name("claude-3-5-haiku-20241022")
+	.api_key("your-api-key")
+	.base_url("https://api.anthropic.com/v1/")
+	.path("https://full-url.example/v1/chat/completions")
+	.provider_name("Anthropic")
+	.build()?;
 ```
 
 <Callout type="warn">
 **Warning**: When using `DynamicModel`, model capabilities are **not validated at compile time**. 
 This means there's no guarantee the model supports requested features (e.g., tool calls, structured output).
-For compile-time safety, use the typed methods like `Anthropic::claude_3_5_sonnet()`.
+For compile-time safety, use the typed methods like `Anthropic::claude_3_5_haiku_20241022()`.
 </Callout>
 
 ## Next Steps
 
-* Take a deeper look at text generation features [Generating Text](/docs/concepts/language-model-request#generate_text) / [Streaming Text](/docs/concepts/language-model-request#stream_text)
+* Take a deeper look at text generation features [Generating Text](/docs/concepts/generating-text#generate_text) / [Streaming Text](/docs/concepts/generating-text#stream_text)
 * Explore [Structured Output](/docs/concepts/structured-output) for reliable agent data.
 * Learn how to create [Custom Tools](/docs/concepts/tools).
 * Learn more about [Agents](/docs/concepts/agents).
