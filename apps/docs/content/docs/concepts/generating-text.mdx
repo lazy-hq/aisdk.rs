@@ -165,6 +165,46 @@ Both `GenerateTextResponse` and `StreamTextResponse` expose helpers for final ou
 | `tool_calls()` | All tool calls issued during execution |
 | `tool_results()` | All tool results collected during execution |
 
+
+### Non-Streaming Example
+
+```rust
+let response = LanguageModelRequest::builder()
+    .model(OpenAI::gpt_5())
+    .prompt("What is 2+2?")
+    .build()
+    .generate_text()
+    .await?;
+
+println!("Text: {:?}", response.text());
+println!("Usage: {:?}", response.usage());
+println!("Stop Reason: {:?}", response.stop_reason());
+println!("Final Content: {:?}", response.content());
+```
+
+### Streaming Example
+
+```rust
+let response = LanguageModelRequest::builder()
+    .model(OpenAI::gpt_5())
+    .prompt("Write a short story.")
+    .build()
+    .stream_text()
+    .await?;
+
+let mut stream = response.stream;
+while let Some(chunk) = stream.next().await {
+    if let LanguageModelStreamChunkType::Text(text) = chunk {
+        print!("{}", text);
+    }
+}
+
+// Access final metadata after stream consumption
+let final_usage = response.usage().await;
+let steps = response.steps().await;
+let reason = response.stop_reason().await;
+```
+
 ## Next Steps
 
 - Learn how to create [Custom Tools](/docs/concepts/tools)
