@@ -276,26 +276,40 @@ function replaceTemplate(template: string, data: ProviderData): string {
 	return result;
 }
 
-function updateMetaJson(newSlugs: string[], dryRun: boolean): void {
-	if (newSlugs.length === 0) return;
-	if (!fs.existsSync(docsMetaPath)) return;
+function collectProviderSlugsFromDocsDir(): string[] {
+	if (!fs.existsSync(docsProvidersDir)) return [];
+
+	const slugs = fs
+		.readdirSync(docsProvidersDir, { withFileTypes: true })
+		.filter((entry) => entry.isFile() && entry.name.endsWith(".mdx"))
+		.map((entry) => entry.name.replace(/\.mdx$/, ""))
+		.sort((a, b) => a.localeCompare(b));
+
+	const hasIndex = slugs.includes("index");
+	const rest = slugs.filter((entry) => entry !== "index");
+	return hasIndex ? ["index", ...rest] : rest;
+}
+
+function syncMetaJsonFromDocs(dryRun: boolean): {
+	changed: boolean;
+	pageCount: number;
+} {
+	if (!fs.existsSync(docsMetaPath)) {
+		return { changed: false, pageCount: 0 };
+	}
 
 	const meta = JSON.parse(fs.readFileSync(docsMetaPath, "utf-8"));
-	const pages: string[] = Array.isArray(meta.pages) ? meta.pages : [];
+	const nextPages = collectProviderSlugsFromDocsDir();
+	const currentPages: string[] = Array.isArray(meta.pages) ? meta.pages : [];
+	const changed = JSON.stringify(currentPages) !== JSON.stringify(nextPages);
 
-	for (const slug of newSlugs) {
-		if (!pages.includes(slug)) {
-			pages.push(slug);
-		}
-	}
+	meta.pages = nextPages;
 
-	const hasIndex = pages.includes("index");
-	const rest = pages.filter((entry) => entry !== "index").sort();
-	meta.pages = hasIndex ? ["index", ...rest] : rest;
-
-	if (!dryRun) {
+	if (changed && !dryRun) {
 		fs.writeFileSync(docsMetaPath, `${JSON.stringify(meta, null, "\t")}\n`);
 	}
+
+	return { changed, pageCount: nextPages.length };
 }
 
 function discoverProviders(
@@ -430,13 +444,20 @@ async function main() {
 			created.push(data.PROVIDER_LOWERCASE);
 		}
 
-		updateMetaJson(created, options.dryRun);
+		const metaSync = syncMetaJsonFromDocs(options.dryRun);
 
 		console.log("\n--- Summary ---");
 		console.log(`Created: ${created.length}`);
 		console.log(`Skipped (already exists): ${skipped.length}`);
 		console.log(`Ignored: ${ignored.length}`);
 		console.log(`Failed: ${failed.length}`);
+		if (metaSync.changed) {
+			console.log(
+				`Meta pages: ${metaSync.pageCount} (${options.dryRun ? "would update" : "updated"})`,
+			);
+		} else {
+			console.log(`Meta pages: ${metaSync.pageCount} (unchanged)`);
+		}
 		if (skipped.length > 0 && !options.overwrite) {
 			console.log(
 				"Tip: use --overwrite to refresh existing docs from source values.",
