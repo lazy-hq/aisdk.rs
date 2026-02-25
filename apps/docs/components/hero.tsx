@@ -196,8 +196,7 @@ let ${streaming ? "stream" : "response"} = LanguageModelRequest::builder()
     ${cfg.basicPrompt}
     .build()
     .${method}()
-    .await?
-    .${streaming ? "stream" : "text()"};`,
+    .await?${streaming ? "\n\t.stream;" : ";"}`,
 
 		tool: ({ provider, model, method, streaming }) => `#[tool]
 /// Get the weather in a given location
@@ -212,8 +211,7 @@ let ${streaming ? "stream" : "response"} = LanguageModelRequest::builder()
     .with_tool(get_weather())
     .build()
     .${method}()
-    .await?
-    .${streaming ? "stream" : "text()"};`,
+    .await?${streaming ? "\n\t.stream;" : ";"}`,
 
 		structured: ({ provider, model, method, streaming }) => {
 			const schema = `#[derive(JsonSchema, Deserialize)]
@@ -302,8 +300,7 @@ let ${streaming ? "stream" : "response"} = LanguageModelRequest::builder()
     .prompt("Explain lifetimes like I'm five")
     .build()
     .${method}()
-    .await?
-    .${streaming ? "stream" : "text()"};
+    .await?${streaming ? "\n\t.stream;" : ";"}
 `;
 		},
 	};
