@@ -56,7 +56,8 @@ async fn chat_handler(
         .messages(messages)
         .build()
         .stream_text()
-        .await?;
+        .await
+        .unwrap();
 
     // Convert to Axum SSE response (Vercel UI compatible)
     response.into()
