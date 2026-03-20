@@ -64,13 +64,17 @@ export function Navbar({ starCout }: NavbarProps) {
 						</React.Fragment>
 					))}
 
-					<Button variant="ghost" className="gap-2 p-4" asChild>
+					<Button
+						variant="ghost"
+						className="gap-2 p-4 bg-accent/50 text-primary"
+						asChild
+					>
 						<Link
 							href="https://github.com/lazy-hq/aisdk"
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<div className="flex items-center">
+							<div className="flex items-center text-primary">
 								<GithubIcon className="w-4 h-4 fill-current" />
 								{/*
 								 *<span className="ml-2 text-black dark:text-white">
@@ -80,8 +84,8 @@ export function Navbar({ starCout }: NavbarProps) {
 							</div>
 							{starCout !== null && (
 								<>
-									<Star className="h-3 w-3 fill-current" />
 									<span className="text-xs font-medium">{starCout}</span>
+									<span className="text-xs font-medium">Stars</span>
 								</>
 							)}
 						</Link>
