@@ -44,13 +44,13 @@ export default async function Layout({ children }: LayoutProps<"/">) {
 }
 
 async function ServerNavbar() {
-	async function _getGitHubStars() {
+	async function getGitHubStars() {
 		try {
 			const response = await fetch(
 				"https://api.github.com/repos/lazy-hq/aisdk",
 				{
 					next: {
-						revalidate: 60,
+						revalidate: 86400, // revalidate every 24 hours
 					},
 				},
 			);
@@ -64,6 +64,6 @@ async function ServerNavbar() {
 			return null;
 		}
 	}
-	const data = null; // await getGitHubStars();
+	const data = await getGitHubStars();
 	return <Navbar starCout={data} />;
 }
